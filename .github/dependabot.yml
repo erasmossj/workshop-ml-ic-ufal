@@ -8,6 +8,11 @@ updates:
     groups:
       minor-e-patch:
         update-types: [minor, patch]
+    ignore:
+      # @astrojs/check e typescript-eslint ainda não aceitam TypeScript ≥ 6.1 (deploy da Vercel
+      # quebrou com o 7.0.2 — npm install recusa o peer). Rever quando as duas libs suportarem.
+      - dependency-name: typescript
+        versions: ['>=6.1.0']
   - package-ecosystem: github-actions
     directory: /
     schedule:

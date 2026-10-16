@@ -22,6 +22,13 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # A Vercel instala com `npm install`, que recusa conflito de peer que o `npm ci` deixa passar
+      # (ex.: TypeScript 7 x @astrojs/check). Mesma resolução aqui, para o PR falhar antes do deploy.
+      # Em pasta limpa: com a node_modules já instalada o conflito não aparece.
+      - name: Resolução de dependências igual à da Vercel
+        run: |
+          d=$(mktemp -d) && cp package.json package-lock.json "$d" && cd "$d"
+          npm install --dry-run --ignore-scripts --no-audit --no-fund
       - run: npm run check
       - run: npm run lint
       - run: npm run format:check
