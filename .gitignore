@@ -1,0 +1,36 @@
+# dependências e build
+node_modules/
+dist/
+.astro/
+.vercel/
+.output/
+
+# ambiente e segredos
+.env
+.env.*
+!.env.example
+supabase/.env
+supabase/.temp/
+supabase/.branches/
+
+# dados de participantes — NUNCA versionar (LGPD)
+*.csv
+*.xlsx
+*.xls
+exports/
+dumps/
+*.sql.gz
+*.dump
+uploads/
+
+# testes
+coverage/
+test-results/
+playwright-report/
+load/results/
+
+# sistema / editores
+.DS_Store
+Thumbs.db
+.idea/
+*.log
