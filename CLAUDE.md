@@ -64,6 +64,9 @@ npm run test:e2e       # Playwright
 supabase start         # stack local (Docker)
 supabase db reset      # recria banco local com migrations + seed sintético
 supabase test db       # pgTAP
+npm run functions:serve    # Edge Functions locais (copie supabase/functions/.env.example → .env)
+npm run test:integracao    # integração HTTP da função register (Supabase local)
+npm run test:concorrencia  # 100 inscrições simultâneas pela última vaga
 k6 run load/inscricao.js   # carga — SOMENTE contra staging, nunca produção
 ```
 
