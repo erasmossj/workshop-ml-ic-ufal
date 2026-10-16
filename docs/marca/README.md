@@ -15,7 +15,7 @@ Arquivo: **[WML — Protótipos (I Workshop de ML IC/UFAL)](https://www.figma.co
 
 Cada direção tem: Landing (desktop 1440 / mobile 390), Inscrição (desktop/mobile), Confirmação (desktop) e componentes locais (Botão, Tag, Campo, Card/Palestrante, Item/Programação, Logo/Slot, Opção/Minicurso).
 
-Direção escolhida: **pendente** (gate 18/10 — WML-21).
+Protótipo codificado: **direção D — Gradiente moderno** (escolhida em 16/10). Direção do site definitivo: a confirmar com os stakeholders.
 
 ## Tokens de marca
 

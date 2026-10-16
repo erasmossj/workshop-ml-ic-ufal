@@ -1,23 +1,26 @@
 @import 'tailwindcss';
 
 /*
- * Direção C — Editorial bold (Figma: página "C · Editorial bold").
- * Cores só via tokens. Contraste verificado sobre --color-papel:
- * tinta 17:1 · cinza 7,8:1 · laranja-texto 5,4:1 (texto pequeno) · tinta sobre laranja 6,2:1.
+ * Direção D — Gradiente moderno (Figma: página "D · Gradiente moderno").
+ * Fundo em gradiente azul IEEE → índigo, superfícies de vidro, ação em gradiente laranja IEEE CS.
+ * Cores só via tokens. Contraste verificado sobre o tom mais claro do fundo (#0A4F86):
+ * texto 8,5:1 · suave 6,7:1 · ciano 6,5:1 · texto-sobre-ação ≥ 6,2:1 nos dois extremos do gradiente.
  */
 @theme inline {
-  --color-papel: #f4efe6;
-  --color-papel-2: #ece5d8;
-  --color-campo: #fbf8f2;
-  --color-tinta: #141414;
-  --color-cinza: #4d4a44;
-  --color-laranja: #e87722;
-  --color-laranja-texto: #9a4a0c;
-  --color-erro: #a3180f;
+  --color-fundo-1: #071a45;
+  --color-fundo-2: #0a4f86;
+  --color-fundo-3: #2e1a6e;
+  --color-texto: #ffffff;
+  --color-suave: #dce6f7;
+  --color-ciano: #a5ebff;
+  --color-acao-1: #ffb52e;
+  --color-acao-2: #e87722;
+  --color-sobre-acao: #1a1206;
+  --color-erro: #ffb4a8;
 
-  --font-display: var(--font-fraunces);
+  --font-display: var(--font-sora);
   --font-sans: var(--font-inter);
-  --font-mono: var(--font-plex-mono);
+  --font-mono: var(--font-jetbrains);
 }
 
 html {
@@ -26,12 +29,20 @@ html {
 }
 
 body {
-  @apply bg-papel font-sans text-tinta antialiased;
+  @apply font-sans text-texto antialiased;
+  background: linear-gradient(
+      135deg,
+      var(--color-fundo-1) 0%,
+      var(--color-fundo-2) 50%,
+      var(--color-fundo-3) 100%
+    )
+    fixed;
+  background-color: var(--color-fundo-1);
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-laranja);
-  outline-offset: 2px;
+  outline: 3px solid var(--color-ciano);
+  outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -40,29 +51,46 @@ body {
   }
 }
 
-/* Rótulo editorial (mono, caixa alta, espaçado). */
+/* Superfície de vidro (glassmorphism). */
+.vidro {
+  @apply rounded-3xl border border-white/20 bg-white/[0.07] backdrop-blur-md;
+}
+
+/* Rótulo técnico (mono, caixa alta, espaçado). */
 .rotulo {
   @apply font-mono text-xs font-medium tracking-[0.18em] uppercase;
 }
 
-/* Botões */
+/* Botões em pílula */
 .btn-primario,
-.btn-secundario {
-  @apply inline-flex items-center justify-center gap-2 border-2 border-tinta px-6 py-3.5 text-center font-mono text-sm font-semibold tracking-[0.12em] uppercase transition-colors;
+.btn-secundario,
+.btn-escuro {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-center text-sm font-semibold transition;
 }
 .btn-primario {
-  @apply bg-tinta text-papel hover:bg-laranja hover:text-tinta;
+  @apply bg-linear-to-r from-acao-1 to-acao-2 text-sobre-acao shadow-lg shadow-acao-2/25 hover:brightness-110;
 }
 .btn-secundario {
-  @apply bg-transparent text-tinta hover:bg-tinta hover:text-papel;
+  @apply border border-white/40 text-texto hover:bg-white/10;
+}
+.btn-escuro {
+  @apply bg-sobre-acao text-texto hover:bg-fundo-1;
 }
 
 /* Campos do formulário */
 .campo {
-  @apply w-full border-2 border-tinta bg-campo px-4 py-3 text-base text-tinta placeholder:text-cinza focus:border-laranja aria-invalid:border-erro;
+  @apply w-full rounded-xl border border-white/25 bg-white/[0.06] px-4 py-3 text-base text-texto placeholder:text-suave/70 focus:border-ciano aria-invalid:border-erro;
+}
+.campo option {
+  color: var(--color-fundo-1);
 }
 .erro-campo {
   @apply mt-1.5 text-sm font-medium text-erro;
+}
+
+/* Número com gradiente laranja (blocos do minicurso, datas). */
+.texto-acao {
+  @apply bg-linear-to-r from-acao-1 to-acao-2 bg-clip-text text-transparent;
 }
 
 @media print {
@@ -70,6 +98,17 @@ body {
     display: none !important;
   }
   body {
-    background: #fff;
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .vidro {
+    background: none !important;
+    border-color: #999 !important;
+    backdrop-filter: none !important;
+  }
+  .text-suave,
+  .text-ciano,
+  .text-texto {
+    color: #000 !important;
   }
 }
