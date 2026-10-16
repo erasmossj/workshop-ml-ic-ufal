@@ -72,7 +72,7 @@ k6 run load/inscricao.js   # carga — SOMENTE contra staging, nunca produção
 - **Branches**: `feat/WML-<n>-<slug>`, `fix/…`, `docs/…`, `sec/…`. Nunca commit direto em `main`.
 - **Commits**: Conventional Commits em PT-BR, com a issue no final: `feat: bloqueia minicurso esgotado (WML-23)`.
 - **PR**: descrição com o que mudou, como testar e checklist de segurança/LGPD. CI verde é obrigatório.
-- **Status Jira**: A fazer → Em andamento → **Em análise** → Concluído. Itens feitos por IA param em "Em análise" até revisão humana.
+- **Status Jira** (workflow do WML): A fazer → Fazendo → Feito. Itens feitos por IA ficam em **Fazendo** até revisão humana — nunca mova para Feito sem aprovação do responsável. Mapa épico → chave em `docs/BACKLOG.md`.
 - **Confluence**: espaço `WML` espelha `docs/`. Ao mudar uma decisão, atualize o ADR no repo e a página correspondente.
 
 ## Definition of Done
