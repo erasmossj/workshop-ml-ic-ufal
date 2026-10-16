@@ -1,0 +1,53 @@
+---
+import { Font } from 'astro:assets';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { evento } from '../data/evento';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = evento.resumo } = Astro.props;
+const fullTitle = title ? `${title} · ${evento.sigla}` : `${evento.sigla} — ${evento.nome}`;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f4efe6" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <Font cssVariable="--font-fraunces" preload />
+    <Font cssVariable="--font-inter" preload />
+    <Font cssVariable="--font-plex-mono" />
+  </head>
+  <body class="min-h-dvh">
+    <a
+      href="#conteudo"
+      class="sr-only z-50 bg-tinta px-4 py-2 text-papel focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+    >
+      Pular para o conteúdo
+    </a>
+    <p
+      class="no-print border-b-2 border-tinta bg-laranja px-4 py-2 text-center text-sm font-medium text-tinta"
+      role="note"
+    >
+      Protótipo para validação — conteúdo provisório e dados fictícios. Nenhuma inscrição é gravada.
+    </p>
+    <Header />
+    <main id="conteudo">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

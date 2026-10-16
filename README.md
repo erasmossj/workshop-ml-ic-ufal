@@ -3,7 +3,18 @@
 Site de divulgação e inscrição do **I Workshop de Machine Learning** do Instituto de Computação da UFAL, em parceria com o **IEEE Ramo Estudantil UFAL** e a **IEEE Computer Society UFAL**.
 
 - 📅 03 a 05/12/2026 · 📍 Instituto de Computação — UFAL, Maceió
-- 📝 Submissão de trabalhos: 25/10 a 16/11/2026
+- 📝 Inscrições e submissões: 30/10 a 16/11/2026
+
+## Desenvolvimento
+
+```bash
+npm install
+npm run dev          # http://localhost:4321
+npm test             # unitários (Vitest)
+npm run build && npx playwright test   # E2E (usa o Edge no Windows)
+```
+
+Conteúdo do evento: `src/data/evento.ts`.
 
 ## Status
 
