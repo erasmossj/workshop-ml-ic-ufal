@@ -187,3 +187,6 @@ describe('Edge Function register', () => {
     expect(ultimo).toBe(429);
   });
 });
+
+// CORS não é testado aqui: o Kong do Supabase local responde ao preflight sozinho com `*`.
+// A regra fica em supabase/functions/_shared/origens.test.ts e é conferida no staging (preflight real).
