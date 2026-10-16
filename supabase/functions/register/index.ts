@@ -3,15 +3,13 @@
 // RPC register_participant (transação + vagas, ADR-003) → grava o caminho do PDF.
 // Regra LGPD: nada de CPF, nome ou e-mail em logs.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { criarVerificadorDeOrigem } from '../_shared/origens.ts';
 
 const PDF_MAX_BYTES = 5 * 1024 * 1024;
 const MINICURSO_SLUG = 'ml-na-pratica';
 const JANELA_LIMITE_SEGUNDOS = 600;
 const LIMITE_MAX = Number(Deno.env.get('RATE_LIMIT_MAX') ?? '10');
-const ORIGENS = (Deno.env.get('ALLOWED_ORIGINS') ?? '')
-  .split(',')
-  .map((o) => o.trim())
-  .filter(Boolean);
+const origemPermitida = criarVerificadorDeOrigem(Deno.env.get('ALLOWED_ORIGINS') ?? '');
 
 type Resposta = { status: number; erro: string; campo?: string };
 
@@ -61,7 +59,7 @@ function cabecalhos(origem: string): HeadersInit {
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     Vary: 'Origin',
   };
-  if (ORIGENS.includes(origem)) base['Access-Control-Allow-Origin'] = origem;
+  if (origemPermitida(origem)) base['Access-Control-Allow-Origin'] = origem;
   return base;
 }
 
