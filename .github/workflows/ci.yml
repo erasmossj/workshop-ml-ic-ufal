@@ -36,3 +36,18 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  # Banco: migrations + pgTAP (RLS, privilégios, regras) + concorrência real das vagas (ADR-003).
+  banco:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run db:start
+      - run: npx supabase db lint --fail-on error
+      - run: npm run test:db
+      - run: npm run test:concorrencia
