@@ -21,25 +21,25 @@ const fullTitle = title ? `${title} · ${evento.sigla}` : `${evento.sigla} — $
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#f4efe6" />
+    <meta name="theme-color" content="#071a45" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pt_BR" />
-    <Font cssVariable="--font-fraunces" preload />
+    <Font cssVariable="--font-sora" preload />
     <Font cssVariable="--font-inter" preload />
-    <Font cssVariable="--font-plex-mono" />
+    <Font cssVariable="--font-jetbrains" />
   </head>
   <body class="min-h-dvh">
     <a
       href="#conteudo"
-      class="sr-only z-50 bg-tinta px-4 py-2 text-papel focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+      class="sr-only z-50 rounded-full bg-texto px-4 py-2 text-fundo-1 focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
     >
       Pular para o conteúdo
     </a>
     <p
-      class="no-print border-b-2 border-tinta bg-laranja px-4 py-2 text-center text-sm font-medium text-tinta"
+      class="no-print bg-linear-to-r from-acao-1 to-acao-2 px-4 py-2 text-center text-sm font-medium text-sobre-acao"
       role="note"
     >
       Protótipo para validação — conteúdo provisório e dados fictícios. Nenhuma inscrição é gravada.

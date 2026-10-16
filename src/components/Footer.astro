@@ -2,13 +2,13 @@
 import { evento } from '../data/evento';
 ---
 
-<footer class="no-print border-t-2 border-tinta">
-  <div class="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-8 text-sm text-cinza md:flex-row md:items-center md:justify-between md:px-10">
+<footer class="no-print border-t border-white/10">
+  <div class="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-8 text-sm text-suave md:flex-row md:items-center md:justify-between md:px-10">
     <p>
       © 2026 {evento.sigla} · {evento.realizacao}
     </p>
     <p class="flex gap-5">
-      <a href="/privacidade" class="underline underline-offset-4 hover:text-tinta">
+      <a href="/privacidade" class="underline underline-offset-4 hover:text-texto">
         Política de privacidade
       </a>
       <span>{evento.contato ?? 'Contato: a definir'}</span>

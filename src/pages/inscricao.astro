@@ -2,15 +2,19 @@
 import { janela, minicurso, trabalhos } from '../data/evento';
 import Base from '../layouts/Base.astro';
 import { RESUMO_MAX } from '../lib/validacao';
+
+const legenda = 'float-left mb-5 w-full font-display text-2xl font-bold';
 ---
 
 <Base title="Inscrição" description="Inscreva-se no IC-ML 2026, no minicurso e envie seu trabalho.">
   <div class="mx-auto max-w-3xl px-5 py-12 md:px-10 md:py-16">
-    <p class="rotulo text-laranja-texto">Inscrição · IC-ML 2026</p>
-    <h1 class="mt-3 font-display text-5xl leading-none font-black md:text-7xl">
+    <p class="rotulo inline-block rounded-full bg-ciano/15 px-4 py-2 text-ciano">
+      Inscrição · IC-ML 2026
+    </p>
+    <h1 class="mt-5 font-display text-4xl leading-tight font-extrabold md:text-6xl">
       Faça sua inscrição
     </h1>
-    <p class="mt-5 text-lg text-cinza">
+    <p class="mt-5 text-lg text-suave">
       A inscrição dá acesso a todas as palestras e apresentações dos 3 dias. Minicurso e envio de
       trabalho são opcionais. Campos com <span aria-hidden="true">*</span>
       <span class="sr-only">asterisco</span> são obrigatórios.
@@ -18,7 +22,7 @@ import { RESUMO_MAX } from '../lib/validacao';
 
     <div
       id="resumo-erros"
-      class="mt-8 hidden border-2 border-erro bg-campo p-5"
+      class="mt-8 hidden rounded-2xl border border-erro bg-erro/10 p-5"
       role="alert"
       tabindex="-1"
     >
@@ -26,13 +30,11 @@ import { RESUMO_MAX } from '../lib/validacao';
       <ul class="mt-2 list-disc pl-5"></ul>
     </div>
 
-    <form id="form-inscricao" class="mt-8 flex flex-col gap-8" novalidate>
+    <form id="form-inscricao" class="mt-8 flex flex-col gap-6" novalidate>
       <!-- 1. Dados -->
-      <fieldset class="border-2 border-tinta p-5 md:p-8">
-        <legend class="bg-papel px-2 font-display text-2xl font-black">
-          1 · Dados para o certificado
-        </legend>
-        <div class="mt-2 grid gap-5">
+      <fieldset class="vidro p-6 md:p-8">
+        <legend class={legenda}>1 · Dados para o certificado</legend>
+        <div class="clear-both grid gap-5">
           <div>
             <label for="nome" class="font-semibold">
               Nome completo *
@@ -45,7 +47,7 @@ import { RESUMO_MAX } from '../lib/validacao';
               required
               aria-describedby="nome-dica nome-erro"
             />
-            <p id="nome-dica" class="mt-1 text-sm text-cinza">
+            <p id="nome-dica" class="mt-1 text-sm text-suave">
               Exatamente como deve sair no certificado.
             </p>
             <p id="nome-erro" class="erro-campo" aria-live="polite"></p>
@@ -66,7 +68,7 @@ import { RESUMO_MAX } from '../lib/validacao';
                 required
                 aria-describedby="cpf-dica cpf-erro"
               />
-              <p id="cpf-dica" class="mt-1 text-sm text-cinza">
+              <p id="cpf-dica" class="mt-1 text-sm text-suave">
                 Usado só no certificado. Na planilha da organização aparece mascarado.
               </p>
               <p id="cpf-erro" class="erro-campo" aria-live="polite"></p>
@@ -85,7 +87,7 @@ import { RESUMO_MAX } from '../lib/validacao';
                 required
                 aria-describedby="email-dica email-erro"
               />
-              <p id="email-dica" class="mt-1 text-sm text-cinza">
+              <p id="email-dica" class="mt-1 text-sm text-suave">
                 Comprovante e certificado chegam aqui. Um e-mail por inscrição.
               </p>
               <p id="email-erro" class="erro-campo" aria-live="polite"></p>
@@ -93,7 +95,7 @@ import { RESUMO_MAX } from '../lib/validacao';
           </div>
           <div>
             <label for="instituicao" class="font-semibold">
-              Instituição <span class="font-normal text-cinza">(opcional)</span>
+              Instituição <span class="font-normal text-suave">(opcional)</span>
             </label>
             <input
               id="instituicao"
@@ -107,50 +109,44 @@ import { RESUMO_MAX } from '../lib/validacao';
       </fieldset>
 
       <!-- 2. Minicurso -->
-      <fieldset class="border-2 border-tinta p-5 md:p-8">
-        <legend class="bg-papel px-2 font-display text-2xl font-black">
-          2 · Minicurso (opcional)
-        </legend>
-        <label class="mt-2 flex cursor-pointer items-start gap-4 border-2 border-tinta bg-campo p-4 has-checked:bg-laranja/20">
+      <fieldset class="vidro p-6 md:p-8">
+        <legend class={legenda}>2 · Minicurso (opcional)</legend>
+        <label class="clear-both flex cursor-pointer items-start gap-4 rounded-2xl border border-white/25 bg-white/[0.04] p-4 transition has-checked:border-acao-1 has-checked:bg-acao-1/10">
           <input
             id="minicurso"
             name="minicurso"
             type="checkbox"
-            class="mt-1 size-5 shrink-0 accent-tinta"
+            class="mt-1 size-5 shrink-0 accent-acao-1"
           />
           <span class="flex-1">
             <span class="block font-semibold">{minicurso.titulo}</span>
-            <span class="block text-sm text-cinza">
+            <span class="block text-sm text-suave">
               3 tardes (02, 03 e 04/12) no Laboratório 1 · Google Colab
             </span>
           </span>
-          <span class="rotulo shrink-0 text-laranja-texto">
-            {minicurso.vagasRestantesDemo} vagas*
-          </span>
+          <span class="rotulo shrink-0 text-ciano">{minicurso.vagasRestantesDemo} vagas*</span>
         </label>
-        <p class="mt-2 text-sm text-cinza">
+        <p class="mt-2 text-sm text-suave">
           *Número ilustrativo. Quando as vagas acabarem, esta opção fica bloqueada.
         </p>
       </fieldset>
 
       <!-- 3. Trabalho -->
-      <fieldset class="border-2 border-tinta p-5 md:p-8">
-        <legend class="bg-papel px-2 font-display text-2xl font-black">
-          3 · Trabalho (opcional)
-        </legend>
-        <label class="mt-2 flex cursor-pointer items-center gap-3 font-semibold">
+      <fieldset class="vidro p-6 md:p-8">
+        <legend class={legenda}>3 · Trabalho (opcional)</legend>
+        <label class="clear-both flex cursor-pointer items-center gap-3 font-semibold">
           <input
             id="trabalho"
             name="trabalho"
             type="checkbox"
-            class="size-5 accent-tinta"
+            class="size-5 accent-acao-1"
             aria-controls="campos-trabalho"
             aria-expanded="false"
           />
           Quero submeter um trabalho
         </label>
         <div id="campos-trabalho" class="mt-5 grid gap-5" hidden>
-          <p class="text-sm text-cinza">
+          <p class="text-sm text-suave">
             {trabalhos.formato} Submissões de 30/10 a 16/11 ({janela.textoProrrogacao}).
           </p>
           <div>
@@ -190,7 +186,7 @@ import { RESUMO_MAX } from '../lib/validacao';
               maxlength={RESUMO_MAX}
               aria-describedby="resumo-contador resumo-erro"
             ></textarea>
-            <p id="resumo-contador" class="mt-1 text-sm text-cinza">
+            <p id="resumo-contador" class="mt-1 text-sm text-suave">
               0 / {RESUMO_MAX} caracteres
             </p>
             <p id="resumo-erro" class="erro-campo" aria-live="polite"></p>
@@ -204,26 +200,26 @@ import { RESUMO_MAX } from '../lib/validacao';
               name="pdf"
               type="file"
               accept="application/pdf,.pdf"
-              class="campo mt-1.5 file:mr-4 file:border-0 file:bg-tinta file:px-4 file:py-2 file:font-mono file:text-xs file:text-papel file:uppercase"
+              class="campo mt-1.5 file:mr-4 file:rounded-full file:border-0 file:bg-white/15 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-texto"
               aria-describedby="pdf-dica pdf-erro"
             />
-            <p id="pdf-dica" class="mt-1 text-sm text-cinza">
+            <p id="pdf-dica" class="mt-1 text-sm text-suave">
               Somente PDF, até 5 MB.
             </p>
             <p id="pdf-erro" class="erro-campo" aria-live="polite"></p>
           </div>
-          <div class="border-2 border-dashed border-tinta p-4">
+          <div class="rounded-2xl border border-dashed border-white/30 p-4">
             <label for="premio" class="flex cursor-pointer items-center gap-3 font-semibold">
               <input
                 id="premio"
                 name="premio"
                 type="checkbox"
-                class="size-5 accent-tinta"
+                class="size-5 accent-acao-1"
                 aria-describedby="premio-dica"
               />
               Quero concorrer à premiação
             </label>
-            <p id="premio-dica" class="mt-1 ml-8 text-sm text-cinza">
+            <p id="premio-dica" class="mt-1 ml-8 text-sm text-suave">
               Melhor trabalho de graduação e de mestrado.
             </p>
             <div class="mt-4">
@@ -242,19 +238,19 @@ import { RESUMO_MAX } from '../lib/validacao';
       </fieldset>
 
       <!-- 4. Confirmação -->
-      <fieldset class="border-2 border-tinta p-5 md:p-8">
-        <legend class="bg-papel px-2 font-display text-2xl font-black">4 · Confirmar</legend>
-        <label class="mt-2 flex cursor-pointer items-start gap-3">
+      <fieldset class="vidro p-6 md:p-8">
+        <legend class={legenda}>4 · Confirmar</legend>
+        <label class="clear-both flex cursor-pointer items-start gap-3">
           <input
             id="consentimento"
             name="consentimento"
             type="checkbox"
-            class="mt-1 size-5 shrink-0 accent-tinta"
+            class="mt-1 size-5 shrink-0 accent-acao-1"
             aria-describedby="consentimento-erro"
           />
-          <span class="text-cinza">
+          <span class="text-suave">
             Li e concordo com a{' '}
-            <a href="/privacidade" class="font-semibold text-tinta underline underline-offset-4">
+            <a href="/privacidade" class="font-semibold text-texto underline underline-offset-4">
               Política de Privacidade
             </a>
             . Nome, CPF e e-mail serão usados para a inscrição e a emissão do certificado, conforme
@@ -262,14 +258,14 @@ import { RESUMO_MAX } from '../lib/validacao';
           </span>
         </label>
         <p id="consentimento-erro" class="erro-campo" aria-live="polite"></p>
-        <div class="mt-5 flex items-center gap-3 border-2 border-dashed border-cinza p-4 text-sm text-cinza">
-          <span class="size-5 border-2 border-cinza" aria-hidden="true"></span>
+        <div class="mt-5 flex items-center gap-3 rounded-xl border border-dashed border-white/30 p-4 text-sm text-suave">
+          <span class="size-5 rounded border-2 border-white/40" aria-hidden="true"></span>
           Verificação anti-robô (Cloudflare Turnstile) — entra na versão real.
         </div>
         <button type="submit" class="btn-primario mt-6 w-full">
           Confirmar inscrição
         </button>
-        <p class="mt-3 text-center text-sm text-cinza">
+        <p class="mt-3 text-center text-sm text-suave">
           Demonstração: use <code class="font-mono">ja@inscrito.com</code> para ver o aviso de
           e-mail repetido.
         </p>

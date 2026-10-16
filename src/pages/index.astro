@@ -3,6 +3,19 @@ import Titulo from '../components/Titulo.astro';
 import { cronograma, dias, evento, faq, janela, minicurso, trabalhos } from '../data/evento';
 import Base from '../layouts/Base.astro';
 
+const icones = {
+  cal: 'M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z',
+  pin: 'M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21zM12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
+  doc: 'M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8l-5-5zM14 3v5h5',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
+};
+
+const chips = [
+  { icone: icones.cal, rotulo: 'Quando', valor: '02 a 04/12/2026' },
+  { icone: icones.pin, rotulo: 'Onde', valor: 'IC · UFAL, Maceió' },
+  { icone: icones.doc, rotulo: 'Inscrições', valor: '30/10 a 16/11' },
+];
+
 const destaques = [
   ['3 dias', 'de palestras, trabalhos e minicurso'],
   ['Minicurso', '3 tardes no Google Colab'],
@@ -32,55 +45,72 @@ const realizacao = [
 
 <Base>
   <!-- HERO -->
-  <section
-    aria-labelledby="titulo-evento"
-    class="mx-auto max-w-7xl px-5 pt-8 pb-14 md:px-10 md:pt-12"
-  >
-    <div class="rotulo flex justify-between border-b-2 border-tinta pb-3">
-      <span>{evento.sigla}</span>
-      <span>IEEE · CS · IC/UFAL</span>
-    </div>
-    <h1
-      id="titulo-evento"
-      class="border-b-2 border-tinta py-4 font-display text-[clamp(3.6rem,15vw,13.5rem)] leading-[0.86] font-black tracking-[-0.03em]"
-    >
-      Machine
-      <br />
-      Learning
-    </h1>
-    <div class="grid gap-8 pt-8 md:grid-cols-[auto_1fr] md:items-end md:gap-16">
-      <p class="font-display text-6xl leading-[0.9] text-laranja-texto md:text-[7.5rem]">
-        02—04
-        <br />
-        dez.
+  <section aria-labelledby="titulo-evento" class="relative overflow-hidden">
+    <div
+      class="pointer-events-none absolute -top-32 -left-24 size-96 rounded-full bg-ciano/20 blur-3xl"
+      aria-hidden="true"
+    ></div>
+    <div
+      class="pointer-events-none absolute -right-24 bottom-0 size-96 rounded-full bg-acao-2/25 blur-3xl"
+      aria-hidden="true"
+    ></div>
+    <div class="relative mx-auto flex max-w-5xl flex-col items-center px-5 py-20 text-center md:py-28">
+      <p class="rotulo rounded-full bg-ciano/15 px-4 py-2 text-ciano">
+        {evento.sigla} · 02—04 dez 2026
       </p>
-      <div class="flex flex-col gap-6">
-        <p class="max-w-2xl text-lg leading-relaxed md:text-2xl">
-          {evento.resumo}
-          <span class="text-cinza"> {evento.local.nome}, Maceió.</span>
-        </p>
-        <div class="flex flex-col gap-3 sm:flex-row">
-          <a href="/inscricao" class="btn-primario">
-            Inscreva-se
-          </a>
-          <a href="#programacao" class="btn-secundario">
-            Programação
-          </a>
-        </div>
-        <p class="rotulo text-cinza">
-          Inscrições e submissões: 30/10 a 16/11 ({janela.textoProrrogacao})
-        </p>
+      <h1
+        id="titulo-evento"
+        class="mt-6 font-display text-5xl leading-[1.05] font-extrabold tracking-tight md:text-7xl"
+      >
+        Workshop de
+        <br />
+        Machine Learning
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-suave md:text-xl">{evento.resumo}</p>
+      <div class="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+        <a href="/inscricao" class="btn-primario">
+          Inscreva-se
+        </a>
+        <a href="#programacao" class="btn-secundario">
+          Ver programação
+        </a>
       </div>
+      <ul class="mt-12 grid w-full gap-4 sm:grid-cols-3">
+        {chips.map((c) => (
+          <li class="vidro flex items-center gap-4 p-5 text-left">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              class="shrink-0 text-ciano"
+              aria-hidden="true"
+            >
+              <path
+                d={c.icone}
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span>
+              <span class="rotulo block text-suave">{c.rotulo}</span>
+              <span class="mt-1 block font-display font-bold">{c.valor}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
 
   <!-- DESTAQUES -->
-  <section aria-label="Destaques" class="bg-tinta text-papel">
-    <ul class="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-5 py-8 md:grid-cols-4 md:px-10">
+  <section aria-label="Destaques" class="mx-auto max-w-7xl px-5 md:px-10">
+    <ul class="vidro grid grid-cols-2 gap-6 p-6 md:grid-cols-4 md:p-8">
       {destaques.map(([a, b]) => (
         <li>
-          <p class="font-display text-2xl font-black md:text-4xl">{a}</p>
-          <p class="mt-1 text-sm text-papel-2">{b}</p>
+          <p class="font-display text-2xl font-bold md:text-3xl">{a}</p>
+          <p class="mt-1 text-sm text-suave">{b}</p>
         </li>
       ))}
     </ul>
@@ -92,57 +122,69 @@ const realizacao = [
       Pesquisa local, de portas abertas
     </Titulo>
     <div class="grid gap-10 md:grid-cols-2">
-      <p class="text-lg leading-relaxed text-cinza">{evento.objetivo}</p>
-      <dl class="grid gap-5">
-        <div class="border-l-4 border-laranja pl-4">
-          <dt class="font-bold">Para quem</dt>
-          <dd class="text-cinza">{evento.publico}</dd>
-        </div>
-        <div class="border-l-4 border-laranja pl-4">
-          <dt class="font-bold">Formato</dt>
-          <dd class="text-cinza">
-            Manhãs com palestras e apresentações de trabalhos; tardes com o minicurso.
-          </dd>
-        </div>
-        <div class="border-l-4 border-laranja pl-4">
-          <dt class="font-bold">Realização</dt>
-          <dd class="text-cinza">{evento.realizacao}</dd>
-        </div>
+      <p class="text-lg leading-relaxed text-suave">{evento.objetivo}</p>
+      <dl class="grid gap-4">
+        {[
+          ['Para quem', evento.publico],
+          ['Formato', 'Manhãs com palestras e apresentações de trabalhos; tardes com o minicurso.'],
+          ['Realização', evento.realizacao],
+        ].map(([t, d]) => (
+          <div class="vidro flex gap-4 p-5">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              class="mt-0.5 shrink-0 text-ciano"
+              aria-hidden="true"
+            >
+              <path
+                d={icones.check}
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <div>
+              <dt class="font-semibold">{t}</dt>
+              <dd class="text-suave">{d}</dd>
+            </div>
+          </div>
+        ))}
       </dl>
     </div>
   </section>
 
   <!-- PROGRAMAÇÃO -->
-  <section id="programacao" aria-labelledby="prog-t" class="bg-papel-2">
-    <div class="mx-auto max-w-7xl px-5 py-20 md:px-10">
-      <Titulo rotulo="Programação" id="prog-t">
-        Três dias de atividades
-      </Titulo>
-      <div class="grid gap-6 md:grid-cols-3">
-        {dias.map((d) => (
-          <article class="border-2 border-tinta bg-papel p-6" aria-labelledby={`dia-${d.data}`}>
-            <p class="rotulo text-laranja-texto">{d.rotulo}</p>
-            <h3 id={`dia-${d.data}`} class="mt-2 font-display text-3xl font-black">
-              {d.semana}
-            </h3>
-            <ol class="mt-5 divide-y divide-tinta/15 border-t-2 border-tinta">
-              {d.atividades.map((a) => (
-                <li class={`flex gap-4 py-2.5 ${a.tipo === 'pausa' ? 'text-cinza' : ''}`}>
-                  <span class="w-24 shrink-0 font-mono text-sm text-laranja-texto">
-                    {a.inicio}–{a.fim}
-                  </span>
-                  <span class={a.tipo === 'minicurso' ? 'font-semibold' : ''}>{a.titulo}</span>
-                </li>
-              ))}
-            </ol>
-          </article>
-        ))}
-      </div>
-      <p class="mt-6 text-sm text-cinza">
-        Programação preliminar — nomes de palestrantes e horários finais serão confirmados pela
-        organização.
-      </p>
+  <section id="programacao" aria-labelledby="prog-t" class="mx-auto max-w-7xl px-5 py-20 md:px-10">
+    <Titulo rotulo="Programação" id="prog-t">
+      Três dias de atividades
+    </Titulo>
+    <div class="grid gap-6 md:grid-cols-3">
+      {dias.map((d) => (
+        <article class="vidro p-6" aria-labelledby={`dia-${d.data}`}>
+          <p class="rotulo text-ciano">{d.rotulo}</p>
+          <h3 id={`dia-${d.data}`} class="mt-2 font-display text-2xl font-bold">
+            {d.semana}
+          </h3>
+          <ol class="mt-5 divide-y divide-white/10 border-t border-white/20">
+            {d.atividades.map((a) => (
+              <li class={`flex gap-4 py-2.5 ${a.tipo === 'pausa' ? 'text-suave' : ''}`}>
+                <span class="w-24 shrink-0 font-mono text-sm text-ciano">
+                  {a.inicio}–{a.fim}
+                </span>
+                <span class={a.tipo === 'minicurso' ? 'font-semibold' : ''}>{a.titulo}</span>
+              </li>
+            ))}
+          </ol>
+        </article>
+      ))}
     </div>
+    <p class="mt-6 text-sm text-suave">
+      Programação preliminar — nomes de palestrantes e horários finais serão confirmados pela
+      organização.
+    </p>
   </section>
 
   <!-- MINICURSO -->
@@ -152,29 +194,29 @@ const realizacao = [
     </Titulo>
     <div class="grid gap-10 md:grid-cols-[1fr_1.4fr]">
       <div class="flex flex-col gap-6">
-        <p class="text-lg leading-relaxed text-cinza">{minicurso.resumo}</p>
-        <p class="border-2 border-tinta p-4">
-          <span class="rotulo text-laranja-texto">Vagas</span>
-          <span class="mt-1 block font-semibold">
+        <p class="text-lg leading-relaxed text-suave">{minicurso.resumo}</p>
+        <div class="vidro p-5">
+          <p class="rotulo text-ciano">Vagas</p>
+          <p class="mt-1 font-semibold">
             {minicurso.vagas === null
               ? 'Limitadas pela capacidade do laboratório — número a definir.'
               : `${minicurso.vagas} vagas`}
-          </span>
-          <span class="mt-1 block text-sm text-cinza">
+          </p>
+          <p class="mt-1 text-sm text-suave">
             Opcional: marque no formulário de inscrição. Quando as vagas acabam, a opção é bloqueada
             automaticamente.
-          </span>
-        </p>
+          </p>
+        </div>
         <a href="/inscricao" class="btn-primario self-start">
           Quero participar
         </a>
       </div>
-      <ol class="grid gap-px border-2 border-tinta bg-tinta sm:grid-cols-2">
+      <ol class="grid gap-4 sm:grid-cols-2">
         {minicurso.blocos.map((b) => (
-          <li class="bg-papel p-6">
-            <span class="font-display text-5xl font-black text-laranja-texto">{b.n}</span>
+          <li class="vidro p-6">
+            <span class="texto-acao font-display text-5xl font-extrabold">{b.n}</span>
             <h3 class="mt-3 text-xl font-bold">{b.titulo}</h3>
-            <p class="mt-1 text-cinza">{b.detalhe}</p>
+            <p class="mt-1 text-suave">{b.detalhe}</p>
           </li>
         ))}
       </ol>
@@ -182,46 +224,38 @@ const realizacao = [
   </section>
 
   <!-- TRABALHOS -->
-  <section id="trabalhos" aria-labelledby="trab-t" class="bg-papel-2">
-    <div class="mx-auto max-w-7xl px-5 py-20 md:px-10">
-      <Titulo rotulo="Chamada de trabalhos" id="trab-t">
-        Apresente sua pesquisa
-      </Titulo>
-      <div class="grid gap-10 md:grid-cols-2">
-        <dl class="grid gap-6">
+  <section id="trabalhos" aria-labelledby="trab-t" class="mx-auto max-w-7xl px-5 py-20 md:px-10">
+    <Titulo rotulo="Chamada de trabalhos" id="trab-t">
+      Apresente sua pesquisa
+    </Titulo>
+    <div class="grid gap-10 md:grid-cols-2">
+      <dl class="grid gap-6">
+        {[
+          ['Formato', trabalhos.formato],
+          ['Como enviar', trabalhos.campos],
+          ['Avaliação', trabalhos.avaliacao],
+          ['Premiação', trabalhos.premiacao],
+        ].map(([t, d]) => (
           <div>
-            <dt class="rotulo text-laranja-texto">Formato</dt>
-            <dd class="mt-1 text-lg">{trabalhos.formato}</dd>
+            <dt class="rotulo text-ciano">{t}</dt>
+            <dd class="mt-1 text-lg">{d}</dd>
           </div>
-          <div>
-            <dt class="rotulo text-laranja-texto">Como enviar</dt>
-            <dd class="mt-1 text-lg">{trabalhos.campos}</dd>
-          </div>
-          <div>
-            <dt class="rotulo text-laranja-texto">Avaliação</dt>
-            <dd class="mt-1 text-lg">{trabalhos.avaliacao}</dd>
-          </div>
-          <div>
-            <dt class="rotulo text-laranja-texto">Premiação</dt>
-            <dd class="mt-1 text-lg">{trabalhos.premiacao}</dd>
-          </div>
-          <a href="/inscricao" class="btn-primario self-start">
-            Inscrever e enviar trabalho
-          </a>
-        </dl>
-        <div class="border-2 border-tinta bg-papel p-6">
-          <h3 class="rotulo">Datas importantes</h3>
-          <ol class="mt-4 divide-y divide-tinta/15">
-            {cronograma.map((c) => (
-              <li class="flex gap-5 py-3">
-                <span class="w-20 shrink-0 font-mono font-semibold text-laranja-texto">
-                  {c.data}
-                </span>
-                <span>{c.item}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
+        ))}
+        <a href="/inscricao" class="btn-primario self-start">
+          Inscrever e enviar trabalho
+        </a>
+      </dl>
+      <div class="vidro p-6">
+        <h3 class="rotulo text-ciano">Datas importantes</h3>
+        <ol class="mt-4 divide-y divide-white/10">
+          {cronograma.map((c) => (
+            <li class="flex gap-5 py-3">
+              <span class="w-20 shrink-0 font-mono font-medium text-ciano">{c.data}</span>
+              <span>{c.item}</span>
+            </li>
+          ))}
+        </ol>
+        <p class="mt-4 text-sm text-suave">Prazo das inscrições: {janela.textoProrrogacao}.</p>
       </div>
     </div>
   </section>
@@ -233,12 +267,15 @@ const realizacao = [
     </Titulo>
     <div class="grid gap-6 md:grid-cols-2">
       {palestras.map((p) => (
-        <article class="flex gap-5 border-2 border-tinta p-6">
-          <div class="size-20 shrink-0 bg-laranja/25" aria-hidden="true" />
+        <article class="vidro flex items-center gap-5 p-6">
+          <div
+            class="size-20 shrink-0 rounded-full bg-linear-to-br from-ciano/40 to-acao-2/40"
+            aria-hidden="true"
+          />
           <div>
-            <p class="rotulo text-laranja-texto">{p.quando}</p>
-            <h3 class="mt-2 font-display text-2xl font-black">{p.titulo}</h3>
-            <p class="mt-1 text-cinza">{p.quem}</p>
+            <p class="rotulo text-ciano">{p.quando}</p>
+            <h3 class="mt-2 font-display text-xl font-bold">{p.titulo}</h3>
+            <p class="mt-1 text-suave">{p.quem}</p>
           </div>
         </article>
       ))}
@@ -246,74 +283,75 @@ const realizacao = [
   </section>
 
   <!-- LOCAL + REALIZAÇÃO -->
-  <section aria-labelledby="local-t" class="bg-papel-2">
-    <div class="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:grid-cols-2 md:px-10">
-      <div>
-        <Titulo rotulo="Local" id="local-t">
-          {evento.local.nome}
-        </Titulo>
-        <p class="text-lg">{evento.local.detalhe}</p>
-        <p class="mt-2 text-cinza">{evento.local.endereco}</p>
-        <a
-          href={evento.local.mapa}
-          class="btn-secundario mt-6"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Abrir no mapa<span class="sr-only"> (abre em nova aba)</span>
-        </a>
+  <section
+    aria-labelledby="local-t"
+    class="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:grid-cols-2 md:px-10"
+  >
+    <div>
+      <Titulo rotulo="Local" id="local-t">
+        {evento.local.nome}
+      </Titulo>
+      <p class="text-lg">{evento.local.detalhe}</p>
+      <p class="mt-2 text-suave">{evento.local.endereco}</p>
+      <a
+        href={evento.local.mapa}
+        class="btn-secundario mt-6"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Abrir no mapa<span class="sr-only"> (abre em nova aba)</span>
+      </a>
+    </div>
+    <div>
+      <div class="mb-10 md:mb-14">
+        <p class="rotulo text-ciano">Realização</p>
+        <h2 class="mt-3 font-display text-4xl leading-[1.1] font-bold md:text-5xl">
+          Quem organiza
+        </h2>
       </div>
-      <div>
-        <div class="mb-10 border-t-2 border-tinta pt-4 md:mb-14">
-          <p class="rotulo text-laranja-texto">Realização</p>
-          <h2 class="mt-3 font-display text-4xl leading-[1.05] font-black md:text-6xl">
-            Quem organiza
-          </h2>
-        </div>
-        <ul class="flex flex-wrap gap-4">
-          {realizacao.map((r) => (
-            <li class="border-2 border-dashed border-cinza px-5 py-4 text-sm font-semibold text-cinza">
-              {r}
-              <span class="sr-only"> (logo a inserir)</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <ul class="flex flex-wrap gap-4">
+        {realizacao.map((r) => (
+          <li class="rounded-2xl border border-dashed border-white/40 px-5 py-4 text-sm font-medium text-suave">
+            {r}
+            <span class="sr-only"> (logo a inserir)</span>
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
 
   <!-- FAQ -->
   <section id="faq" aria-labelledby="faq-t" class="mx-auto max-w-4xl px-5 py-20 md:px-10">
-    <Titulo rotulo="Dúvidas" id="faq-t">
+    <Titulo rotulo="Dúvidas" id="faq-t" centro>
       Perguntas frequentes
     </Titulo>
-    <div class="border-t-2 border-tinta">
+    <div class="flex flex-col gap-3">
       {faq.map((f) => (
-        <details class="group border-b-2 border-tinta py-1">
-          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-lg font-bold [&::-webkit-details-marker]:hidden">
+        <details class="group vidro rounded-2xl px-6">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-5 text-lg font-semibold [&::-webkit-details-marker]:hidden">
             {f.p}
             <span
-              class="font-mono text-2xl transition-transform group-open:rotate-45"
+              class="grid size-8 shrink-0 place-items-center rounded-full bg-white/10 text-xl transition-transform group-open:rotate-45"
               aria-hidden="true"
             >
               +
             </span>
           </summary>
-          <p class="pb-5 text-cinza">{f.r}</p>
+          <p class="pb-5 text-suave">{f.r}</p>
         </details>
       ))}
     </div>
   </section>
 
   <!-- CTA -->
-  <section class="border-t-2 border-tinta bg-laranja">
-    <div class="mx-auto flex max-w-7xl flex-col items-start gap-6 px-5 py-16 md:flex-row md:items-center md:justify-between md:px-10">
-      <p class="font-display text-4xl leading-tight font-black md:text-6xl">
+  <section class="mx-auto max-w-7xl px-5 pb-20 md:px-10">
+    <div class="flex flex-col items-start gap-6 rounded-3xl bg-linear-to-r from-acao-1 to-acao-2 px-8 py-12 text-sobre-acao md:flex-row md:items-center md:justify-between md:px-14">
+      <p class="font-display text-3xl leading-tight font-extrabold md:text-5xl">
         Garanta sua vaga
         <br />
         no minicurso.
       </p>
-      <a href="/inscricao" class="btn-primario">
+      <a href="/inscricao" class="btn-escuro">
         Fazer inscrição
       </a>
     </div>
