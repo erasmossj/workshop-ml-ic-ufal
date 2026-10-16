@@ -42,7 +42,9 @@ const fullTitle = title ? `${title} · ${evento.sigla}` : `${evento.sigla} — $
       class="no-print bg-linear-to-r from-acao-1 to-acao-2 px-4 py-2 text-center text-sm font-medium text-sobre-acao"
       role="note"
     >
-      Protótipo para validação — conteúdo provisório e dados fictícios. Nenhuma inscrição é gravada.
+      {import.meta.env.PUBLIC_SUPABASE_URL
+        ? 'Versão de homologação — conteúdo provisório. Use apenas dados de teste.'
+        : 'Protótipo para validação — conteúdo provisório e dados fictícios. Nenhuma inscrição é gravada.'}
     </p>
     <Header />
     <main id="conteudo">

@@ -51,3 +51,15 @@ jobs:
       - run: npx supabase db lint --fail-on error
       - run: npm run test:db
       - run: npm run test:concorrencia
+      # Edge Function de inscrição com as chaves de TESTE públicas da Cloudflare.
+      - run: cp supabase/functions/.env.example supabase/functions/.env
+      - run: npm run functions:serve > functions.log 2>&1 &
+      - run: |
+          for i in $(seq 1 30); do
+            curl -s -o /dev/null -X OPTIONS http://127.0.0.1:54321/functions/v1/register && break
+            sleep 2
+          done
+      - run: npm run test:integracao
+      - name: Log das funções
+        if: failure()
+        run: cat functions.log
