@@ -4,6 +4,7 @@
 - Contexto: 2 minicursos com vagas limitadas; algumas centenas de pessoas podem se inscrever ao mesmo tempo. Ler "vagas restantes" no front e depois gravar gera race condition.
 
 ## Decisão
+
 Toda inscrição acontece em **uma única transação** na RPC `register_participant()` (Postgres, `SECURITY DEFINER`, chamada só pela Edge Function `register`):
 
 1. Insere o participante (unicidade em `lower(trim(email))`).
@@ -21,6 +22,7 @@ Toda inscrição acontece em **uma única transação** na RPC `register_partici
 O front trata `MINICURSO_ESGOTADO` oferecendo concluir a inscrição só nas palestras (ou no outro minicurso). Cancelamento pelo admin usa `cancel_registration()`, que decrementa `ocupadas` na mesma transação.
 
 ## Consequências
+
 - Correção garantida pelo banco, não pelo front.
 - `vagas is null` = minicurso ainda sem vagas definidas → inscrição fechada ("em breve").
 - Teste obrigatório: pgTAP + teste de concorrência (N requisições simultâneas para a última vaga → exatamente 1 sucesso) e k6 na F4.

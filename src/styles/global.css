@@ -1,0 +1,75 @@
+@import 'tailwindcss';
+
+/*
+ * Direção C — Editorial bold (Figma: página "C · Editorial bold").
+ * Cores só via tokens. Contraste verificado sobre --color-papel:
+ * tinta 17:1 · cinza 7,8:1 · laranja-texto 5,4:1 (texto pequeno) · tinta sobre laranja 6,2:1.
+ */
+@theme inline {
+  --color-papel: #f4efe6;
+  --color-papel-2: #ece5d8;
+  --color-campo: #fbf8f2;
+  --color-tinta: #141414;
+  --color-cinza: #4d4a44;
+  --color-laranja: #e87722;
+  --color-laranja-texto: #9a4a0c;
+  --color-erro: #a3180f;
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-plex-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  @apply bg-papel font-sans text-tinta antialiased;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-laranja);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Rótulo editorial (mono, caixa alta, espaçado). */
+.rotulo {
+  @apply font-mono text-xs font-medium tracking-[0.18em] uppercase;
+}
+
+/* Botões */
+.btn-primario,
+.btn-secundario {
+  @apply inline-flex items-center justify-center gap-2 border-2 border-tinta px-6 py-3.5 text-center font-mono text-sm font-semibold tracking-[0.12em] uppercase transition-colors;
+}
+.btn-primario {
+  @apply bg-tinta text-papel hover:bg-laranja hover:text-tinta;
+}
+.btn-secundario {
+  @apply bg-transparent text-tinta hover:bg-tinta hover:text-papel;
+}
+
+/* Campos do formulário */
+.campo {
+  @apply w-full border-2 border-tinta bg-campo px-4 py-3 text-base text-tinta placeholder:text-cinza focus:border-laranja aria-invalid:border-erro;
+}
+.erro-campo {
+  @apply mt-1.5 text-sm font-medium text-erro;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}

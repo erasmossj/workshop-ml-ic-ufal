@@ -1,0 +1,61 @@
+---
+import { evento } from '../data/evento';
+
+const links = [
+  { href: '/#sobre', label: 'Sobre' },
+  { href: '/#programacao', label: 'Programação' },
+  { href: '/#minicurso', label: 'Minicurso' },
+  { href: '/#trabalhos', label: 'Trabalhos' },
+  { href: '/#faq', label: 'FAQ' },
+];
+---
+
+<header class="no-print sticky top-0 z-40 border-b-2 border-tinta bg-papel">
+  <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-3 md:px-10">
+    <a href="/" class="flex items-center gap-3" aria-label={`${evento.sigla} — página inicial`}>
+      <span
+        class="grid size-10 place-items-center bg-tinta font-display text-base font-black text-papel"
+        aria-hidden="true"
+      >
+        ML
+      </span>
+      <span class="leading-tight">
+        <span class="rotulo block text-cinza">Workshop de</span>
+        <span class="font-display text-base font-black">Machine Learning</span>
+      </span>
+    </a>
+
+    <nav aria-label="Principal" class="hidden items-center gap-7 lg:flex">
+      {links.map((l) => (
+        <a href={l.href} class="text-sm font-semibold underline-offset-4 hover:underline">
+          {l.label}
+        </a>
+      ))}
+      <a href="/inscricao" class="btn-primario px-5 py-2.5">
+        Inscreva-se
+      </a>
+    </nav>
+
+    <details class="relative lg:hidden">
+      <summary class="flex cursor-pointer list-none items-center gap-2 border-2 border-tinta px-3 py-2 [&::-webkit-details-marker]:hidden">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2"></path>
+        </svg>
+        <span class="rotulo">Menu</span>
+      </summary>
+      <nav
+        aria-label="Principal (celular)"
+        class="absolute right-0 mt-2 flex w-56 flex-col border-2 border-tinta bg-papel p-2"
+      >
+        {links.map((l) => (
+          <a href={l.href} class="px-3 py-2.5 font-semibold hover:bg-papel-2">
+            {l.label}
+          </a>
+        ))}
+        <a href="/inscricao" class="btn-primario mt-2">
+          Inscreva-se
+        </a>
+      </nav>
+    </details>
+  </div>
+</header>

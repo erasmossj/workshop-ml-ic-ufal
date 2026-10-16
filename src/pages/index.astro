@@ -1,0 +1,321 @@
+---
+import Titulo from '../components/Titulo.astro';
+import { cronograma, dias, evento, faq, janela, minicurso, trabalhos } from '../data/evento';
+import Base from '../layouts/Base.astro';
+
+const destaques = [
+  ['3 dias', 'de palestras, trabalhos e minicurso'],
+  ['Minicurso', '3 tardes no Google Colab'],
+  ['Trabalhos', 'apresentação oral ou pôster'],
+  ['Certificado', 'com carga horária'],
+];
+
+const palestras = [
+  {
+    quando: 'Qua · 02/12 · 10h',
+    titulo: 'Palestra de abertura',
+    quem: 'Pesquisador convidado — a confirmar',
+  },
+  {
+    quando: 'Sex · 04/12 · 11h',
+    titulo: 'ML e ciência de dados no mercado',
+    quem: 'Convidado do setor — a confirmar',
+  },
+];
+
+const realizacao = [
+  'IEEE Ramo Estudantil UFAL',
+  'IEEE Computer Society UFAL',
+  'Instituto de Computação — UFAL',
+];
+---
+
+<Base>
+  <!-- HERO -->
+  <section
+    aria-labelledby="titulo-evento"
+    class="mx-auto max-w-7xl px-5 pt-8 pb-14 md:px-10 md:pt-12"
+  >
+    <div class="rotulo flex justify-between border-b-2 border-tinta pb-3">
+      <span>{evento.sigla}</span>
+      <span>IEEE · CS · IC/UFAL</span>
+    </div>
+    <h1
+      id="titulo-evento"
+      class="border-b-2 border-tinta py-4 font-display text-[clamp(3.6rem,15vw,13.5rem)] leading-[0.86] font-black tracking-[-0.03em]"
+    >
+      Machine
+      <br />
+      Learning
+    </h1>
+    <div class="grid gap-8 pt-8 md:grid-cols-[auto_1fr] md:items-end md:gap-16">
+      <p class="font-display text-6xl leading-[0.9] text-laranja-texto md:text-[7.5rem]">
+        02—04
+        <br />
+        dez.
+      </p>
+      <div class="flex flex-col gap-6">
+        <p class="max-w-2xl text-lg leading-relaxed md:text-2xl">
+          {evento.resumo}
+          <span class="text-cinza"> {evento.local.nome}, Maceió.</span>
+        </p>
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <a href="/inscricao" class="btn-primario">
+            Inscreva-se
+          </a>
+          <a href="#programacao" class="btn-secundario">
+            Programação
+          </a>
+        </div>
+        <p class="rotulo text-cinza">
+          Inscrições e submissões: 30/10 a 16/11 ({janela.textoProrrogacao})
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESTAQUES -->
+  <section aria-label="Destaques" class="bg-tinta text-papel">
+    <ul class="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-5 py-8 md:grid-cols-4 md:px-10">
+      {destaques.map(([a, b]) => (
+        <li>
+          <p class="font-display text-2xl font-black md:text-4xl">{a}</p>
+          <p class="mt-1 text-sm text-papel-2">{b}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- SOBRE -->
+  <section id="sobre" aria-labelledby="sobre-t" class="mx-auto max-w-7xl px-5 py-20 md:px-10">
+    <Titulo rotulo="Sobre o evento" id="sobre-t">
+      Pesquisa local, de portas abertas
+    </Titulo>
+    <div class="grid gap-10 md:grid-cols-2">
+      <p class="text-lg leading-relaxed text-cinza">{evento.objetivo}</p>
+      <dl class="grid gap-5">
+        <div class="border-l-4 border-laranja pl-4">
+          <dt class="font-bold">Para quem</dt>
+          <dd class="text-cinza">{evento.publico}</dd>
+        </div>
+        <div class="border-l-4 border-laranja pl-4">
+          <dt class="font-bold">Formato</dt>
+          <dd class="text-cinza">
+            Manhãs com palestras e apresentações de trabalhos; tardes com o minicurso.
+          </dd>
+        </div>
+        <div class="border-l-4 border-laranja pl-4">
+          <dt class="font-bold">Realização</dt>
+          <dd class="text-cinza">{evento.realizacao}</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- PROGRAMAÇÃO -->
+  <section id="programacao" aria-labelledby="prog-t" class="bg-papel-2">
+    <div class="mx-auto max-w-7xl px-5 py-20 md:px-10">
+      <Titulo rotulo="Programação" id="prog-t">
+        Três dias de atividades
+      </Titulo>
+      <div class="grid gap-6 md:grid-cols-3">
+        {dias.map((d) => (
+          <article class="border-2 border-tinta bg-papel p-6" aria-labelledby={`dia-${d.data}`}>
+            <p class="rotulo text-laranja-texto">{d.rotulo}</p>
+            <h3 id={`dia-${d.data}`} class="mt-2 font-display text-3xl font-black">
+              {d.semana}
+            </h3>
+            <ol class="mt-5 divide-y divide-tinta/15 border-t-2 border-tinta">
+              {d.atividades.map((a) => (
+                <li class={`flex gap-4 py-2.5 ${a.tipo === 'pausa' ? 'text-cinza' : ''}`}>
+                  <span class="w-24 shrink-0 font-mono text-sm text-laranja-texto">
+                    {a.inicio}–{a.fim}
+                  </span>
+                  <span class={a.tipo === 'minicurso' ? 'font-semibold' : ''}>{a.titulo}</span>
+                </li>
+              ))}
+            </ol>
+          </article>
+        ))}
+      </div>
+      <p class="mt-6 text-sm text-cinza">
+        Programação preliminar — nomes de palestrantes e horários finais serão confirmados pela
+        organização.
+      </p>
+    </div>
+  </section>
+
+  <!-- MINICURSO -->
+  <section id="minicurso" aria-labelledby="mini-t" class="mx-auto max-w-7xl px-5 py-20 md:px-10">
+    <Titulo rotulo="Minicurso · 3 tardes" id="mini-t">
+      {minicurso.titulo}
+    </Titulo>
+    <div class="grid gap-10 md:grid-cols-[1fr_1.4fr]">
+      <div class="flex flex-col gap-6">
+        <p class="text-lg leading-relaxed text-cinza">{minicurso.resumo}</p>
+        <p class="border-2 border-tinta p-4">
+          <span class="rotulo text-laranja-texto">Vagas</span>
+          <span class="mt-1 block font-semibold">
+            {minicurso.vagas === null
+              ? 'Limitadas pela capacidade do laboratório — número a definir.'
+              : `${minicurso.vagas} vagas`}
+          </span>
+          <span class="mt-1 block text-sm text-cinza">
+            Opcional: marque no formulário de inscrição. Quando as vagas acabam, a opção é bloqueada
+            automaticamente.
+          </span>
+        </p>
+        <a href="/inscricao" class="btn-primario self-start">
+          Quero participar
+        </a>
+      </div>
+      <ol class="grid gap-px border-2 border-tinta bg-tinta sm:grid-cols-2">
+        {minicurso.blocos.map((b) => (
+          <li class="bg-papel p-6">
+            <span class="font-display text-5xl font-black text-laranja-texto">{b.n}</span>
+            <h3 class="mt-3 text-xl font-bold">{b.titulo}</h3>
+            <p class="mt-1 text-cinza">{b.detalhe}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- TRABALHOS -->
+  <section id="trabalhos" aria-labelledby="trab-t" class="bg-papel-2">
+    <div class="mx-auto max-w-7xl px-5 py-20 md:px-10">
+      <Titulo rotulo="Chamada de trabalhos" id="trab-t">
+        Apresente sua pesquisa
+      </Titulo>
+      <div class="grid gap-10 md:grid-cols-2">
+        <dl class="grid gap-6">
+          <div>
+            <dt class="rotulo text-laranja-texto">Formato</dt>
+            <dd class="mt-1 text-lg">{trabalhos.formato}</dd>
+          </div>
+          <div>
+            <dt class="rotulo text-laranja-texto">Como enviar</dt>
+            <dd class="mt-1 text-lg">{trabalhos.campos}</dd>
+          </div>
+          <div>
+            <dt class="rotulo text-laranja-texto">Avaliação</dt>
+            <dd class="mt-1 text-lg">{trabalhos.avaliacao}</dd>
+          </div>
+          <div>
+            <dt class="rotulo text-laranja-texto">Premiação</dt>
+            <dd class="mt-1 text-lg">{trabalhos.premiacao}</dd>
+          </div>
+          <a href="/inscricao" class="btn-primario self-start">
+            Inscrever e enviar trabalho
+          </a>
+        </dl>
+        <div class="border-2 border-tinta bg-papel p-6">
+          <h3 class="rotulo">Datas importantes</h3>
+          <ol class="mt-4 divide-y divide-tinta/15">
+            {cronograma.map((c) => (
+              <li class="flex gap-5 py-3">
+                <span class="w-20 shrink-0 font-mono font-semibold text-laranja-texto">
+                  {c.data}
+                </span>
+                <span>{c.item}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PALESTRAS -->
+  <section aria-labelledby="pal-t" class="mx-auto max-w-7xl px-5 py-20 md:px-10">
+    <Titulo rotulo="Palestras" id="pal-t">
+      Quem vai falar
+    </Titulo>
+    <div class="grid gap-6 md:grid-cols-2">
+      {palestras.map((p) => (
+        <article class="flex gap-5 border-2 border-tinta p-6">
+          <div class="size-20 shrink-0 bg-laranja/25" aria-hidden="true" />
+          <div>
+            <p class="rotulo text-laranja-texto">{p.quando}</p>
+            <h3 class="mt-2 font-display text-2xl font-black">{p.titulo}</h3>
+            <p class="mt-1 text-cinza">{p.quem}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- LOCAL + REALIZAÇÃO -->
+  <section aria-labelledby="local-t" class="bg-papel-2">
+    <div class="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:grid-cols-2 md:px-10">
+      <div>
+        <Titulo rotulo="Local" id="local-t">
+          {evento.local.nome}
+        </Titulo>
+        <p class="text-lg">{evento.local.detalhe}</p>
+        <p class="mt-2 text-cinza">{evento.local.endereco}</p>
+        <a
+          href={evento.local.mapa}
+          class="btn-secundario mt-6"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Abrir no mapa<span class="sr-only"> (abre em nova aba)</span>
+        </a>
+      </div>
+      <div>
+        <div class="mb-10 border-t-2 border-tinta pt-4 md:mb-14">
+          <p class="rotulo text-laranja-texto">Realização</p>
+          <h2 class="mt-3 font-display text-4xl leading-[1.05] font-black md:text-6xl">
+            Quem organiza
+          </h2>
+        </div>
+        <ul class="flex flex-wrap gap-4">
+          {realizacao.map((r) => (
+            <li class="border-2 border-dashed border-cinza px-5 py-4 text-sm font-semibold text-cinza">
+              {r}
+              <span class="sr-only"> (logo a inserir)</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" aria-labelledby="faq-t" class="mx-auto max-w-4xl px-5 py-20 md:px-10">
+    <Titulo rotulo="Dúvidas" id="faq-t">
+      Perguntas frequentes
+    </Titulo>
+    <div class="border-t-2 border-tinta">
+      {faq.map((f) => (
+        <details class="group border-b-2 border-tinta py-1">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-lg font-bold [&::-webkit-details-marker]:hidden">
+            {f.p}
+            <span
+              class="font-mono text-2xl transition-transform group-open:rotate-45"
+              aria-hidden="true"
+            >
+              +
+            </span>
+          </summary>
+          <p class="pb-5 text-cinza">{f.r}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="border-t-2 border-tinta bg-laranja">
+    <div class="mx-auto flex max-w-7xl flex-col items-start gap-6 px-5 py-16 md:flex-row md:items-center md:justify-between md:px-10">
+      <p class="font-display text-4xl leading-tight font-black md:text-6xl">
+        Garanta sua vaga
+        <br />
+        no minicurso.
+      </p>
+      <a href="/inscricao" class="btn-primario">
+        Fazer inscrição
+      </a>
+    </div>
+  </section>
+</Base>
