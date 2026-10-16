@@ -85,6 +85,12 @@ describe('montarEmailConfirmacao', () => {
     expect(`${m.texto}${m.html}`).not.toMatch(/\d{3}\.\d{3}\.\d{3}-\d{2}/);
   });
 
+  it('orienta a marcar como "não é spam" para receber os próximos avisos', async () => {
+    const m = await montar();
+    expect(m.texto).toMatch(/spam/i);
+    expect(m.html).toMatch(/spam/i);
+  });
+
   it('inclui o link do site quando configurado', async () => {
     expect((await montar()).texto).not.toContain('vercel.app');
     const m = await montar({}, 'https://workshop-ml-ic-ufal.vercel.app');

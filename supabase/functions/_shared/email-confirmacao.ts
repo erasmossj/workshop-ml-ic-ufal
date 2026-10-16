@@ -78,6 +78,8 @@ export async function montarEmailConfirmacao(
     ...links.map((l) => `- ${l.titulo}: ${l.url}`),
     ...(opcoes.siteUrl ? ['', `Programação completa: ${opcoes.siteUrl}`] : []),
     '',
+    'Se esta mensagem foi para o spam ou lixo eletrônico, marque como "não é spam" para receber os próximos avisos do evento (como o certificado).',
+    '',
     'Se você não fez esta inscrição, ignore esta mensagem.',
     '',
     `${EVENTO.sigla} · ${EVENTO.realizacao}`,
@@ -100,6 +102,7 @@ export async function montarEmailConfirmacao(
 <p>Adicione à sua agenda (ou abra o arquivo <code>.ics</code> anexado):</p>
 <ul>${links.map((l) => `<li><a href="${escaparHtml(l.url)}" style="color:${AZUL}">${escaparHtml(l.titulo)} — Google Agenda</a></li>`).join('')}</ul>
 ${opcoes.siteUrl ? `<p>Programação completa: <a href="${escaparHtml(opcoes.siteUrl)}" style="color:${AZUL}">${escaparHtml(opcoes.siteUrl)}</a></p>` : ''}
+<p style="color:#555;font-size:13px">Se esta mensagem foi para o spam ou lixo eletrônico, marque como &quot;não é spam&quot; para receber os próximos avisos do evento (como o certificado).</p>
 <p style="color:#555;font-size:13px">Se você não fez esta inscrição, ignore esta mensagem.</p>
 <p style="color:#555;font-size:13px">${escaparHtml(EVENTO.sigla)} · ${escaparHtml(EVENTO.realizacao)}</p>
 </div></body></html>`;
