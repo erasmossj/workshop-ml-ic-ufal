@@ -1,6 +1,19 @@
 # Backlog — projeto Jira `WML`
 
-> Fonte para criação das issues no Jira (`erasmojunior.atlassian.net`, projeto `WML`). Datas = previsão de conclusão (2026). Itens criados por IA vão para "Em análise" até revisão humana.
+> Issues criadas no Jira (`erasmojunior.atlassian.net`, projeto `WML`) em 16/10/2026. Datas = previsão de conclusão (2026). Itens feitos por IA ficam em "Fazendo" até revisão humana.
+
+| Épico | Chave | Tasks |
+|---|---|---|
+| E1 Setup e governança | WML-1 | WML-10..13 |
+| E2 Design e protótipos | WML-2 | WML-14..23 |
+| E3 Front-end do site | WML-53 | WML-61..66 |
+| E4 Inscrição (MVP) | WML-3 | WML-24..28 |
+| E5 E-mail e comprovante | WML-4 | WML-29..31 |
+| E6 Admin e exportação | WML-5 | WML-32..35 |
+| E7 Carga, LGPD e operação | WML-6 | WML-36..40 |
+| E8 Segurança (S1–S6) | WML-7 | WML-41..52 |
+| E9 Credenciamento QR | WML-8 | WML-54..56 |
+| E10 Certificados | WML-9 | WML-57..60 |
 
 ## E1 — Setup e governança
 | # | Tarefa | Data | Fase |
