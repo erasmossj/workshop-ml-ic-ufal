@@ -1,7 +1,7 @@
 # ADR-003 — Controle de vagas dos minicursos sem overbooking
 
 - Status: Aceito (16/10/2026)
-- Contexto: 2 minicursos com vagas limitadas; algumas centenas de pessoas podem se inscrever ao mesmo tempo. Ler "vagas restantes" no front e depois gravar gera race condition.
+- Contexto: minicurso com vagas limitadas (1 minicurso em 3 tardes, decidido em 16/10; o desenho suporta N minicursos); algumas centenas de pessoas podem se inscrever ao mesmo tempo. Ler "vagas restantes" no front e depois gravar gera race condition.
 
 ## Decisão
 

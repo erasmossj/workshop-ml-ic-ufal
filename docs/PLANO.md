@@ -13,7 +13,7 @@
 
 - Datas: **02, 03 e 04/12/2026** (qua, qui, sex — o relatório marcava ter–qui por engano). Manhãs: palestras e trabalhos; tardes: minicurso.
 - Inscrição padrão = acesso a **todas as palestras** dos 3 dias.
-- **Minicurso** (segundo o relatório: **1 minicurso nas 3 tardes**, 4 blocos — Fundamentos/Colab, Classificação, Regressão + clustering, Séries temporais). Opt-in na inscrição, vagas limitadas pelo laboratório (número a definir). _Divergência com a conversa inicial (2 minicursos em dias diferentes) — a confirmar; o schema suporta N minicursos._
+- **Minicurso: 1 minicurso nas 3 tardes** (decidido em 16/10: seguir o relatório), 4 blocos — Fundamentos/Colab, Classificação, Regressão + clustering, Séries temporais. Opt-in na inscrição, vagas limitadas pelo laboratório (número a definir). O schema continua suportando N minicursos, caso mude.
 - Site no ar: **26/10**. Inscrições e submissões: **30/10 a 16/11/2026** (prorrogável até 18/11), horário de Maceió, validado no servidor.
 - Trabalho: título, autores, resumo e PDF (short paper SBC, 4 ou 6 páginas sem referências). Banca 16/11; avaliação 16–25/11 (**rejeitado / aprovado pôster / aprovado oral**); resultado 26/11.
 - Premiação: opt-in para concorrer a **melhor trabalho de graduação** e **de mestrado**.
