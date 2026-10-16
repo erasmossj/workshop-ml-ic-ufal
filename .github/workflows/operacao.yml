@@ -1,0 +1,72 @@
+# Operação (WML-37): keep-alive do Supabase Free (pausa após 7 dias sem uso) e backup diário.
+# Configuração (Settings → Secrets and variables → Actions) — passo a passo em docs/RUNBOOK.md:
+#   Variables: SUPABASE_URL_PROD, SUPABASE_ANON_KEY_PROD, SUPABASE_URL_STAGING,
+#              SUPABASE_ANON_KEY_STAGING, BACKUP_AGE_RECIPIENT (chave PÚBLICA age)
+#   Secret:    SUPABASE_DB_URL_PROD (string de conexão do pooler, com senha)
+name: operacao
+
+on:
+  schedule:
+    - cron: '17 12 * * *' # keep-alive · 09:17 em Maceió
+    - cron: '37 6 * * *' # backup · 03:37 em Maceió
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  keep-alive:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '17 12 * * *'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ambiente: [PROD, STAGING]
+    steps:
+      # Consulta pública e sem dado pessoal (vagas dos minicursos): conta como uso do projeto.
+      - name: Consulta ao banco (${{ matrix.ambiente }})
+        env:
+          URL: ${{ vars[format('SUPABASE_URL_{0}', matrix.ambiente)] }}
+          CHAVE: ${{ vars[format('SUPABASE_ANON_KEY_{0}', matrix.ambiente)] }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$CHAVE" ]; then
+            echo "::error::Defina SUPABASE_URL_${{ matrix.ambiente }} e SUPABASE_ANON_KEY_${{ matrix.ambiente }} (docs/RUNBOOK.md)."
+            exit 1
+          fi
+          status=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$URL/rest/v1/rpc/vagas_publicas" \
+            -H "apikey: $CHAVE" -H "Content-Type: application/json" -d '{}')
+          echo "HTTP $status"
+          test "$status" = 200
+
+  backup:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '37 6 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: sudo apt-get install -y age
+      # O dump tem dado pessoal (CPF): só sai do runner criptografado para a chave da organização.
+      # O repositório é público — nunca publique o .sql sem criptografia.
+      - name: Dump do banco de produção (criptografado)
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL_PROD }}
+          DESTINATARIO: ${{ vars.BACKUP_AGE_RECIPIENT }}
+        run: |
+          if [ -z "$DB_URL" ] || [ -z "$DESTINATARIO" ]; then
+            echo "::error::Defina o secret SUPABASE_DB_URL_PROD e a variável BACKUP_AGE_RECIPIENT (docs/RUNBOOK.md)."
+            exit 1
+          fi
+          umask 077
+          mkdir -p dump
+          supabase db dump --db-url "$DB_URL" -f dump/schema.sql
+          supabase db dump --db-url "$DB_URL" --data-only --use-copy -f dump/dados.sql
+          tar -czf - -C dump . | age -r "$DESTINATARIO" -o "backup-$(date -u +%Y%m%dT%H%MZ).tar.gz.age"
+          rm -rf dump
+          ls -la backup-*.age
+      - uses: actions/upload-artifact@v7
+        with:
+          name: backup-prod
+          path: backup-*.age
+          retention-days: 14
+          if-no-files-found: error
