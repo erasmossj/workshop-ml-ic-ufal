@@ -21,7 +21,7 @@
         +--HTTPS (anon key)--> [Edge Function register] --service role--> [Postgres + Storage]
         +--HTTPS (anon key)--> [PostgREST: só RPC vagas_publicas]
 [Organizador (magic link)] --JWT--> [RPCs admin_* (verificam organizadores)]
-[pg_cron] --> [Edge Function send-emails] --SMTP 465--> [Gmail]
+[pg_cron + pg_net] --x-cron-secret--> [Edge Function send-emails] --SMTP 465--> [Gmail] (reserva: API Brevo)
 ```
 
 Fronteira principal: **tudo que vem do navegador é não confiável**, inclusive o que a anon key permite chamar diretamente no PostgREST.
@@ -51,11 +51,15 @@ Fronteira principal: **tudo que vem do navegador é não confiável**, inclusive
 
 ### 3. E-mail
 
-| Ameaça                             | Mitigação                                                                                                       |
-| ---------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Vazamento de CPF por e-mail        | E-mail e comprovante mostram só CPF mascarado                                                                   |
-| Injeção de cabeçalho/HTML via nome | Nome escapado no template HTML; cabeçalhos montados pelo nodemailer/SMTP lib, nunca por concatenação            |
-| Senha do Gmail exposta             | Senha de **app** (revogável), só em segredo da Edge Function; nunca no repositório (gitleaks + push protection) |
+| Ameaça                              | Mitigação                                                                                                                                                            |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Vazamento de CPF por e-mail         | E-mail e comprovante mostram só CPF mascarado                                                                                                                        |
+| Injeção de cabeçalho/HTML via nome  | Nome escapado no template HTML; cabeçalhos montados pelo nodemailer/SMTP lib, nunca por concatenação                                                                 |
+| Senha do Gmail exposta              | Senha de **app** (revogável), só em segredo da Edge Function; nunca no repositório (gitleaks + push protection)                                                      |
+| Qualquer um disparar o envio        | `send-emails` exige o cabeçalho `x-cron-secret` (≥ 32 caracteres, comparação em tempo constante); o valor fica no Vault do banco e nos segredos da função            |
+| Rajada de e-mails / estouro do teto | Teto diário em `config_evento` aplicado na reserva (`reservar_emails`, com trava); lotes pequenos por minuto; retries com espera crescente e desistência na 5ª falha |
+| Dado pessoal no erro guardado       | Mensagens do provedor passam por `erroSeguro` (função) e `erro_sem_dados_pessoais` (banco): e-mail e CPF viram `[e-mail]`/`[cpf]`                                    |
+| QR do comprovante forjado           | Token `número.HMAC-SHA256` truncado (128 bits) com `QR_HMAC_SECRET`; o QR não carrega dado pessoal                                                                   |
 
 ### 4. Painel e exportação
 

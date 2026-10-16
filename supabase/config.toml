@@ -418,3 +418,7 @@ enabled = true
 # Edge Function de inscrição: protegida por Turnstile + limite por origem (sem JWT de usuário).
 [functions.register]
 verify_jwt = false
+
+# Fila de e-mail: chamada só pelo pg_cron, autenticada pelo cabeçalho x-cron-secret.
+[functions.send-emails]
+verify_jwt = false
