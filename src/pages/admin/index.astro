@@ -11,7 +11,13 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
     <p class="rotulo text-ciano">Organização · acesso restrito</p>
     <h1 class="mt-2 font-display text-3xl font-bold md:text-4xl">Painel da organização</h1>
 
-    <p id="aviso" role="status" aria-live="polite" class="mt-4 min-h-6 text-sm text-suave"></p>
+    <!-- Aviso flutuante: visível em qualquer ponto da rolagem (ex.: ao salvar na Configuração). -->
+    <p
+      id="aviso"
+      role="status"
+      aria-live="polite"
+      class="fixed bottom-6 left-1/2 z-50 w-[min(92vw,36rem)] -translate-x-1/2 rounded-2xl bg-texto px-5 py-3 text-center font-medium text-fundo-1 shadow-2xl transition-opacity pointer-events-none opacity-0"
+    ></p>
 
     {!configurado && (
       <p class="vidro mt-6 p-6">
@@ -313,8 +319,17 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
 
   const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
   const valor = (id: string) => $<HTMLInputElement>(id).value;
+  let ocultarAviso: ReturnType<typeof setTimeout> | undefined;
+  /** Mostra o aviso flutuante por 8 s (o leitor de tela anuncia pelo role="status"). */
   const avisar = (texto: string) => {
-    $('aviso').textContent = texto;
+    const aviso = $('aviso');
+    aviso.textContent = texto;
+    aviso.classList.remove('opacity-0');
+    clearTimeout(ocultarAviso);
+    ocultarAviso = setTimeout(() => {
+      aviso.classList.add('opacity-0');
+      aviso.textContent = '';
+    }, 8000);
   };
 
   /** Cria elemento com texto seguro (textContent — nunca innerHTML com dado do banco). */
