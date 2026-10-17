@@ -129,27 +129,27 @@ const realizacao = [
           ['Formato', 'Manhãs com palestras e apresentações de trabalhos; tardes com o minicurso.'],
           ['Realização', evento.realizacao],
         ].map(([t, d]) => (
-          <div class="vidro flex gap-4 p-5">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              class="mt-0.5 shrink-0 text-ciano"
-              aria-hidden="true"
-            >
-              <path
-                d={icones.check}
-                stroke="currentColor"
-                stroke-width="2.2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-            <div>
-              <dt class="font-semibold">{t}</dt>
-              <dd class="text-suave">{d}</dd>
-            </div>
+          <div class="vidro relative p-5 pl-14.5">
+            <dt class="font-semibold">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                class="absolute top-5.5 left-5 text-ciano"
+                aria-hidden="true"
+              >
+                <path
+                  d={icones.check}
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              {t}
+            </dt>
+            <dd class="text-suave">{d}</dd>
           </div>
         ))}
       </dl>
@@ -229,22 +229,24 @@ const realizacao = [
       Apresente sua pesquisa
     </Titulo>
     <div class="grid gap-10 md:grid-cols-2">
-      <dl class="grid gap-6">
-        {[
-          ['Formato', trabalhos.formato],
-          ['Como enviar', trabalhos.campos],
-          ['Avaliação', trabalhos.avaliacao],
-          ['Premiação', trabalhos.premiacao],
-        ].map(([t, d]) => (
-          <div>
-            <dt class="rotulo text-ciano">{t}</dt>
-            <dd class="mt-1 text-lg">{d}</dd>
-          </div>
-        ))}
-        <a href="/inscricao" class="btn-primario self-start">
+      <div class="grid gap-6">
+        <dl class="grid gap-6">
+          {[
+            ['Formato', trabalhos.formato],
+            ['Como enviar', trabalhos.campos],
+            ['Avaliação', trabalhos.avaliacao],
+            ['Premiação', trabalhos.premiacao],
+          ].map(([t, d]) => (
+            <div>
+              <dt class="rotulo text-ciano">{t}</dt>
+              <dd class="mt-1 text-lg">{d}</dd>
+            </div>
+          ))}
+        </dl>
+        <a href="/inscricao" class="btn-primario self-start justify-self-start">
           Inscrever e enviar trabalho
         </a>
-      </dl>
+      </div>
       <div class="vidro p-6">
         <h3 class="rotulo text-ciano">Datas importantes</h3>
         <ol class="mt-4 divide-y divide-white/10">

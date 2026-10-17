@@ -34,3 +34,6 @@ load/results/
 Thumbs.db
 .idea/
 *.log
+
+# Relatórios do Lighthouse CI
+.lighthouseci/

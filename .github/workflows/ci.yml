@@ -34,6 +34,8 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
+      # WML-66: acessibilidade, boas práticas e SEO ≥ 90 (desempenho só avisa: o runner varia).
+      - run: npx --yes @lhci/cli@0.15.1 autorun
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test
       - name: Relatório do Playwright
