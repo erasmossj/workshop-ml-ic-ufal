@@ -1,6 +1,4 @@
 ---
-import { evento } from '../data/evento';
-
 const links = [
   { href: '/#sobre', label: 'Sobre' },
   { href: '/#programacao', label: 'Programação' },
@@ -12,7 +10,8 @@ const links = [
 
 <header class="no-print sticky top-0 z-40 border-b border-white/10 bg-fundo-1/70 backdrop-blur-lg">
   <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-3 md:px-10">
-    <a href="/" class="flex items-center gap-3" aria-label={`${evento.sigla} — página inicial`}>
+    <!-- Sem aria-label: o nome acessível começa pelo texto visível (WCAG 2.5.3, comando de voz). -->
+    <a href="/" class="flex items-center gap-3">
       <span
         class="grid size-10 place-items-center rounded-xl bg-linear-to-br from-acao-1 to-acao-2 font-display text-sm font-extrabold text-sobre-acao"
         aria-hidden="true"
@@ -22,6 +21,7 @@ const links = [
       <span class="leading-tight">
         <span class="block text-xs text-suave">Workshop de</span>
         <span class="font-display text-base font-bold">Machine Learning</span>
+        <span class="sr-only"> (página inicial)</span>
       </span>
     </a>
 
