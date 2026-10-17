@@ -4,6 +4,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Espera a versão "assentar" antes de propor (pacote comprometido costuma ser retirado em dias).
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 5
     groups:
       minor-e-patch:
@@ -17,3 +20,5 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
