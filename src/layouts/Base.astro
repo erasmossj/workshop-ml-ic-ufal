@@ -9,9 +9,11 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  /** Páginas internas (ex.: /admin) ficam fora dos buscadores. */
+  noindex?: boolean;
 }
 
-const { title, description = evento.resumo } = Astro.props;
+const { title, description = evento.resumo, noindex = false } = Astro.props;
 // VERCEL_ENV é definida pela Vercel no build (production | preview | development).
 const faixa = textoDaFaixa({
   backend: Boolean(import.meta.env.PUBLIC_SUPABASE_URL),
@@ -27,6 +29,7 @@ const fullTitle = title ? `${title} · ${evento.sigla}` : `${evento.sigla} — $
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta name="theme-color" content="#071a45" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta property="og:title" content={fullTitle} />
