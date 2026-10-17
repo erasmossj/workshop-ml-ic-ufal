@@ -48,7 +48,7 @@ supabase/functions/  # Edge Functions (register, send-emails, ...)
 supabase/tests/      # pgTAP (RLS, RPCs, concorrência)
 e2e/                 # Playwright
 load/                # scripts k6
-docs/                # PLANO, ADRs, BACKLOG, seguranca/, marca/
+docs/                # PLANO, ADRs, BACKLOG, RUNBOOK (operação), seguranca/, marca/
 ```
 
 ## Comandos
