@@ -99,6 +99,14 @@ describe('Edge Function register', () => {
     expect(JSON.stringify(corpo)).not.toContain('52998224725');
   });
 
+  it('grava nome com acentos e cedilha em UTF-8, sem corromper', async () => {
+    const email = novoEmail();
+    const nome = 'Conceição Fumaça Araújo';
+    expect((await enviar(formulario({ nome, email }))).status).toBe(201);
+    const [gravado] = await (await rest(`participantes?select=nome&email=eq.${email}`)).json();
+    expect(gravado.nome).toBe(nome);
+  });
+
   it('recusa e-mail repetido com código e campo', async () => {
     const email = novoEmail();
     expect((await enviar(formulario({ email }))).status).toBe(201);
