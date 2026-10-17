@@ -92,3 +92,57 @@ Em **GitHub → repositório → Settings → Secrets and variables → Actions*
 4. Apague os `.sql` descriptografados ao terminar — eles têm dado pessoal.
 
 Os PDFs dos trabalhos (Storage) não entram neste backup; a organização baixa os PDFs pelo painel.
+
+## Teste de carga (WML-36) — SOMENTE no staging
+
+`load/inscricao.js`: 300 pessoas se inscrevendo ao mesmo tempo (metade no minicurso). Critérios:
+p95 < 2 s, nenhum erro 5xx, nenhum overbooking. O script se recusa a rodar contra a produção.
+
+### 1. Preparar o staging
+
+No **SQL Editor do staging**:
+
+```sql
+-- Pausa o envio de e-mails (senão o Gmail tenta mandar para 300 endereços fictícios).
+select cron.alter_job((select jobid from cron.job where jobname = 'enviar-emails'), active := false);
+```
+
+No PowerShell (o limite por origem barraria o teste, que sai todo de um IP só):
+
+```powershell
+npx supabase secrets set --project-ref aiyzqeckoyalrhlvhmmf RATE_LIMIT_MAX=100000
+```
+
+No painel `/admin` do staging, defina as vagas do minicurso (ex.: 50) para testar a disputa.
+
+### 2. Rodar
+
+```powershell
+docker run --rm -i -e BASE_URL=https://aiyzqeckoyalrhlvhmmf.supabase.co -e ANON_KEY=<anon do staging> grafana/k6 run - < load/inscricao.js
+```
+
+Resultado esperado: thresholds com ✓, `erros_5xx` 0% e, no fim, `restantes depois` ≥ 0.
+
+### 3. Limpar e restaurar (nesta ordem)
+
+No **SQL Editor do staging** — cancela pelas regras do sistema (libera as vagas) e apaga as
+inscrições sintéticas, junto com os e-mails delas na fila:
+
+```sql
+begin;
+select set_config('request.jwt.claims', '{"role":"service_role"}', true);
+select public.cancel_registration(p.id)
+  from public.participantes p
+ where p.email like 'carga-%@exemplo.com' and p.cancelada_em is null;
+delete from public.participantes where email like 'carga-%@exemplo.com';
+commit;
+
+-- Religa o envio de e-mails (só depois da limpeza).
+select cron.alter_job((select jobid from cron.job where jobname = 'enviar-emails'), active := true);
+```
+
+No PowerShell:
+
+```powershell
+npx supabase secrets set --project-ref aiyzqeckoyalrhlvhmmf RATE_LIMIT_MAX=5
+```

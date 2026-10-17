@@ -52,6 +52,11 @@ const ERROS: Record<string, Resposta> = {
   },
 };
 
+/** Causa do erro para o log: código + começo da mensagem (erros do banco/rede não trazem dados). */
+function causa(e: { code?: string; message?: string } | null | undefined): string {
+  return `${e?.code ?? 'sem-codigo'} ${(e?.message ?? '').slice(0, 120)}`;
+}
+
 function cabecalhos(origem: string): HeadersInit {
   const base: Record<string, string> = {
     'Content-Type': 'application/json; charset=utf-8',
@@ -131,7 +136,7 @@ Deno.serve(async (req) => {
     p_janela_segundos: JANELA_LIMITE_SEGUNDOS,
   });
   if (erroLimite) {
-    console.error('consumir_limite falhou', erroLimite.code);
+    console.error('consumir_limite falhou', causa(erroLimite));
     return json(500, { erro: 'Erro inesperado. Tente novamente em instantes.' }, h);
   }
   if (!permitido) {
@@ -167,7 +172,7 @@ Deno.serve(async (req) => {
       .eq('slug', MINICURSO_SLUG)
       .single();
     if (error || !data) {
-      console.error('minicurso não encontrado', error?.code);
+      console.error('minicurso não encontrado', causa(error));
       return json(500, { erro: 'Erro inesperado. Tente novamente em instantes.' }, h);
     }
     minicursos = [data.id];
@@ -232,7 +237,7 @@ Deno.serve(async (req) => {
         h,
       );
     }
-    console.error('register_participant falhou', error.code);
+    console.error('register_participant falhou', causa(error));
     return json(500, { erro: 'Erro inesperado. Tente novamente em instantes.' }, h);
   }
 
@@ -242,7 +247,7 @@ Deno.serve(async (req) => {
       .from('trabalhos')
       .update({ pdf_path: caminho })
       .eq('participante_id', inscricao.id_inscricao);
-    if (erroCaminho) console.error('gravar pdf_path falhou', erroCaminho.code);
+    if (erroCaminho) console.error('gravar pdf_path falhou', causa(erroCaminho));
   }
 
   return json(201, { numero: inscricao.numero_inscricao }, h);
