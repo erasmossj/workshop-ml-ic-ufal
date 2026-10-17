@@ -19,7 +19,7 @@ for (const caminho of ['/', '/inscricao', '/confirmacao', '/privacidade']) {
       // O iframe fica em shadow DOM fechado: procura pelo frame da Cloudflare.
       await expect
         .poll(
-          () => page.frames().some((f) => f.url().startsWith('https://challenges.cloudflare.com')),
+          () => page.frames().some((f) => new URL(f.url()).host === 'challenges.cloudflare.com'),
           {
             timeout: 15_000,
           },
