@@ -4,6 +4,8 @@
 //
 //   docker run --rm -i -e BASE_URL=https://<ref>.supabase.co -e ANON_KEY=<anon do staging> \
 //     grafana/k6 run - < load/inscricao.js
+
+/* global __ENV, __VU, __ITER -- variáveis do runtime do k6 */
 import http from 'k6/http';
 import { check, fail } from 'k6';
 import { Counter, Rate } from 'k6/metrics';
