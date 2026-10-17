@@ -68,7 +68,7 @@ npm run functions:serve    # Edge Functions locais (copie supabase/functions/.en
 npm run test:integracao    # integração HTTP de register e send-emails (Supabase local + Mailpit)
 npm run test:concorrencia  # 100 inscrições simultâneas pela última vaga
 npm run gerar:evento       # copia src/data/evento.ts para as Edge Functions (e-mail/comprovante)
-k6 run load/inscricao.js   # carga — SOMENTE contra staging, nunca produção
+docker run --rm -i -e BASE_URL=... -e ANON_KEY=... grafana/k6 run - < load/inscricao.js  # carga: SÓ staging (RUNBOOK)
 ```
 
 ## Fluxo de trabalho
