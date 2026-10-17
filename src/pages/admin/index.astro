@@ -1,0 +1,696 @@
+---
+import Base from '../../layouts/Base.astro';
+
+// Painel da organização (WML-32..35). Acesso: magic link + allowlist `organizadores`, verificada
+// em TODA RPC no banco (a tela só esconde; quem decide é o banco). Sem backend: aviso de protótipo.
+const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
+---
+
+<Base title="Painel da organização" noindex>
+  <section class="mx-auto max-w-7xl px-5 py-10 md:px-10">
+    <p class="rotulo text-ciano">Organização · acesso restrito</p>
+    <h1 class="mt-2 font-display text-3xl font-bold md:text-4xl">Painel da organização</h1>
+
+    <p id="aviso" role="status" aria-live="polite" class="mt-4 min-h-6 text-sm text-suave"></p>
+
+    {!configurado && (
+      <p class="vidro mt-6 p-6">
+        O painel funciona só com o backend configurado (PUBLIC_SUPABASE_URL). Nesta versão de
+        protótipo não há dados para mostrar.
+      </p>
+    )}
+
+    <!-- Login -->
+    <form id="form-login" class="vidro mt-6 hidden max-w-md p-6" novalidate>
+      <h2 class="font-display text-xl font-bold">Entrar</h2>
+      <p class="mt-2 text-sm text-suave">
+        Enviaremos um link de acesso para o seu e-mail. Só e-mails cadastrados pela coordenação
+        entram.
+      </p>
+      <label for="login-email" class="mt-4 block text-sm font-medium">
+        E-mail
+      </label>
+      <input
+        id="login-email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        required
+        class="campo mt-1 w-full"
+      />
+      <button type="submit" class="btn-primario mt-4">
+        Enviar link de acesso
+      </button>
+    </form>
+
+    <!-- Sem acesso -->
+    <div id="sem-acesso" class="vidro mt-6 hidden max-w-md p-6">
+      <p>Este e-mail não tem acesso ao painel. Fale com a coordenação do evento.</p>
+      <button type="button" class="btn-secundario mt-4" data-sair>
+        Sair
+      </button>
+    </div>
+
+    <!-- Painel -->
+    <div id="painel" class="hidden">
+      <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <p class="text-sm text-suave">
+          Conectado como <strong id="quem"></strong>
+        </p>
+        <button type="button" class="btn-secundario px-4 py-2" data-sair>
+          Sair
+        </button>
+      </div>
+
+      <section aria-labelledby="t-resumo" class="mt-8">
+        <h2 id="t-resumo" class="font-display text-2xl font-bold">
+          Resumo
+        </h2>
+        <dl id="resumo" class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></dl>
+      </section>
+
+      <section aria-labelledby="t-inscricoes" class="mt-10">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <h2 id="t-inscricoes" class="font-display text-2xl font-bold">
+            Inscrições
+          </h2>
+          <button type="button" id="exportar" class="btn-primario px-4 py-2">
+            Exportar CSV (lista filtrada)
+          </button>
+        </div>
+
+        <form id="filtros" class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" role="search">
+          <div>
+            <label for="f-busca" class="block text-sm font-medium">
+              Buscar
+            </label>
+            <input
+              id="f-busca"
+              type="search"
+              placeholder="Nome, e-mail ou nº"
+              class="campo mt-1 w-full"
+            />
+          </div>
+          <div>
+            <label for="f-minicurso" class="block text-sm font-medium">
+              Minicurso
+            </label>
+            <select id="f-minicurso" class="campo mt-1 w-full">
+              <option value="todos">Todos</option>
+              <option value="sim">Inscritos no minicurso</option>
+              <option value="nao">Sem minicurso</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-trabalho" class="block text-sm font-medium">
+              Trabalho
+            </label>
+            <select id="f-trabalho" class="campo mt-1 w-full">
+              <option value="todos">Todos</option>
+              <option value="com">Com trabalho</option>
+              <option value="sem">Sem trabalho</option>
+              <option value="pendente">Pendente</option>
+              <option value="aprovado_poster">Aprovado (pôster)</option>
+              <option value="aprovado_oral">Aprovado (oral)</option>
+              <option value="rejeitado">Rejeitado</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-situacao" class="block text-sm font-medium">
+              Situação
+            </label>
+            <select id="f-situacao" class="campo mt-1 w-full">
+              <option value="ativas">Ativas</option>
+              <option value="canceladas">Canceladas</option>
+              <option value="todas">Todas</option>
+            </select>
+          </div>
+        </form>
+
+        <div class="vidro mt-4 overflow-x-auto">
+          <table class="w-full min-w-[56rem] text-left text-sm">
+            <caption id="legenda" class="px-4 pt-4 text-left text-suave"></caption>
+            <thead>
+              <tr class="border-b border-white/15">
+                <th scope="col" class="p-3">
+                  Nº
+                </th>
+                <th scope="col" class="p-3">
+                  Participante
+                </th>
+                <th scope="col" class="p-3">
+                  CPF
+                </th>
+                <th scope="col" class="p-3">
+                  Minicurso
+                </th>
+                <th scope="col" class="p-3">
+                  Trabalho
+                </th>
+                <th scope="col" class="p-3">
+                  E-mail de confirmação
+                </th>
+                <th scope="col" class="p-3">
+                  Ações
+                </th>
+              </tr>
+            </thead>
+            <tbody id="linhas"></tbody>
+          </table>
+        </div>
+        <nav aria-label="Páginas da lista" class="mt-4 flex items-center gap-3">
+          <button type="button" id="anterior" class="btn-secundario px-4 py-2">
+            Anterior
+          </button>
+          <span id="pagina" class="text-sm text-suave"></span>
+          <button type="button" id="proxima" class="btn-secundario px-4 py-2">
+            Próxima
+          </button>
+        </nav>
+      </section>
+
+      <section aria-labelledby="t-config" class="mt-10">
+        <h2 id="t-config" class="font-display text-2xl font-bold">
+          Configuração do evento
+        </h2>
+
+        <div id="vagas" class="mt-4 grid gap-4 md:grid-cols-2"></div>
+
+        <form id="form-janelas" class="vidro mt-4 grid gap-4 p-6 md:grid-cols-2">
+          <h3 class="font-display text-lg font-bold md:col-span-2">
+            Janelas (horário de Maceió) e e-mail
+          </h3>
+          <div>
+            <label for="j-insc-ini" class="block text-sm font-medium">
+              Inscrições abrem
+            </label>
+            <input id="j-insc-ini" type="datetime-local" required class="campo mt-1 w-full" />
+          </div>
+          <div>
+            <label for="j-insc-fim" class="block text-sm font-medium">
+              Inscrições fecham
+            </label>
+            <input id="j-insc-fim" type="datetime-local" required class="campo mt-1 w-full" />
+          </div>
+          <div>
+            <label for="j-sub-ini" class="block text-sm font-medium">
+              Submissões abrem
+            </label>
+            <input id="j-sub-ini" type="datetime-local" required class="campo mt-1 w-full" />
+          </div>
+          <div>
+            <label for="j-sub-fim" class="block text-sm font-medium">
+              Submissões fecham
+            </label>
+            <input id="j-sub-fim" type="datetime-local" required class="campo mt-1 w-full" />
+          </div>
+          <div>
+            <label for="j-limite" class="block text-sm font-medium">
+              E-mails por dia (teto)
+            </label>
+            <input
+              id="j-limite"
+              type="number"
+              min="1"
+              max="2000"
+              required
+              class="campo mt-1 w-full"
+              aria-describedby="j-limite-ajuda"
+            />
+            <p id="j-limite-ajuda" class="mt-1 text-xs text-suave">
+              Gmail aguenta cerca de 500 por dia; deixe uma folga.
+            </p>
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="btn-primario">
+              Salvar janelas
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <!-- Correção de dados -->
+    <dialog
+      id="dialogo-corrigir"
+      aria-labelledby="t-corrigir"
+      class="vidro max-w-lg p-6 text-texto"
+    >
+      <form id="form-corrigir" method="dialog" class="grid gap-3">
+        <h2 id="t-corrigir" class="font-display text-xl font-bold">
+          Corrigir inscrição
+        </h2>
+        <p class="text-sm text-suave">
+          Inscrição <strong id="c-numero"></strong>. Por segurança, o CPF precisa ser digitado
+          completo de novo.
+        </p>
+        <label for="c-nome" class="text-sm font-medium">
+          Nome completo
+        </label>
+        <input id="c-nome" required class="campo" autocomplete="off" />
+        <label for="c-email" class="text-sm font-medium">
+          E-mail
+        </label>
+        <input id="c-email" type="email" required class="campo" autocomplete="off" />
+        <label for="c-cpf" class="text-sm font-medium">
+          CPF
+        </label>
+        <input id="c-cpf" inputmode="numeric" required class="campo" autocomplete="off" />
+        <label for="c-inst" class="text-sm font-medium">
+          Instituição (opcional)
+        </label>
+        <input id="c-inst" class="campo" autocomplete="off" />
+        <div class="mt-2 flex flex-wrap gap-3">
+          <button type="submit" value="salvar" class="btn-primario">
+            Salvar correção
+          </button>
+          <button type="submit" value="cancelar" formnovalidate class="btn-secundario">
+            Voltar
+          </button>
+        </div>
+      </form>
+    </dialog>
+  </section>
+</Base>
+
+<script>
+  import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+  import {
+    deInputLocal,
+    filtrar,
+    formatarDataHora,
+    gerarCsv,
+    mensagemDeErro,
+    NIVEL_PREMIO,
+    paginar,
+    paraInputLocal,
+    STATUS_EMAIL,
+    STATUS_TRABALHO,
+    type Filtros,
+    type Inscricao,
+  } from '../../lib/admin';
+
+  type Minicurso = {
+    id: number;
+    slug: string;
+    titulo: string;
+    vagas: number | null;
+    ocupadas: number;
+  };
+  type Config = {
+    inscricoes_inicio: string;
+    inscricoes_fim: string;
+    submissoes_inicio: string;
+    submissoes_fim: string;
+    limite_diario_email: number;
+    minicursos: Minicurso[];
+  };
+  type Resultado<T> = { ok: true; data: T } | { ok: false };
+
+  const URL_SUPABASE: string | undefined = import.meta.env.PUBLIC_SUPABASE_URL;
+  const CHAVE: string | undefined = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+  const POR_PAGINA = 20;
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const valor = (id: string) => $<HTMLInputElement>(id).value;
+  const avisar = (texto: string) => {
+    $('aviso').textContent = texto;
+  };
+
+  /** Cria elemento com texto seguro (textContent — nunca innerHTML com dado do banco). */
+  function el<K extends keyof HTMLElementTagNameMap>(
+    tag: K,
+    texto?: string,
+    classe?: string,
+  ): HTMLElementTagNameMap[K] {
+    const e = document.createElement(tag);
+    if (texto !== undefined) e.textContent = texto;
+    if (classe) e.className = classe;
+    return e;
+  }
+
+  function botao(texto: string, classe: string, aoClicar: () => void): HTMLButtonElement {
+    const b = el('button', texto, classe);
+    b.type = 'button';
+    b.addEventListener('click', aoClicar);
+    return b;
+  }
+
+  function mostrar(qual: 'login' | 'sem-acesso' | 'painel') {
+    $('form-login').classList.toggle('hidden', qual !== 'login');
+    $('sem-acesso').classList.toggle('hidden', qual !== 'sem-acesso');
+    $('painel').classList.toggle('hidden', qual !== 'painel');
+  }
+
+  if (URL_SUPABASE && CHAVE) iniciar(createClient(URL_SUPABASE, CHAVE));
+
+  function iniciar(sb: SupabaseClient) {
+    let lista: Inscricao[] = [];
+    let pagina = 1;
+
+    /** Chama a RPC; em erro, mostra a mensagem traduzida. RPC `void` devolve data = null. */
+    async function rpc<T = null>(
+      nome: string,
+      args: Record<string, unknown> = {},
+    ): Promise<Resultado<T>> {
+      const { data, error } = await sb.rpc(nome, args);
+      if (error) {
+        avisar(mensagemDeErro(error.message));
+        return { ok: false };
+      }
+      return { ok: true, data: data as T };
+    }
+
+    // ---------------------------------------------------------------- sessão
+    sb.auth.onAuthStateChange((evento, sessao) => {
+      if (!sessao) {
+        mostrar('login');
+        return;
+      }
+      if (evento !== 'INITIAL_SESSION' && evento !== 'SIGNED_IN') return;
+      $('quem').textContent = sessao.user.email ?? '';
+      // Fora do callback: o cliente ainda está finalizando a sessão aqui.
+      setTimeout(carregarTudo, 0);
+    });
+
+    $<HTMLFormElement>('form-login').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const email = valor('login-email').trim();
+      if (!email) {
+        avisar('Informe o e-mail.');
+        return;
+      }
+      const { error } = await sb.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: false, emailRedirectTo: `${location.origin}/admin` },
+      });
+      // Mesma resposta com ou sem conta: não revela quem é organizador.
+      avisar(
+        error?.status === 429
+          ? 'Muitas tentativas. Aguarde alguns minutos.'
+          : 'Se este e-mail tiver acesso, você vai receber um link para entrar. Confira também o spam.',
+      );
+    });
+
+    document.querySelectorAll('[data-sair]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        await sb.auth.signOut();
+        avisar('Você saiu do painel.');
+      }),
+    );
+
+    async function carregarTudo() {
+      const { data, error } = await sb.rpc('admin_obter_config');
+      if (error) {
+        const semAcesso = error.message === 'NAO_AUTORIZADO';
+        mostrar(semAcesso ? 'sem-acesso' : 'login');
+        if (!semAcesso) avisar(mensagemDeErro(error.message));
+        return;
+      }
+      const config = data as Config;
+      mostrar('painel');
+      renderConfig(config);
+      await carregarLista();
+      await carregarResumo(config);
+    }
+
+    // ---------------------------------------------------------------- resumo
+    async function carregarResumo(config: Config) {
+      const fila = await rpc<Record<string, number>>('admin_resumo_emails');
+      const ativas = lista.filter((i) => !i.cancelada);
+      const cartoes: [string, string][] = [
+        ['Inscrições ativas', String(ativas.length)],
+        ...config.minicursos.map((m): [string, string] => [
+          m.titulo,
+          m.vagas === null
+            ? `${m.ocupadas} inscritos · vagas não abertas`
+            : `${m.ocupadas} de ${m.vagas} vagas`,
+        ]),
+        ['Trabalhos submetidos', String(ativas.filter((i) => i.apresenta_trabalho).length)],
+        [
+          'E-mails',
+          fila.ok
+            ? `${fila.data.enviados_hoje}/${fila.data.limite_diario} hoje · ${fila.data.pendente} na fila · ${fila.data.falhou} com falha`
+            : '—',
+        ],
+      ];
+      $('resumo').replaceChildren(
+        ...cartoes.map(([rotulo, texto]) => {
+          const caixa = el('div', undefined, 'vidro p-4');
+          caixa.append(
+            el('dt', rotulo, 'text-sm text-suave'),
+            el('dd', texto, 'mt-1 font-display text-xl font-bold'),
+          );
+          return caixa;
+        }),
+      );
+    }
+
+    // ---------------------------------------------------------------- lista
+    async function carregarLista() {
+      const r = await rpc<Inscricao[]>('admin_listar_inscricoes');
+      lista = r.ok ? r.data : [];
+      renderLista();
+    }
+
+    function filtrosAtuais(): Filtros {
+      return {
+        busca: valor('f-busca'),
+        minicurso: valor('f-minicurso') as Filtros['minicurso'],
+        trabalho: valor('f-trabalho'),
+        situacao: valor('f-situacao') as Filtros['situacao'],
+      };
+    }
+
+    function renderLista() {
+      const p = paginar(filtrar(lista, filtrosAtuais()), pagina, POR_PAGINA);
+      pagina = p.pagina;
+      $('legenda').textContent = `${p.total} inscrição(ões) no filtro atual.`;
+      $('pagina').textContent = `Página ${p.pagina} de ${p.paginas}`;
+      $<HTMLButtonElement>('anterior').disabled = p.pagina <= 1;
+      $<HTMLButtonElement>('proxima').disabled = p.pagina >= p.paginas;
+      $('linhas').replaceChildren(...p.itens.map(linha));
+    }
+
+    function celulaTrabalho(i: Inscricao): HTMLTableCellElement {
+      const td = el('td', undefined, 'p-3');
+      if (!i.apresenta_trabalho) {
+        td.textContent = '—';
+        return td;
+      }
+      td.append(el('div', i.titulo_trabalho ?? '', 'font-medium'));
+      if (i.concorre_premio) {
+        td.append(
+          el(
+            'div',
+            `Concorre ao prêmio (${NIVEL_PREMIO[i.nivel ?? ''] ?? '—'})`,
+            'text-xs text-suave',
+          ),
+        );
+      }
+      const sel = el('select', undefined, 'campo mt-2 py-1');
+      sel.id = `status-${i.numero}`;
+      const rotulo = el('label', `Status do trabalho de ${i.numero}`, 'sr-only');
+      rotulo.htmlFor = sel.id;
+      for (const [chave, texto] of Object.entries(STATUS_TRABALHO)) {
+        const op = el('option', texto);
+        op.value = chave;
+        op.selected = chave === i.status_trabalho;
+        sel.append(op);
+      }
+      sel.disabled = i.cancelada;
+      sel.addEventListener('change', async () => {
+        const r = await rpc('admin_definir_status_trabalho', {
+          p_numero: i.numero,
+          p_status: sel.value,
+        });
+        if (r.ok) {
+          i.status_trabalho = sel.value;
+          avisar(`Status do trabalho de ${i.numero} atualizado.`);
+        } else {
+          sel.value = i.status_trabalho ?? 'pendente';
+        }
+      });
+      td.append(rotulo, sel);
+      if (i.pdf_path) {
+        const caminho = i.pdf_path;
+        td.append(
+          botao('Abrir PDF', 'texto-acao mt-2 block text-sm underline', () => abrirPdf(caminho)),
+        );
+      }
+      return td;
+    }
+
+    function linha(i: Inscricao): HTMLTableRowElement {
+      const tr = el('tr', undefined, 'border-b border-white/10 align-top');
+      if (i.cancelada) tr.classList.add('opacity-60');
+
+      const pessoa = el('td', undefined, 'p-3');
+      pessoa.append(el('div', i.nome, 'font-medium'), el('div', i.email, 'text-suave'));
+      if (i.instituicao) pessoa.append(el('div', i.instituicao, 'text-xs text-suave'));
+      if (i.cancelada) pessoa.append(el('div', 'Cancelada', 'text-xs font-bold text-erro'));
+
+      const email = el('td', STATUS_EMAIL[i.email_status ?? ''] ?? '—', 'p-3');
+      const acoes = el('td', undefined, 'p-3 whitespace-nowrap');
+      if (!i.cancelada) {
+        email.append(
+          botao('Reenviar', 'texto-acao mt-1 block text-sm underline', async () => {
+            if ((await rpc('admin_reenviar_confirmacao', { p_numero: i.numero })).ok) {
+              avisar(`E-mail de ${i.numero} colocado na fila.`);
+              await carregarLista();
+            }
+          }),
+        );
+        acoes.append(
+          botao('Corrigir', 'btn-secundario px-3 py-1 text-sm', () => abrirCorrecao(i)),
+          botao('Cancelar', 'btn-secundario ml-2 px-3 py-1 text-sm', async () => {
+            if (!confirm(`Cancelar a inscrição ${i.numero}? A vaga do minicurso será liberada.`)) {
+              return;
+            }
+            if ((await rpc('admin_cancelar_inscricao', { p_numero: i.numero })).ok) {
+              avisar(`Inscrição ${i.numero} cancelada.`);
+              await carregarTudo();
+            }
+          }),
+        );
+      }
+
+      tr.append(
+        el('td', i.numero, 'p-3 font-mono whitespace-nowrap'),
+        pessoa,
+        el('td', i.cpf_mascarado, 'p-3 font-mono whitespace-nowrap'),
+        el('td', i.minicurso ? 'Sim' : 'Não', 'p-3'),
+        celulaTrabalho(i),
+        email,
+        acoes,
+      );
+      return tr;
+    }
+
+    async function abrirPdf(caminho: string) {
+      // URL assinada curta (60 s): o bucket é privado e só organizadores leem (policy no banco).
+      const { data, error } = await sb.storage.from('trabalhos').createSignedUrl(caminho, 60);
+      if (error || !data) {
+        avisar('Não foi possível abrir o PDF.');
+        return;
+      }
+      window.open(data.signedUrl, '_blank', 'noopener');
+    }
+
+    // ---------------------------------------------------------------- correção
+    let emCorrecao: Inscricao | null = null;
+    const dialogo = $<HTMLDialogElement>('dialogo-corrigir');
+
+    function abrirCorrecao(i: Inscricao) {
+      emCorrecao = i;
+      $('c-numero').textContent = i.numero;
+      $<HTMLInputElement>('c-nome').value = i.nome;
+      $<HTMLInputElement>('c-email').value = i.email;
+      $<HTMLInputElement>('c-cpf').value = '';
+      $<HTMLInputElement>('c-inst').value = i.instituicao ?? '';
+      dialogo.showModal();
+    }
+
+    dialogo.addEventListener('close', async () => {
+      if (dialogo.returnValue !== 'salvar' || !emCorrecao) return;
+      const numero = emCorrecao.numero;
+      const r = await rpc('admin_corrigir_inscricao', {
+        p_numero: numero,
+        p_nome: valor('c-nome'),
+        p_email: valor('c-email'),
+        p_cpf: valor('c-cpf'),
+        p_instituicao: valor('c-inst'),
+      });
+      if (!r.ok) {
+        dialogo.showModal();
+        return;
+      }
+      avisar(`Inscrição ${numero} corrigida. Use "Reenviar" se o e-mail mudou.`);
+      emCorrecao = null;
+      await carregarLista();
+    });
+
+    // ---------------------------------------------------------------- filtros e exportação
+    const filtros = $<HTMLFormElement>('filtros');
+    filtros.addEventListener('input', () => {
+      pagina = 1;
+      renderLista();
+    });
+    filtros.addEventListener('submit', (ev) => ev.preventDefault());
+    $('anterior').addEventListener('click', () => {
+      pagina--;
+      renderLista();
+    });
+    $('proxima').addEventListener('click', () => {
+      pagina++;
+      renderLista();
+    });
+    $('exportar').addEventListener('click', () => {
+      const csv = gerarCsv(filtrar(lista, filtrosAtuais()));
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      const a = Object.assign(document.createElement('a'), {
+        href: url,
+        download: `inscricoes-icml-${new Date().toISOString().slice(0, 10)}.csv`,
+      });
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // ---------------------------------------------------------------- configuração
+    function formVagas(m: Minicurso): HTMLFormElement {
+      const form = el('form', undefined, 'vidro grid gap-2 p-6');
+      const id = `vagas-${m.id}`;
+      const rotulo = el(
+        'label',
+        'Total de vagas (vazio = inscrições no minicurso ainda fechadas)',
+        'text-sm font-medium',
+      );
+      rotulo.htmlFor = id;
+      const campo = el('input', undefined, 'campo');
+      campo.id = id;
+      campo.type = 'number';
+      campo.min = String(m.ocupadas);
+      campo.value = m.vagas === null ? '' : String(m.vagas);
+      const salvar = el('button', 'Salvar vagas', 'btn-primario justify-self-start');
+      salvar.type = 'submit';
+      form.append(
+        el('h3', m.titulo, 'font-display text-lg font-bold'),
+        el('p', `${m.ocupadas} vaga(s) ocupada(s).`, 'text-sm text-suave'),
+        rotulo,
+        campo,
+        salvar,
+      );
+      form.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const vagas = campo.value === '' ? null : Number(campo.value);
+        if ((await rpc('admin_definir_vagas', { p_minicurso: m.id, p_vagas: vagas })).ok) {
+          avisar(`Vagas de "${m.titulo}" salvas.`);
+          await carregarTudo();
+        }
+      });
+      return form;
+    }
+
+    function renderConfig(c: Config) {
+      $('vagas').replaceChildren(...c.minicursos.map(formVagas));
+      $<HTMLInputElement>('j-insc-ini').value = paraInputLocal(c.inscricoes_inicio);
+      $<HTMLInputElement>('j-insc-fim').value = paraInputLocal(c.inscricoes_fim);
+      $<HTMLInputElement>('j-sub-ini').value = paraInputLocal(c.submissoes_inicio);
+      $<HTMLInputElement>('j-sub-fim').value = paraInputLocal(c.submissoes_fim);
+      $<HTMLInputElement>('j-limite').value = String(c.limite_diario_email);
+    }
+
+    $<HTMLFormElement>('form-janelas').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const fim = deInputLocal(valor('j-insc-fim'));
+      const r = await rpc('admin_definir_janelas', {
+        p_inscricoes_inicio: deInputLocal(valor('j-insc-ini')),
+        p_inscricoes_fim: fim,
+        p_submissoes_inicio: deInputLocal(valor('j-sub-ini')),
+        p_submissoes_fim: deInputLocal(valor('j-sub-fim')),
+        p_limite_diario_email: Number(valor('j-limite')),
+      });
+      if (r.ok) avisar(`Janelas salvas. Inscrições até ${formatarDataHora(fim)}.`);
+    });
+  }
+</script>
