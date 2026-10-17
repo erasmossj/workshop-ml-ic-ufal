@@ -3,6 +3,34 @@
 > Procedimentos da organização. Completado na entrega (WML-40). Nunca cole senha, chave secreta,
 > CPF ou e-mail de participante em issue, PR, chat ou commit.
 
+## ⚠️ Pendências de configuração
+
+| Pendência                   | Desde      | Situação                                                                                                                                                      |
+| --------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Gmail oficial do evento** | 16/10/2026 | A produção envia pelo **Gmail de testes** (o mesmo do staging) porque o e-mail oficial ainda não existe. Trocar **antes de 30/10** (abertura das inscrições). |
+
+### Trocar o Gmail de envio (quando o oficial existir)
+
+1. Na conta nova: ative a verificação em duas etapas e gere uma **senha de app**
+   (myaccount.google.com/apppasswords, 16 letras).
+2. Num PowerShell (fora do chat), crie o arquivo temporário `notepad $HOME\icml-gmail.env` com:
+   ```
+   GMAIL_USER=<gmail oficial>
+   GMAIL_APP_PASSWORD=<senha de app>
+   ```
+3. Envie para a produção e apague o arquivo:
+   ```powershell
+   npx supabase secrets set --project-ref sjzyipebykiaiasdafai --env-file $HOME\icml-gmail.env
+   Remove-Item $HOME\icml-gmail.env
+   ```
+   Não precisa publicar a função de novo nem mexer no Vault: os segredos valem na próxima execução.
+   **Não** altere `QR_HMAC_SECRET` nem `SEND_EMAILS_SECRET`.
+4. Se o SMTP do login do painel (Authentication → Emails → SMTP Settings) foi configurado com o
+   Gmail de testes, troque lá também.
+5. Teste: uma inscrição real com e-mail da organização (`nome+teste@...`) e confira a chegada;
+   depois cancele no `/admin`.
+6. Remova esta linha da tabela de pendências.
+
 ## Keep-alive e backup (WML-37)
 
 O workflow `.github/workflows/operacao.yml` roda todo dia:
