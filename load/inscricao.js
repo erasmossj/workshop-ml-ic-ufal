@@ -22,8 +22,18 @@ const esgotados = new Counter('minicurso_esgotado');
 
 export const options = {
   scenarios: {
-    // 300 pessoas, cada uma se inscreve uma vez, todas ao mesmo tempo (pior caso de pico).
-    pico: { executor: 'per-vu-iterations', vus: USUARIOS, iterations: 1, maxDuration: '1m' },
+    // CENARIO=rnf01 (padrão): critério do plano — 300 inscrições ao longo de ~1 min (5/s).
+    // CENARIO=pico: estresse — as 300 no mesmo instante (abertura das inscrições, pior caso).
+    pico:
+      __ENV.CENARIO === 'pico'
+        ? { executor: 'per-vu-iterations', vus: USUARIOS, iterations: 1, maxDuration: '1m' }
+        : {
+            executor: 'constant-arrival-rate',
+            rate: Math.ceil(USUARIOS / 60),
+            timeUnit: '1s',
+            duration: '60s',
+            preAllocatedVUs: USUARIOS,
+          },
   },
   thresholds: {
     http_req_duration: ['p(95)<2000'],
