@@ -347,7 +347,8 @@ const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SI
           const a = document.createElement('a');
           a.href = `#${id}`;
           a.textContent = msg;
-          a.className = 'underline underline-offset-4';
+          // inline-block + min-h-6: alvo de ≥ 24 px (WCAG 2.5.8) independente da fonte carregada.
+          a.className = 'inline-block min-h-6 underline underline-offset-4';
           li.append(a);
         } else {
           li.textContent = msg;
