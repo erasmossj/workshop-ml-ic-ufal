@@ -5,7 +5,13 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import nodemailer from 'nodemailer';
 import { montarEmailConfirmacao, type Mensagem } from '../_shared/email-confirmacao.ts';
-import { processarFila, type Fila, type ItemFila, type Provedor } from '../_shared/envio.ts';
+import {
+  erroSeguro,
+  processarFila,
+  type Fila,
+  type ItemFila,
+  type Provedor,
+} from '../_shared/envio.ts';
 import { EVENTO } from '../_shared/evento-gerado.ts';
 
 const env = (nome: string) => Deno.env.get(nome) ?? '';
@@ -137,7 +143,7 @@ Deno.serve(async (req) => {
     console.log('send-emails', JSON.stringify(resumo));
     return Response.json(resumo);
   } catch (e) {
-    console.error('send-emails falhou', e instanceof Error ? e.message : 'erro');
+    console.error('send-emails falhou', erroSeguro(e));
     return Response.json({ erro: 'falha ao processar a fila' }, { status: 500 });
   }
 });

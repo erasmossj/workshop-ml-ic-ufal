@@ -2,6 +2,9 @@
 // tenta os provedores em ordem (Gmail → Brevo) e informa o resultado de cada item.
 // Independente de Supabase/SMTP para ser testado com dublês. Erros saem sem dado pessoal.
 import type { Mensagem } from './email-confirmacao.ts';
+import { erroSeguro } from './erro-seguro.ts';
+
+export { erroSeguro };
 
 /** Linha devolvida por public.reservar_emails (CPF já mascarado). */
 export type ItemFila = {
@@ -24,15 +27,6 @@ export type Fila = {
 };
 
 export type Provedor = { nome: 'gmail' | 'brevo'; enviar(m: Mensagem): Promise<void> };
-
-/** Mensagem de erro própria para guardar: sem e-mail, sem CPF, até 300 caracteres. */
-export function erroSeguro(e: unknown): string {
-  const bruto = e instanceof Error ? e.message : typeof e === 'string' ? e : 'erro desconhecido';
-  return bruto
-    .replace(/[^\s<>()"']+@[^\s<>()"']+/g, '[e-mail]')
-    .replace(/\d{3}\.?\d{3}\.?\d{3}-?\d{2}/g, '[cpf]')
-    .slice(0, 300);
-}
 
 async function enviarComReserva(m: Mensagem, provedores: Provedor[]): Promise<Resultado> {
   if (provedores.length === 0) return { ok: false, erro: 'nenhum provedor configurado' };
