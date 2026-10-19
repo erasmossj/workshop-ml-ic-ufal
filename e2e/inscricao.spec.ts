@@ -20,6 +20,22 @@ test('formulário vazio mostra o resumo de erros', async ({ page }) => {
   await expect(page.locator('#cpf')).toHaveAttribute('aria-invalid', 'true');
 });
 
+test.describe('sem JavaScript (envio antes do script carregar)', () => {
+  test.use({ javaScriptEnabled: false });
+
+  // Achado P-03 do ZAP (S3): sem method, o envio nativo era GET e punha CPF/e-mail na URL.
+  test('o formulário nunca põe dados pessoais na URL', async ({ page }) => {
+    await page.goto('/inscricao');
+    await page.locator('#nome').fill('Participante Exemplo');
+    await page.locator('#cpf').fill(CPF_TESTE);
+    await page.locator('#email').fill('sem-js@exemplo.com');
+    await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
+    await page.waitForLoadState();
+    expect(page.url()).not.toContain(CPF_TESTE);
+    expect(page.url()).not.toContain('sem-js');
+  });
+});
+
 test('e-mail repetido é recusado (demonstração)', async ({ page }) => {
   await page.goto('/inscricao');
   await page.locator('#nome').fill('Participante Exemplo');
