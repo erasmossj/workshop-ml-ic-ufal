@@ -23,15 +23,24 @@
 | --- | ---------------------------------------------------------------------------------------------------- | -------------------- | -------------- | ---------------------------------------------- | ------ |
 | 7   | Escolher a **direção visual definitiva** (hoje: protótipo na direção D — Gradiente moderno) (WML-21) | Stakeholders         | o quanto antes | [`marca/`](marca/README.md) · protótipos Figma | Aberta |
 | 8   | Enviar a **marca do IEEE Ramo Estudantil UFAL** (logo, cores, regras de uso) (WML-23)                | Diretoria do IEEE RE | o quanto antes | `docs/marca/` (placeholders no site até lá)    | Aberta |
-| 9   | Confirmar o **palestrante da abertura** (hoje "pesquisador convidado") e os demais nomes             | Organização          | antes de 26/11 | `dias` em `src/data/evento.ts`                 | Aberta |
-| 10  | Revisar os itens "a confirmar" do conteúdo (programação, FAQ, premiação)                             | Organização          | 26/10          | `src/data/evento.ts`                           | Aberta |
+| 9   | Confirmar o **palestrante da abertura** (hoje "pesquisador convidado") e o da palestra de mercado    | Organização          | antes de 26/11 | `dias` em `src/data/evento.ts`                 | Aberta |
+| 10  | Revisar os textos do site: programação, FAQ, premiação                                               | Organização          | 26/10          | Preview do site → apontar correções            | Aberta |
+| 11  | Confirmar cores e logos oficiais do IC/UFAL (o azul atual é provisório)                              | Organização / IC     | o quanto antes | [`marca/`](marca/README.md)                    | Aberta |
 
 ## Do responsável técnico (Erasmo)
 
-| #   | Pendência                                                                                               | Prazo       | Onde resolver                                                   | Status |
-| --- | ------------------------------------------------------------------------------------------------------- | ----------- | --------------------------------------------------------------- | ------ |
-| 11  | **Testar a restauração** de um backup com a chave `icml-backup.key`                                     | esta semana | [RUNBOOK → Restaurar um backup](RUNBOOK.md#restaurar-um-backup) | Aberta |
-| 12  | Guardar a chave do backup fora do computador (gerenciador de senhas ou pendrive da organização)         | esta semana | —                                                               | Aberta |
-| 13  | Habilitar o **Confluence** no site Atlassian, criar o espaço `WML` e reautorizar o conector (WML-13)    | agora       | admin.atlassian.com · `/mcp` no Claude Code                     | Aberta |
-| 14  | Revisar e aprovar no Jira o que está em "Fazendo" (itens feitos por IA só vão para "Feito" com revisão) | contínuo    | Jira `WML`                                                      | Aberta |
-| 15  | Se o SMTP do login do painel usar o Gmail de testes, trocar junto com o item 1                          | 30/10       | Supabase → Authentication → SMTP Settings                       | Aberta |
+| #   | Pendência                                                                                                  | Prazo       | Onde resolver                                                   | Status |
+| --- | ---------------------------------------------------------------------------------------------------------- | ----------- | --------------------------------------------------------------- | ------ |
+| 12  | **Testar a restauração** de um backup com a chave `icml-backup.key`                                        | esta semana | [RUNBOOK → Restaurar um backup](RUNBOOK.md#restaurar-um-backup) | Aberta |
+| 13  | Guardar a chave do backup fora do computador (gerenciador de senhas ou pendrive da organização)            | esta semana | —                                                               | Aberta |
+| 14  | Revisar e aprovar no Jira o que está em "Fazendo" (itens feitos por IA só vão para "Feito" com revisão)    | contínuo    | Jira `WML`                                                      | Aberta |
+| 15  | Se o SMTP do login do painel usar o Gmail de testes, trocar junto com o item 1                             | 30/10       | Supabase → Authentication → SMTP Settings                       | Aberta |
+| 16  | Decidir se entram no MVP: campo "área" do trabalho, PDF do comprovante na tela de confirmação, export XLSX | 22/10       | Confluence → Visão e escopo                                     | Aberta |
+
+## Resolvidas
+
+| Pendência                                                                  | Resolvida em |
+| -------------------------------------------------------------------------- | ------------ |
+| Configurar o backup diário criptografado (secret do banco + chave pública) | 19/10/2026   |
+| Decidir o formato do minicurso: 1 minicurso nas 3 tardes                   | 16/10/2026   |
+| Habilitar o acesso do Claude ao Confluence e atualizar o espaço `WML`      | 19/10/2026   |
