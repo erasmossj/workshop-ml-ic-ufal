@@ -153,6 +153,72 @@ export const faq = [
   },
 ] as const;
 
+/**
+ * Política de privacidade (WML-38, LGPD). Controlador e prazos são PROPOSTA — a organização
+ * confirma antes de 30/10 e marca `aprovada: true`. Mudou o texto? Atualize `versao`: o aceite de
+ * cada participante fica em participantes.consentimento_em e vale a versão em vigor naquela data.
+ */
+export const privacidade = {
+  versao: '2026-10-19',
+  /** false = a página mostra o aviso de minuta. */
+  aprovada: false,
+  controlador:
+    'O IEEE Ramo Estudantil UFAL, que organiza o IC-ML 2026 junto com o IEEE Computer Society UFAL e o Instituto de Computação da UFAL, decide como seus dados são usados.',
+  dados: [
+    {
+      dado: 'Nome completo, CPF e e-mail',
+      motivo: 'identificar sua inscrição, enviar o comprovante e emitir o certificado',
+    },
+    { dado: 'Instituição (opcional)', motivo: 'conhecer o público do evento' },
+    { dado: 'Inscrição no minicurso', motivo: 'controlar as vagas do laboratório' },
+    {
+      dado: 'Título, autores, resumo e PDF do trabalho, se você submeter',
+      motivo: 'avaliação pela banca e montagem da programação',
+    },
+    { dado: 'Data e hora em que você aceitou esta política', motivo: 'comprovar o consentimento' },
+  ],
+  baseLegal:
+    'Seu consentimento (art. 7º, I, da LGPD), dado ao marcar a caixa de aceite no formulário. Não pedimos nenhum dado além do necessário para o evento.',
+  operadores: [
+    {
+      nome: 'Supabase',
+      papel: 'guarda o banco de dados e os PDFs (servidores nos Estados Unidos)',
+    },
+    { nome: 'Vercel', papel: 'hospeda o site' },
+    { nome: 'Cloudflare Turnstile', papel: 'verifica que o formulário não é preenchido por robô' },
+    { nome: 'Google (Gmail)', papel: 'envia os e-mails do evento' },
+    { nome: 'Brevo', papel: 'envia os e-mails se o Gmail falhar' },
+  ],
+  compartilhamento:
+    'Esses serviços só tratam os dados para executar a tarefa deles, e alguns ficam fora do Brasil (transferência internacional, art. 33 da LGPD). Não vendemos nem cedemos seus dados a ninguém. Nome e trabalho aprovado aparecem na programação do evento.',
+  retencao: [
+    { dados: 'PDFs dos trabalhos', ate: '2027-01-31' },
+    { dados: 'CPF, e-mail e instituição', ate: '2027-03-31' },
+    {
+      dados: 'Nome, nº de inscrição e carga horária do certificado',
+      ate: '2031-12-31',
+      motivo: 'para que qualquer pessoa possa validar a autenticidade do certificado',
+    },
+  ],
+  retencaoObs:
+    'Cópias de segurança são criptografadas e apagadas automaticamente em até 14 dias. Se você cancelar a inscrição, seus dados são apagados no mesmo prazo acima, ou antes, se pedir.',
+  seguranca: [
+    'Só a organização acessa os dados, com login individual.',
+    'O CPF aparece mascarado (ex.: ***.456.789-**) nas telas e planilhas da organização.',
+    'Os PDFs ficam em área privada, sem link público.',
+    'Toda conexão com o site é criptografada (HTTPS).',
+    'Nenhum dado pessoal vai para registros (logs) do sistema.',
+  ],
+  direitos: [
+    'Confirmar se tratamos seus dados e ter acesso a eles.',
+    'Pedir a correção de dados incompletos ou errados.',
+    'Pedir a anonimização, o bloqueio ou a eliminação de dados desnecessários.',
+    'Saber sobre o compartilhamento dos seus dados: com quem e para quê (veja a lista acima).',
+    'Fazer a revogação do consentimento a qualquer momento. Antes do evento, isso cancela a inscrição e o certificado.',
+    'Reclamar à Autoridade Nacional de Proteção de Dados (ANPD).',
+  ],
+} as const;
+
 /** Atividades em formato de agenda (para .ics e Google Agenda). */
 export function eventosDeAgenda() {
   return dias.map((d) => {
