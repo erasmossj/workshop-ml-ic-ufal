@@ -73,7 +73,8 @@ function json(status: number, corpo: unknown, h: HeadersInit): Response {
   return new Response(JSON.stringify(corpo), { status, headers: h });
 }
 
-// A confiabilidade de cada cabeçalho é verificada no pentest em staging (S3).
+// Verificado no pentest (S3, docs/seguranca/PENTEST-MVP.md): a Cloudflare na frente do Supabase
+// barra cf-connecting-ip vindo do cliente, e x-real-ip/x-forwarded-for falsos não mudam o IP usado.
 function ipCliente(req: Request): string {
   return (
     req.headers.get('cf-connecting-ip') ??

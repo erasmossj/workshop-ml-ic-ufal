@@ -166,3 +166,32 @@ No PowerShell:
 ```powershell
 npx supabase secrets set --project-ref aiyzqeckoyalrhlvhmmf RATE_LIMIT_MAX=5
 ```
+
+## DAST e pentest (S3) — SOMENTE staging
+
+Workflow `.github/workflows/dast.yml`, sob demanda. Resultados e achados:
+[`seguranca/PENTEST-MVP.md`](seguranca/PENTEST-MVP.md). **Nunca** aponte para a produção (o
+workflow e o script recusam).
+
+### Configuração (uma vez)
+
+Os previews da Vercel pedem login; o ZAP precisa de uma chave para passar.
+
+1. Vercel → projeto → **Settings → Deployment Protection → Protection Bypass for Automation** →
+   gerar o segredo.
+2. GitHub → **Settings → Secrets and variables → Actions → New repository secret**:
+   `VERCEL_AUTOMATION_BYPASS_SECRET` = o segredo gerado. Nunca cole o valor em chat ou issue.
+
+### Rodar
+
+1. Pegue a URL de um preview (comentário da Vercel no PR, formato
+   `https://workshop-ml-ic-ufal-git-<branch>-erasmo-junior.vercel.app`).
+2. **Actions → dast → Run workflow**, cole a URL em `alvo`.
+3. Job **Pentest da API**: falha se algum caso de abuso passar. Job **ZAP baseline**: baixe o
+   artifact `zap-baseline` e faça a triagem.
+4. Registre os achados em `docs/seguranca/PENTEST-MVP.md`. Achado aceito vira `IGNORE` em
+   `.zap/rules.tsv`, com o motivo no relatório.
+
+Localmente (só a API): `BASE_URL=<url do staging> ANON_KEY=<anon do staging> DIST=dist node scripts/pentest-staging.mjs`.
+O script deixa inscrições sintéticas (`pentest-…@exemplo.com`) no staging e esgota o limite por
+origem do seu IP por ~10 minutos.

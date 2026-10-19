@@ -1,0 +1,59 @@
+# Fase S3 — DAST e pentest automatizado (WML-47, WML-48). SÓ staging, nunca produção (CLAUDE.md).
+# Roda sob demanda: Actions → dast → Run workflow, informando a URL de um preview da Vercel.
+# Pré-requisito do ZAP no site: secret VERCEL_AUTOMATION_BYPASS_SECRET (Vercel → Settings →
+# Deployment Protection → Protection Bypass for Automation). Passo a passo: docs/RUNBOOK.md.
+name: dast
+
+on:
+  workflow_dispatch:
+    inputs:
+      alvo:
+        description: 'URL de um preview da Vercel (staging), ex.: https://workshop-ml-ic-ufal-git-<branch>-erasmo-junior.vercel.app'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    name: Pentest da API (staging)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+      # O script recusa a produção e usa só dados sintéticos.
+      - run: node scripts/pentest-staging.mjs
+        env:
+          BASE_URL: ${{ vars.SUPABASE_URL_STAGING }}
+          ANON_KEY: ${{ vars.SUPABASE_ANON_KEY_STAGING }}
+
+  site:
+    name: ZAP baseline (preview de staging)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recusa a produção
+        env:
+          ALVO: ${{ inputs.alvo }}
+        run: |
+          case "$ALVO" in
+            https://workshop-ml-ic-ufal-git-*.vercel.app*) ;;
+            *) echo "::error::Use a URL de um preview (staging), nunca a produção."; exit 1 ;;
+          esac
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: zaproxy/action-baseline@de8ad967d3548d44ef623df22cf95c3b0baf8b25 # v0.15.0
+        env:
+          # Cabeçalho que a Vercel aceita para pular o login dos previews.
+          ZAP_AUTH_HEADER: x-vercel-protection-bypass
+          ZAP_AUTH_HEADER_VALUE: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        with:
+          target: ${{ inputs.alvo }}
+          rules_file_name: .zap/rules.tsv
+          cmd_options: '-a'
+          allow_issue_writing: false
+          # Relatório para triagem humana (critério do go-live: 0 Alto/Crítico). Achados vão para
+          # docs/seguranca/PENTEST-MVP.md; os aceitos entram em .zap/rules.tsv como IGNORE.
+          fail_action: false
+          artifact_name: zap-baseline
