@@ -33,7 +33,15 @@ const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SI
       <ul class="mt-2 list-disc pl-5"></ul>
     </div>
 
-    <form id="form-inscricao" class="mt-8 flex flex-col gap-6" novalidate>
+    <!-- method="post": se a pessoa enviar antes do script carregar, os dados vão no corpo, nunca
+         na URL (histórico, logs da Vercel). O script intercepta o envio normal. -->
+    <form
+      id="form-inscricao"
+      method="post"
+      enctype="multipart/form-data"
+      class="mt-8 flex flex-col gap-6"
+      novalidate
+    >
       <!-- 1. Dados -->
       <fieldset class="vidro p-6 md:p-8">
         <legend class={legenda}>1 · Dados para o certificado</legend>

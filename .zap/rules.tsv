@@ -5,4 +5,7 @@
 10062	FAIL	(PII Disclosure)
 10010	FAIL	(Cookie No HttpOnly Flag)
 10011	FAIL	(Cookie Without Secure Flag)
-10098	WARN	(Cross-Domain Misconfiguration)
+10098	IGNORE	(Cross-Domain Misconfiguration: ACAO * padrão da Vercel nos estáticos; aceito P-04)
+90003	IGNORE	(SRI ausente: api.js do Turnstile não suporta SRI; aceito P-05)
+10017	IGNORE	(Script de outro domínio: Turnstile; aceito P-05)
+10031	IGNORE	(Falso positivo: valores fixos do formulário)
