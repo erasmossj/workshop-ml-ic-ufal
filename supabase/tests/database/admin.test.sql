@@ -1,7 +1,7 @@
 -- Painel da organização (WML-32..35): só organizadores, CPF sempre mascarado, vagas pelas RPCs.
 -- CPFs e e-mails sintéticos — nunca use dados reais.
 begin;
-select plan(33);
+select plan(36);
 
 update public.config_evento
    set inscricoes_inicio = now() - interval '1 day', inscricoes_fim = now() + interval '1 day',
@@ -44,6 +44,12 @@ select throws_ok('select public.admin_obter_config()', 'P0001', 'NAO_AUTORIZADO'
 select throws_ok($$ select public.admin_definir_janelas(now(), now() + interval '1 day', now(), now() + interval '1 day', 100) $$,
   'P0001', 'NAO_AUTORIZADO', 'intruso não altera janelas');
 select throws_ok('select public.admin_resumo_emails()', 'P0001', 'NAO_AUTORIZADO', 'intruso não vê a fila');
+select throws_ok($$ select public.admin_definir_status_trabalho((select numero_inscricao from insc where quem = 'ana'),
+  'aprovado_oral') $$, 'P0001', 'NAO_AUTORIZADO', 'intruso não avalia trabalho');
+select throws_ok($$ select public.admin_definir_vagas(93::smallint, 1000) $$, 'P0001', 'NAO_AUTORIZADO',
+  'intruso não altera vagas');
+select throws_ok($$ select public.cancel_registration((select id_inscricao from insc where quem = 'bia')) $$,
+  'P0001', 'NAO_AUTORIZADO', 'intruso não cancela pela RPC de servidor');
 
 set local role authenticated;
 select is((select count(*)::int from storage.objects where bucket_id = 'trabalhos'), 0,

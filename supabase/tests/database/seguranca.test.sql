@@ -1,6 +1,6 @@
 -- Fronteira de segurança do banco (threat model S1/S2). CPFs sintéticos.
 begin;
-select plan(14);
+select plan(18);
 
 -- RLS e privilégios -----------------------------------------------------------
 select is(
@@ -23,6 +23,20 @@ select ok(has_function_privilege('anon', 'public.vagas_publicas()', 'execute'),
   'anon pode consultar vagas públicas');
 select ok(not has_function_privilege('anon', 'public.admin_listar_inscricoes()', 'execute'),
   'anon NÃO executa funções admin');
+-- Allowlist: função nova exposta a anon/authenticated precisa de teste de autorização antes de entrar aqui.
+select is(
+  (select array_agg(p.proname::text order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute')),
+  array['vagas_publicas'],
+  'anon só executa vagas_publicas');
+select is(
+  (select array_agg(p.proname::text order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'execute')),
+  array['admin_cancelar_inscricao', 'admin_corrigir_inscricao', 'admin_definir_janelas',
+        'admin_definir_status_trabalho', 'admin_definir_vagas', 'admin_listar_inscricoes', 'admin_obter_config',
+        'admin_reenviar_confirmacao', 'admin_resumo_emails', 'cancel_registration', 'pode_administrar',
+        'vagas_publicas'],
+  'authenticated só executa as RPCs do painel (todas checam organizadores)');
 select is(
   (select count(*)::int from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and p.prosecdef
@@ -52,6 +66,18 @@ select ok(not exists (select 1 from public.admin_listar_inscricoes() l where l::
 
 -- storage e integridade --------------------------------------------------------
 select is((select public from storage.buckets where id = 'trabalhos'), false, 'bucket de trabalhos é privado');
+
+-- Upload só pela Edge Function (service_role): ninguém grava direto no bucket.
+set local role anon;
+select throws_ok($$ insert into storage.objects (bucket_id, name) values ('trabalhos', 'anon.pdf') $$, '42501', null,
+  'anon NÃO grava no bucket de trabalhos');
+reset role;
+set local request.jwt.claims = '{"role":"authenticated","email":"org@exemplo.com"}';
+set local role authenticated;
+select throws_ok($$ insert into storage.objects (bucket_id, name) values ('trabalhos', 'org.pdf') $$, '42501', null,
+  'nem organizador grava direto no bucket de trabalhos');
+reset role;
+
 select throws_ok($$ update public.minicursos set ocupadas = 11 where id = 92 $$, '23514', null,
   'banco impede ocupadas > vagas mesmo em UPDATE direto');
 

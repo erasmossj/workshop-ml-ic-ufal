@@ -3,6 +3,7 @@
 // RPC register_participant (transação + vagas, ADR-003) → grava o caminho do PDF.
 // Regra LGPD: nada de CPF, nome ou e-mail em logs.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { erroSeguro } from '../_shared/erro-seguro.ts';
 import { criarVerificadorDeOrigem } from '../_shared/origens.ts';
 
 const PDF_MAX_BYTES = 5 * 1024 * 1024;
@@ -52,9 +53,9 @@ const ERROS: Record<string, Resposta> = {
   },
 };
 
-/** Causa do erro para o log: código + começo da mensagem (erros do banco/rede não trazem dados). */
+/** Causa do erro para o log: código + começo da mensagem, sem e-mail/CPF (o banco pode ecoar valores). */
 function causa(e: { code?: string; message?: string } | null | undefined): string {
-  return `${e?.code ?? 'sem-codigo'} ${(e?.message ?? '').slice(0, 120)}`;
+  return `${e?.code ?? 'sem-codigo'} ${erroSeguro(e?.message ?? '').slice(0, 120)}`;
 }
 
 function cabecalhos(origem: string): HeadersInit {
@@ -213,7 +214,7 @@ Deno.serve(async (req) => {
       .from('trabalhos')
       .upload(caminho, pdf, { contentType: 'application/pdf', upsert: false });
     if (error) {
-      console.error('upload do PDF falhou', error.message);
+      console.error('upload do PDF falhou', causa(error));
       return json(500, { erro: 'Não foi possível enviar o PDF. Tente novamente.' }, h);
     }
   }

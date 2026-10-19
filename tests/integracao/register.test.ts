@@ -163,6 +163,40 @@ describe('Edge Function register', () => {
     expect(linhas).toHaveLength(0);
   });
 
+  it('recusa PDF acima de 5 MB (413) sem gravar nada', async () => {
+    const email = novoEmail();
+    const grande = new Blob(['%PDF-1.4\n', new Uint8Array(5 * 1024 * 1024)], {
+      type: 'application/pdf',
+    });
+    const antes = await contarObjetos();
+    const { status, corpo } = await enviar(formulario({ email, ...trabalho({ pdf: grande }) }));
+    expect(status).toBe(413);
+    expect(corpo.campo).toBe('pdf');
+    expect(await contarObjetos()).toBe(antes);
+    const linhas = await rest(`participantes?select=id&email=eq.${encodeURIComponent(email)}`).then(
+      (r) => r.json(),
+    );
+    expect(linhas).toHaveLength(0);
+  });
+
+  it('recusa inscrição fora da janela, mesmo chamando a função direto', async () => {
+    const [config] = await rest('config_evento?select=inscricoes_fim').then((r) => r.json());
+    await rest('config_evento?id=eq.true', {
+      method: 'PATCH',
+      body: JSON.stringify({ inscricoes_fim: new Date(Date.now() - 60_000).toISOString() }),
+    });
+    try {
+      const { status, corpo } = await enviar(formulario());
+      expect(status).toBe(409);
+      expect(corpo.codigo).toBe('INSCRICOES_FECHADAS');
+    } finally {
+      await rest('config_evento?id=eq.true', {
+        method: 'PATCH',
+        body: JSON.stringify({ inscricoes_fim: config.inscricoes_fim }),
+      });
+    }
+  });
+
   it('minicurso esgotado: recusa e não deixa PDF órfão no bucket', async () => {
     const [mc] = await rest('minicursos?slug=eq.ml-na-pratica&select=ocupadas').then((r) =>
       r.json(),
