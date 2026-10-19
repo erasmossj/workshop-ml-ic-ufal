@@ -5,9 +5,10 @@
 
 ## ⚠️ Pendências de configuração
 
-| Pendência                   | Desde      | Situação                                                                                                                                                      |
-| --------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Gmail oficial do evento** | 16/10/2026 | A produção envia pelo **Gmail de testes** (o mesmo do staging) porque o e-mail oficial ainda não existe. Trocar **antes de 30/10** (abertura das inscrições). |
+| Pendência                   | Desde      | Situação                                                                                                                                                                                                                           |
+| --------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Gmail oficial do evento** | 16/10/2026 | A produção envia pelo **Gmail de testes** (o mesmo do staging) porque o e-mail oficial ainda não existe. Trocar **antes de 30/10** (abertura das inscrições).                                                                      |
+| **Política de privacidade** | 19/10/2026 | Controlador e prazos de retenção são proposta. A organização revisa `privacidade` em `src/data/evento.ts`, preenche `evento.contato` e marca `aprovada: true` **antes de 30/10**. Ver [Retenção](#retenção-e-expurgo-lgpd-wml-38). |
 
 ### Trocar o Gmail de envio (quando o oficial existir)
 
@@ -30,6 +31,25 @@
 5. Teste: uma inscrição real com e-mail da organização (`nome+teste@...`) e confira a chegada;
    depois cancele no `/admin`.
 6. Remova esta linha da tabela de pendências.
+
+## Retenção e expurgo (LGPD, WML-38)
+
+Os prazos publicados em `/privacidade` vêm de `privacidade.retencao` em `src/data/evento.ts`. Hoje
+são **proposta**, a confirmar pela organização:
+
+| Dados                                               | Apagar até | Por quê                               |
+| --------------------------------------------------- | ---------- | ------------------------------------- |
+| PDFs dos trabalhos (bucket `trabalhos`)             | 31/01/2027 | Avaliação e programação já concluídas |
+| CPF, e-mail e instituição                           | 31/03/2027 | Prazo para baixar o certificado       |
+| Nome, nº de inscrição e carga horária (certificado) | 31/12/2031 | Validação pública da autenticidade    |
+
+- O aceite de cada participante fica em `participantes.consentimento_em`. Ele vale para a versão da
+  política em vigor naquela data (`privacidade.versao`; o texto de cada versão está no histórico do Git).
+- Mudou o texto da política? Atualize `privacidade.versao`. Mudou um prazo? Atualize esta tabela também.
+- Pedido de exclusão de um participante (direito do titular): cancele a inscrição no `/admin` e
+  registre o pedido. A eliminação definitiva entra no expurgo.
+- O expurgo em si (apagar PDFs, CPFs e e-mails nas datas acima) é a fase **S6** (WML-52), depois dos
+  certificados. Backups somem sozinhos em 14 dias, então não precisam de expurgo.
 
 ## Keep-alive e backup (WML-37)
 
