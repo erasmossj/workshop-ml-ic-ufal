@@ -34,9 +34,22 @@
 **Resultado da rodada 1: 0 Alto/Crítico, 0 Médio.** Todos os riscos residuais são baixos; T3 é
 aceito no ADR-004.
 
+## Staging — 20/10/2026
+
+Depois do deploy da migration `20261020090000_credenciamento.sql` e da função `check-in` no
+staging: **52 verificações, 51 OK, 0 falhas** (`scripts/pentest-staging.mjs`).
+
+| #   | Caso                                                                                        | Resultado                            |
+| --- | ------------------------------------------------------------------------------------------- | ------------------------------------ |
+| C1  | `presencas` lida direto com a chave pública                                                 | ✅ 401                               |
+| C2  | `check_in()` e `admin_resumo_presencas()` chamadas como anônimo                             | ✅ 404 · 401                         |
+| C10 | `check-in`: GET; sem login; chave pública como login; JWT forjado com e-mail de organizador | ✅ 405 · 401 · 401 · 401             |
+| C10 | CORS do `check-in` com origem desconhecida                                                  | ✅ sem `Access-Control-Allow-Origin` |
+
+A única verificação pulada (C6, `<script>` no nome) é do S3 e foi barrada pelo limite por origem
+desta rodada; já tinha passado em 19/10.
+
 ## Pendente
 
-- Rodar o pentest do staging com os casos **C10** depois do deploy da função `check-in` no
-  staging (precisa de autorização para publicar).
 - Teste do leitor em aparelhos reais — iPhone (Safari, caminho jsQR) e Android (Chrome,
   `BarcodeDetector`) — pendência 16 em [`PENDENCIAS.md`](../PENDENCIAS.md).
