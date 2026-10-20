@@ -64,7 +64,7 @@ usado em teste de carga e pentest) e local (`supabase start`, Docker). Cada PR g
       extensão (senão 422).
    5. **Upload** do PDF para o bucket privado com nome gerado pelo servidor (UUID).
    6. **`register_participant()`** no banco, numa transação única: confere a janela de inscrição,
-      valida e normaliza os dados, garante e-mail único e reserva a vaga do minicurso.
+      valida e normaliza os dados, garante e-mail único entre as inscrições ativas e reserva a vaga do minicurso.
    7. Se o banco recusar (e-mail repetido, vaga esgotada, fora da janela...), o PDF enviado é apagado
       e o participante recebe a mensagem e o campo do erro.
 4. **Resposta**: só o número de inscrição (`ICML26-0001`). Nenhum dado pessoal volta.

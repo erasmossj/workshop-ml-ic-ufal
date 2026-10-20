@@ -23,7 +23,7 @@
 | #     | Requisito                                                                                                                                                                 |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | RF01  | Inscrição com **CPF** (validado por dígito verificador), **nome completo** e **e-mail**                                                                                   |
-| RF02  | **E-mail único** (case-insensitive); **CPF pode repetir**                                                                                                                 |
+| RF02  | **E-mail único** entre inscrições ativas (case-insensitive; cancelada libera o e-mail); **CPF pode repetir**                                                              |
 | RF03  | Opt-in em cada minicurso; ao esgotar as vagas o sistema **bloqueia** novas inscrições naquele minicurso (sem overbooking sob concorrência)                                |
 | RF04  | Mesmo CPF não ocupa duas vagas no mesmo minicurso                                                                                                                         |
 | RF05  | Submissão opcional de trabalho: título, autores, resumo, área e **PDF** (≤ 5 MB), só dentro da janela de submissão                                                        |

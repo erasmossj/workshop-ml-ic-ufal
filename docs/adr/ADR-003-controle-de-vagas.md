@@ -7,7 +7,7 @@
 
 Toda inscrição acontece em **uma única transação** na RPC `register_participant()` (Postgres, `SECURITY DEFINER`, chamada só pela Edge Function `register`):
 
-1. Insere o participante (unicidade em `lower(trim(email))`).
+1. Insere o participante (unicidade em `lower(trim(email))` entre as inscrições ativas — WML-67).
 2. Para cada minicurso escolhido, ocupa a vaga com UPDATE condicional atômico:
    ```sql
    update minicursos

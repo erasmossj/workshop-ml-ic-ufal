@@ -92,8 +92,9 @@ Na linha da inscrição, coluna **Ações**:
   **Reenviar** depois, para o comprovante chegar no endereço certo.
 - **Reenviar**: coloca o e-mail de confirmação (com comprovante e QR) na fila de novo.
 
-Não existe "desfazer cancelamento": se cancelou por engano, a pessoa se inscreve de novo (a vaga do
-minicurso depende de ainda haver vaga).
+Não existe "desfazer cancelamento": se cancelou por engano, a pessoa se inscreve de novo com o mesmo
+e-mail e recebe um **número novo** (a vaga do minicurso depende de ainda haver vaga). A inscrição
+cancelada fica no histórico do painel (filtro Situação → Canceladas).
 
 ### Trabalhos submetidos
 
