@@ -33,7 +33,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
     )}
 
     <!-- Login -->
-    <form id="form-login" class="vidro mt-6 hidden p-6" novalidate>
+    <form id="form-login" method="post" class="vidro mt-6 hidden p-6" novalidate>
       <h2 class="font-display text-xl font-bold">Entrar</h2>
       <p class="mt-2 text-sm text-suave">
         Use o mesmo e-mail do painel da organização. Enviaremos um link de acesso.
@@ -149,7 +149,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
       </div>
 
       <!-- Busca manual -->
-      <form id="form-busca" class="vidro mt-6 p-5" novalidate>
+      <form id="form-busca" method="post" class="vidro mt-6 p-5" novalidate>
         <h2 class="font-display text-xl font-bold">Sem QR? Busque pelo nome ou número</h2>
         <label for="busca" class="mt-3 block text-sm font-medium">
           Nome ou nº de inscrição
