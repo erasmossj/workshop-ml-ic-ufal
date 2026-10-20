@@ -16,16 +16,9 @@ import {
   type Provedor,
 } from '../_shared/envio.ts';
 import { EVENTO } from '../_shared/evento-gerado.ts';
+import { segredoConfere } from '../_shared/segredo-cron.ts';
 
 const env = (nome: string) => Deno.env.get(nome) ?? '';
-
-function segredoConfere(recebido: string, esperado: string): boolean {
-  if (esperado.length < 32 || recebido.length !== esperado.length) return false;
-  let diferenca = 0;
-  for (let i = 0; i < esperado.length; i++)
-    diferenca |= esperado.charCodeAt(i) ^ recebido.charCodeAt(i);
-  return diferenca === 0;
-}
 
 function base64(bytes: Uint8Array): string {
   let binario = '';

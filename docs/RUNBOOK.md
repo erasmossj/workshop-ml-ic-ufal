@@ -48,8 +48,12 @@ são **proposta**, a confirmar pela organização:
 - Mudou o texto da política? Atualize `privacidade.versao`. Mudou um prazo? Atualize esta tabela também.
 - Pedido de exclusão de um participante (direito do titular): cancele a inscrição no `/admin` e
   registre o pedido. A eliminação definitiva entra no expurgo.
-- O expurgo em si (apagar PDFs, CPFs e e-mails nas datas acima) é a fase **S6** (WML-52), depois dos
-  certificados. Backups somem sozinhos em 14 dias, então não precisam de expurgo.
+- O expurgo é **automático** (S6, WML-52): todo dia às 03:50, só quando um prazo venceu. PDFs saem
+  pela API do Storage; CPF, e-mail e instituição em 01/04/2027; o resto em 01/01/2032. Detalhes e o
+  checklist de revogação de acessos e rotação de segredos:
+  [`seguranca/S6-LGPD-POS-EVENTO.md`](seguranca/S6-LGPD-POS-EVENTO.md). Mudou um prazo? Mude a política
+  (`src/data/evento.ts`) **e** `config_evento` — um teste confere que são iguais. Backups somem
+  sozinhos em 14 dias, então não precisam de expurgo.
 
 ## Keep-alive e backup (WML-37)
 
