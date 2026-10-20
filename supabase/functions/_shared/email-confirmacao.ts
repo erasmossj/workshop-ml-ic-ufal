@@ -23,15 +23,15 @@ export type Mensagem = {
   texto: string;
   html: string;
   anexos: Anexo[];
-  /** Token assinado impresso no QR do comprovante. */
-  qr: string;
+  /** Token assinado impresso no QR do comprovante (só no e-mail de confirmação). */
+  qr?: string;
 };
 
 // Cores de marca (src/styles/global.css: fundo-1 e acao-2). E-mail não lê variáveis CSS.
 const AZUL = '#071a45';
 const LARANJA = '#e87722';
 
-function escaparHtml(texto: string): string {
+export function escaparHtml(texto: string): string {
   return texto
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
