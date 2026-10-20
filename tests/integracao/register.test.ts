@@ -22,8 +22,9 @@ const SERVICO = env.SERVICE_ROLE_KEY;
 const PUBLICA = env.ANON_KEY;
 const FUNCAO = `${API}/functions/v1/register`;
 const SEGREDO_QR =
-  readFileSync('supabase/functions/.env', 'utf8').match(/^QR_HMAC_SECRET=(.+)$/m)?.[1]?.trim() ??
-  '';
+  readFileSync('supabase/functions/.env', 'utf8')
+    .match(/^QR_HMAC_SECRET=(.+)$/m)?.[1]
+    ?.trim() ?? '';
 const sufixo = Date.now();
 let contador = 0;
 const novoEmail = () => `integracao-${sufixo}-${contador++}@exemplo.com`;
