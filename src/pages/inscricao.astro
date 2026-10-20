@@ -368,7 +368,7 @@ const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SI
     if (erros.length) resumoErros.focus();
   }
 
-  async function enviarAoServidor(): Promise<{ numero: string } | Erro> {
+  async function enviarAoServidor(): Promise<{ numero: string; qr?: string } | Erro> {
     try {
       const r = await fetch(`${API}/functions/v1/register`, {
         method: 'POST',
@@ -376,7 +376,9 @@ const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SI
         body: new FormData(form),
       });
       const corpo = await r.json().catch(() => ({}));
-      if (r.ok && typeof corpo.numero === 'string') return { numero: corpo.numero };
+      if (r.ok && typeof corpo.numero === 'string') {
+        return { numero: corpo.numero, qr: typeof corpo.qr === 'string' ? corpo.qr : undefined };
+      }
       return {
         id: typeof corpo.campo === 'string' ? corpo.campo : null,
         msg: typeof corpo.erro === 'string' ? corpo.erro : 'Erro inesperado. Tente novamente.',
@@ -447,6 +449,7 @@ const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SI
     botao.textContent = 'Enviando…';
 
     let numero = gerarNumero();
+    let qr: string | undefined;
     if (modoReal) {
       const resultado = await enviarAoServidor();
       if (!('numero' in resultado)) {
@@ -458,11 +461,13 @@ const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SI
         return;
       }
       numero = resultado.numero;
+      qr = resultado.qr;
     }
 
     const v = (id: string) => $<HTMLInputElement>(id).value.trim();
     salvarDemo({
       numero,
+      qr,
       nome: v('nome'),
       cpfMascarado: mascararCpf(v('cpf')),
       email: normalizarEmail(v('email')),

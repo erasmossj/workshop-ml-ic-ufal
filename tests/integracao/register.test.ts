@@ -1,7 +1,9 @@
 // Integração da Edge Function `register` (WML-26/27) contra o Supabase LOCAL.
 // Pré-requisito: `npm run db:start` e `npm run functions:serve`. Dados 100% sintéticos.
 import { execSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { verificarToken } from '../../supabase/functions/_shared/qr';
 
 const env = Object.fromEntries(
   execSync('npx supabase status -o env', { encoding: 'utf8' })
@@ -19,6 +21,10 @@ if (!/^http:\/\/(127\.0\.0\.1|localhost)/.test(API ?? '')) {
 const SERVICO = env.SERVICE_ROLE_KEY;
 const PUBLICA = env.ANON_KEY;
 const FUNCAO = `${API}/functions/v1/register`;
+const SEGREDO_QR =
+  readFileSync('supabase/functions/.env', 'utf8')
+    .match(/^QR_HMAC_SECRET=(.+)$/m)?.[1]
+    ?.trim() ?? '';
 const sufixo = Date.now();
 let contador = 0;
 const novoEmail = () => `integracao-${sufixo}-${contador++}@exemplo.com`;
@@ -92,10 +98,13 @@ beforeEach(async () => {
 });
 
 describe('Edge Function register', () => {
-  it('inscreve e devolve só o número de inscrição', async () => {
+  it('inscreve e devolve só o número e o token do QR (o mesmo do comprovante)', async () => {
     const { status, corpo } = await enviar(formulario());
     expect(status).toBe(201);
+    expect(Object.keys(corpo).sort()).toEqual(['numero', 'qr']);
     expect(corpo.numero).toMatch(/^ICML26-\d{4}$/);
+    // O QR da tela de confirmação precisa passar no leitor do credenciamento.
+    expect(await verificarToken(corpo.qr, SEGREDO_QR)).toBe(corpo.numero);
     expect(JSON.stringify(corpo)).not.toContain('52998224725');
   });
 

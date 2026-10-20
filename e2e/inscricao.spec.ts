@@ -70,7 +70,9 @@ test('inscrição completa chega à confirmação com CPF mascarado', async ({ p
   await expect(page.locator('#c-cpf')).toHaveText('***.982.247-**');
   await expect(page.locator('#c-numero')).toHaveText(/^ICML26-\d{4}$/);
   await expect(page.locator('#c-minicurso')).toContainText('Inscrito');
-  await expect(page.locator('#c-qr svg')).toBeVisible();
+  // Sem backend não há token assinado: nada de QR falso que o leitor recusaria no evento.
+  await expect(page.locator('#c-qr svg')).toHaveCount(0);
+  await expect(page.locator('#c-qr-aviso')).toContainText('comprovante');
   // O CPF completo nunca aparece na página.
   await expect(page.locator('body')).not.toContainText('529.982.247-25');
 });
