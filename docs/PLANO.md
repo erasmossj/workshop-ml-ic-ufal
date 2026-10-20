@@ -59,7 +59,7 @@
 | Keep-alive / backup          | GitHub Actions (cron)                                                                                                      |
 | Repositório                  | `github.com/erasmossj/workshop-ml-ic-ufal` (público)                                                                       |
 
-## 3. Calendário (hoje: qui 16/10 → entrega dom 26/10)
+## 3. Calendário (início qui 16/10 → entrega antecipada para sex 23/10, com o pós-MVP)
 
 | Data                   | Fase                                      | Entregas                                                                                                                                                                                   | Gate                                  |
 | ---------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------- |
@@ -70,9 +70,10 @@
 | **23/10 (qui)**        | **F4 Carga e LGPD**                       | k6 300 VUs em staging; política de privacidade; retenção; keep-alive; backup                                                                                                               | ✅ RNF01 atingido                     |
 | **24/10 (sex)**        | **S3 Pentest / DAST**                     | OWASP ZAP (baseline + API) + checklist manual ASVS L1 em staging                                                                                                                           | —                                     |
 | **25/10 (sáb)**        | S3 correções · Go-live                    | Correção de achados, reteste, freeze, deploy em produção, abertura das inscrições/submissões                                                                                               | ✅ **0 achados Alto/Crítico abertos** |
-| **26/10 (dom)**        | **Entrega**                               | Apresentação aos stakeholders, handover, runbook                                                                                                                                           | ✅ **Entrega**                        |
-| 27/10–14/11            | F5 Credenciamento QR · **S4**             | PWA leitor, RPC de check-in; testes de forja/replay de QR                                                                                                                                  | antes de 30/11                        |
-| 15/11–02/12            | F6 Certificados · **S5**                  | Template + cálculo de horas + envio; testes de validação/enumeração                                                                                                                        | antes da liberação                    |
+| **20–21/10 (ter–qua)** | F5 Credenciamento QR · **S4** (adiantado) | PWA leitor, RPC de check-in, painel de presenças; testes de forja/replay de QR ([ADR-004](adr/ADR-004-credenciamento-qr.md))                                                               | CI verde                              |
+| **22–23/10 (qui–sex)** | F6 Certificados · **S5** (adiantado)      | Carga horária, editor de template, liberação em fila, download e validação; testes de enumeração ([ADR-005](adr/ADR-005-certificados-sob-demanda.md)); automação do expurgo (S6)           | CI verde                              |
+| **23/10 (sex)**        | **Entrega** (antecipada de 26/10)         | Apresentação aos stakeholders **no staging** com dados sintéticos: MVP + credenciamento + certificados; handover, runbook                                                                  | ✅ **Entrega**                        |
+| 26/10–29/10            | Ajustes do feedback                       | Alterações pedidas na apresentação, priorizadas no Jira                                                                                                                                    | antes da abertura (30/10)             |
 | 03–05/12               | Evento                                    | Credenciamento em operação                                                                                                                                                                 | —                                     |
 | pós-evento             | Liberação de certificados · **S6**        | Envio em fila; limpeza LGPD (PDFs, CPFs) após prazo de retenção                                                                                                                            | —                                     |
 
@@ -114,13 +115,13 @@ Seções: hero (data + CTA), sobre, programação (3 dias), palestrantes, minicu
 
 k6 com 300 VUs em ~1 min contra **staging** (critérios: p95 < 2 s, 0×5xx, `ocupadas ≤ vagas`). Política de privacidade, termo de consentimento, retenção, keep-alive, backup agendado.
 
-### F5 — Credenciamento QR (pós-MVP)
+### F5 — Credenciamento QR (pós-MVP, adiantado para 20–21/10)
 
-QR = código de inscrição + HMAC. PWA leitor (BarcodeDetector / html5-qrcode), modos **Dia** e **Minicurso**, RPC `check_in` idempotente, feedback visual/sonoro.
+QR = código de inscrição + HMAC. PWA leitor (BarcodeDetector / `qr-scanner`), modos **Dia** e **Minicurso**, RPC `check_in` idempotente, feedback visual/sonoro, busca manual pelo número. Leitor só online; operadores = organizadores ([ADR-004](adr/ADR-004-credenciamento-qr.md)).
 
-### F6 — Certificados (pós-MVP)
+### F6 — Certificados (pós-MVP, adiantado para 22–23/10)
 
-Cadastro de atividades (dia, tipo, carga horária) → horas = palestras dos dias com presença + minicursos com presença. Editor pdf.js para posicionar Nome/CPF/Horas. "Liberar" enfileira e-mails; página de download (e-mail + nº inscrição); código de validação público.
+Cadastro de atividades (dia, tipo, carga horária) → horas = palestras dos dias com presença + minicursos com presença. Editor pdf.js para posicionar Nome/CPF/Horas. "Liberar" congela as horas e enfileira e-mails; página de download (e-mail + nº inscrição); código de validação público aleatório. PDF gerado sob demanda, sem guardar no Storage ([ADR-005](adr/ADR-005-certificados-sob-demanda.md)).
 
 ## 5. Fases de testes de segurança
 

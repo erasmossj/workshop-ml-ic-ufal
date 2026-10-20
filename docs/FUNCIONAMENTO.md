@@ -133,6 +133,8 @@ recebe "esgotado". Vagas só mudam pelas RPCs `register_participant()`, `cancel_
 
 ## 8. Depois do MVP
 
-- **Credenciamento por QR** (F5): leitor PWA para a organização, check-in por dia e minicurso.
+- **Credenciamento por QR** (F5): leitor PWA para a organização, check-in por dia e minicurso
+  ([ADR-004](adr/ADR-004-credenciamento-qr.md)).
 - **Certificados** (F6): template em PDF com posições de Nome, CPF e Horas
-  ([ADR-002](adr/ADR-002-certificado-pdf.md)), geração em lote, download e validação pública por código.
+  ([ADR-002](adr/ADR-002-certificado-pdf.md)), geração sob demanda, download e validação pública por
+  código ([ADR-005](adr/ADR-005-certificados-sob-demanda.md)).

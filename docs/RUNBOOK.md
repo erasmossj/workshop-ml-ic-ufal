@@ -1,7 +1,8 @@
 # Runbook de operação — IC-ML 2026
 
-> Procedimentos da organização. Completado na entrega (WML-40). Nunca cole senha, chave secreta,
-> CPF ou e-mail de participante em issue, PR, chat ou commit.
+> Procedimentos da organização (WML-40). Nunca cole senha, chave secreta, CPF ou e-mail de
+> participante em issue, PR, chat ou commit. Como o sistema funciona por dentro:
+> [`FUNCIONAMENTO.md`](FUNCIONAMENTO.md).
 
 ## ⚠️ Pendências de configuração
 
@@ -31,6 +32,127 @@
 5. Teste: uma inscrição real com e-mail da organização (`nome+teste@...`) e confira a chegada;
    depois cancele no `/admin`.
 6. Remova esta linha da tabela de pendências.
+
+## Operação pelo painel (`/admin`)
+
+Tudo abaixo é feito em `https://<site>/admin`. Só entra quem está na lista de organizadores; o
+painel confere a lista no banco a cada ação.
+
+### Entrar
+
+1. Digite o seu e-mail em **Entrar** e abra o link que chega por e-mail (confira o spam).
+2. O link vale uma vez e por pouco tempo. Pediu de novo? Use só o mais recente.
+3. "Muitas tentativas": espere alguns minutos — o limite protege contra abuso.
+
+### Dar ou tirar acesso de um organizador
+
+O pedido chega por canal privado (nunca em issue, PR ou chat público). No **SQL Editor da produção**:
+
+```sql
+insert into public.organizadores (email) values (lower('<e-mail>'));   -- dar acesso
+delete from public.organizadores where email = lower('<e-mail>');      -- tirar acesso
+```
+
+A pessoa entra pelo link mágico com esse e-mail; não há senha. Quem sai da organização perde o
+acesso na próxima ação do painel.
+
+### Definir as vagas do minicurso
+
+**Configuração do evento** → campo de vagas do minicurso → **Salvar vagas**.
+
+- Enquanto as vagas não forem definidas, ninguém consegue se inscrever no minicurso (a inscrição no
+  evento funciona normalmente).
+- Dá para aumentar a qualquer momento. Reduzir só até o número de vagas já ocupadas — o sistema
+  recusa um valor menor.
+- A disputa pela última vaga é resolvida no banco (ADR-003); duas pessoas nunca ficam com a mesma vaga.
+
+### Prorrogar as inscrições ou as submissões
+
+**Configuração do evento** → **Janelas (horário de Maceió) e e-mail** → ajuste **Inscrições fecham** /
+**Submissões fecham** → **Salvar janelas**. A prorrogação prevista é até **18/11 às 23:59**. O servidor
+passa a aceitar o novo prazo na hora; o texto das datas na página inicial vem de
+`src/data/evento.ts` e precisa de um PR para mudar.
+
+### Exportar a planilha
+
+**Inscrições** → aplique os filtros desejados (minicurso, trabalho, situação, busca) →
+**Exportar CSV (lista filtrada)**.
+
+- O arquivo sai com CPF mascarado, datas em horário de Maceió e proteção contra fórmulas.
+- Abrir no Excel: **Dados → De Texto/CSV** → origem **65001: Unicode (UTF-8)**, para os acentos.
+- A planilha tem dados pessoais: não publique, não anexe em issue, apague quando não precisar mais.
+
+### Cancelar, corrigir ou reenviar
+
+Na linha da inscrição, coluna **Ações**:
+
+- **Cancelar**: pede confirmação, cancela a inscrição e **libera a vaga** do minicurso na hora. Use
+  também para pedidos de exclusão de dados (veja [Retenção](#retenção-e-expurgo-lgpd-wml-38)).
+- **Corrigir**: nome, e-mail, CPF ou instituição digitados errado. Mudou o e-mail? Clique em
+  **Reenviar** depois, para o comprovante chegar no endereço certo.
+- **Reenviar**: coloca o e-mail de confirmação (com comprovante e QR) na fila de novo.
+
+Não existe "desfazer cancelamento": se cancelou por engano, a pessoa se inscreve de novo (a vaga do
+minicurso depende de ainda haver vaga).
+
+### Trabalhos submetidos
+
+- **Abrir PDF**: abre o arquivo por um link temporário (expira em minutos). Não compartilhe o link.
+- Status: Pendente → Aprovado (oral) / Aprovado (pôster) / Rejeitado. O resultado sai em **26/11**;
+  o status no painel é controle interno — o participante não é avisado automaticamente.
+
+### Fila de e-mail
+
+O **Resumo** mostra quantos e-mails estão pendentes, enviados e com falha.
+
+- **Pendente** acumulando perto do teto do dia é normal no pico: a fila continua no dia seguinte.
+- **Falhou**: o sistema já tentou várias vezes com espera crescente. Confira o endereço (**Corrigir**)
+  e use **Reenviar**.
+- O participante também vê o comprovante na tela de confirmação, logo após se inscrever.
+
+## Cotas dos planos gratuitos
+
+Nada aqui gera cobrança: ao atingir o limite, o serviço para ou recusa, não cobra. Confira uma vez
+por semana durante as inscrições e todo dia no pico (primeiros dias e véspera do prazo).
+
+| Serviço              | Limite (plano gratuito) | Onde ver                                  | O que fazer perto do limite                                                                                  |
+| -------------------- | ----------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Gmail do evento      | ~500 destinatários/dia  | Painel → **Resumo** (fila de e-mail)      | O teto em **E-mails por dia** (padrão 450) segura a fila; o resto sai no dia seguinte. Não suba acima de 480 |
+| Brevo (reserva)      | 300 e-mails/dia         | app.brevo.com → Estatísticas              | Só entra quando o Gmail falha                                                                                |
+| Supabase — banco     | 500 MB                  | Supabase → projeto → **Usage**            | Esperado: poucos MB. Passou de 300 MB, algo está errado — avise o responsável técnico                        |
+| Supabase — Storage   | 1 GB                    | Supabase → **Usage** (ou consulta abaixo) | PDFs de até 5 MB cada. Acima de 800 MB, peça versões menores aos autores e avise o responsável técnico       |
+| Supabase — tráfego   | 5 GB/mês                | Supabase → **Usage**                      | Baixar PDFs dos trabalhos é o maior consumo; evite baixar a mesma leva várias vezes                          |
+| Supabase — funções   | 500 mil execuções/mês   | Supabase → **Usage** → Edge Functions     | O esperado são alguns milhares. Pico anormal = possível abuso: avise o responsável técnico                   |
+| Vercel (site)        | 100 GB de tráfego/mês   | Vercel → projeto → **Usage**              | Muito acima do esperado                                                                                      |
+| Turnstile (anti-bot) | ilimitado               | dash.cloudflare.com → Turnstile           | Muitos desafios = ataque de bots; o limite por origem no servidor continua valendo                           |
+
+Números dos planos gratuitos em 10/2026; os provedores podem mudá-los. A página **Usage** de cada um
+é a fonte certa.
+
+Consultas rápidas no **SQL Editor da produção**:
+
+```sql
+select pg_size_pretty(pg_database_size(current_database())) as banco;
+select pg_size_pretty(coalesce(sum((metadata ->> 'size')::bigint), 0)) as pdfs
+  from storage.objects where bucket_id = 'trabalhos';
+```
+
+## Se algo sair do ar
+
+Primeiro confira se é geral: [status.supabase.com](https://status.supabase.com),
+[vercel-status.com](https://www.vercel-status.com) e
+[cloudflarestatus.com](https://www.cloudflarestatus.com) (Turnstile). Se for do provedor, aguarde e
+avise nas redes do evento.
+
+| Sintoma                                                              | Causa provável                                   | O que fazer                                                                                                                                                                                      |
+| -------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Site abre, mas a inscrição dá erro para todos e o painel não carrega | **Supabase pausado** (7 dias sem uso)            | Supabase → projeto → **Restore project** (alguns minutos). Os dados não se perdem e a fila de e-mail volta sozinha. Depois veja em Actions → operacao por que o keep-alive falhou                |
+| Erro só para algumas pessoas ("muitas tentativas")                   | Limite por origem (várias pessoas na mesma rede) | Normal em laboratório com o mesmo IP. Peça para tentar em alguns minutos ou pelo 4G                                                                                                              |
+| Ninguém passa da verificação anti-bot                                | Turnstile fora do ar ou chave trocada            | Veja o status da Cloudflare. Se estiver normal, avise o responsável técnico                                                                                                                      |
+| E-mails pararam (pendentes só crescem)                               | Teto do dia atingido ou Gmail bloqueou o envio   | Teto: espere o dia seguinte. Gmail bloqueado: a Brevo assume sozinha; se as duas falharem, avise o responsável técnico. O comprovante continua na tela de confirmação                            |
+| Site inteiro fora do ar                                              | Vercel ou deploy quebrado                        | Veja o status da Vercel. Deploy quebrado: Vercel → **Deployments** → último deploy bom → **⋯ → Promote to Production** (volta a versão anterior em segundos)                                     |
+| Painel diz que você não tem acesso                                   | E-mail fora da lista de organizadores            | Confira o e-mail usado; peça a inclusão ([Dar ou tirar acesso](#dar-ou-tirar-acesso-de-um-organizador))                                                                                          |
+| Suspeita de vazamento (planilha publicada, chave exposta)            | —                                                | Avise o responsável técnico **na hora**. Chave exposta: gere outra no provedor e troque nos segredos. Dado pessoal exposto: a organização avalia comunicar os titulares e a ANPD (LGPD, art. 48) |
 
 ## Retenção e expurgo (LGPD, WML-38)
 
