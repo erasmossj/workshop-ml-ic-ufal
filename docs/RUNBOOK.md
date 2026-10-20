@@ -113,6 +113,48 @@ Em **GitHub → repositório → Settings → Secrets and variables → Actions*
 
 Os PDFs dos trabalhos (Storage) não entram neste backup; a organização baixa os PDFs pelo painel.
 
+## Credenciamento no dia (WML-54/55)
+
+Leitor de QR em `https://<site>/credenciamento`, para quem está na lista de organizadores
+(mesmo login do painel). Decisões e riscos: [ADR-004](adr/ADR-004-credenciamento-qr.md) e
+[S4](seguranca/S4-CREDENCIAMENTO.md).
+
+### Antes do evento (uma vez por aparelho)
+
+1. Abra `/credenciamento` no celular, entre com o seu e-mail e abra o link que chegar.
+2. Instale como app: Android (Chrome) → menu **⋮ → Instalar app**; iPhone (Safari) →
+   **Compartilhar → Adicionar à Tela de Início**.
+3. Toque em **Ligar câmera** e permita o acesso. Teste com o seu próprio comprovante, no **dia
+   1** (o registro de teste pode ser apagado depois — avise o responsável técnico).
+4. Deixe o celular carregado e o 4G como reserva do Wi-Fi.
+
+### Na entrada
+
+1. Confira no topo o **dia** (vem marcado com a data de hoje) e o **modo**:
+   - **Entrada do dia (palestras)** pela manhã — vale para todas as palestras daquele dia;
+   - **Minicurso (tarde)** no Laboratório 1 — só para quem se inscreveu no minicurso.
+2. Aponte para o QR do comprovante (impresso ou na tela do celular). Respostas:
+
+| Tela                        | Som          | O que fazer                                                                  |
+| --------------------------- | ------------ | ---------------------------------------------------------------------------- |
+| ✓ Presença registrada       | 1 bipe agudo | Confira o nome com a pessoa e libere                                         |
+| ! Já registrado             | 2 bipes      | Nada mudou; libere                                                           |
+| ✕ Não inscrito no minicurso | bipe grave   | O minicurso tem vagas limitadas; as palestras continuam liberadas            |
+| ✕ Inscrição cancelada       | bipe grave   | Encaminhe para a mesa da organização                                         |
+| ✕ QR Code inválido          | bipe grave   | Não é um comprovante do evento: use a busca manual                           |
+| ✕ Sem conexão               | bipe grave   | **Não registrou.** Confira a internet e leia de novo (ou use outro aparelho) |
+
+3. **Esqueceu o QR?** Em "Sem QR? Busque pelo nome ou número", digite parte do nome ou o número
+   de inscrição, confira com um documento e toque em **Registrar**.
+4. Ao fim do turno, toque em **Sair** — principalmente em celular emprestado.
+
+### Acompanhar e corrigir
+
+- Painel `/admin` → **Presenças**: presentes por dia e por tarde do minicurso. A planilha
+  exportada traz os dias de cada pessoa ("Dias presentes" e "Tardes no minicurso").
+- Registrou a pessoa errada? Não há botão de desfazer: anote o número e peça ao responsável
+  técnico para apagar o registro em `presencas` (SQL Editor da produção).
+
 ## Teste de carga (WML-36) — SOMENTE no staging
 
 `load/inscricao.js`: 300 pessoas se inscrevendo ao mesmo tempo (metade no minicurso). Critérios:
