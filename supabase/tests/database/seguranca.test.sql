@@ -34,7 +34,8 @@ select is(
     where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'execute')),
   array['admin_cancelar_inscricao', 'admin_corrigir_inscricao', 'admin_definir_janelas',
         'admin_definir_status_trabalho', 'admin_definir_vagas', 'admin_listar_inscricoes', 'admin_obter_config',
-        'admin_reenviar_confirmacao', 'admin_resumo_emails', 'cancel_registration', 'pode_administrar',
+        'admin_reenviar_confirmacao', 'admin_resumo_emails', 'admin_resumo_presencas', 'cancel_registration',
+        'pode_administrar',
         'vagas_publicas'],
   'authenticated só executa as RPCs do painel (todas checam organizadores)');
 select is(
