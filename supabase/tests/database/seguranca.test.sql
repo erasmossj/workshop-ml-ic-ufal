@@ -27,16 +27,17 @@ select ok(not has_function_privilege('anon', 'public.admin_listar_inscricoes()',
 select is(
   (select array_agg(p.proname::text order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute')),
-  array['vagas_publicas'],
-  'anon só executa vagas_publicas');
+  array['vagas_publicas', 'validar_certificado'],
+  'anon só executa vagas_publicas e validar_certificado (código aleatório de 100 bits)');
 select is(
   (select array_agg(p.proname::text order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'execute')),
-  array['admin_cancelar_inscricao', 'admin_corrigir_inscricao', 'admin_definir_janelas',
-        'admin_definir_status_trabalho', 'admin_definir_vagas', 'admin_listar_inscricoes', 'admin_obter_config',
-        'admin_reenviar_confirmacao', 'admin_resumo_emails', 'admin_resumo_presencas', 'cancel_registration',
-        'pode_administrar',
-        'vagas_publicas'],
+  array['admin_cancelar_inscricao', 'admin_corrigir_inscricao', 'admin_definir_carga', 'admin_definir_janelas',
+        'admin_definir_status_trabalho', 'admin_definir_vagas', 'admin_liberar_certificados',
+        'admin_listar_atividades', 'admin_listar_inscricoes', 'admin_obter_config', 'admin_obter_modelo_certificado',
+        'admin_reenviar_confirmacao', 'admin_resumo_certificados', 'admin_resumo_emails', 'admin_resumo_presencas',
+        'admin_salvar_modelo_certificado', 'cancel_registration', 'pode_administrar', 'vagas_publicas',
+        'validar_certificado'],
   'authenticated só executa as RPCs do painel (todas checam organizadores)');
 select is(
   (select count(*)::int from pg_proc p join pg_namespace n on n.oid = p.pronamespace
