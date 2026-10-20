@@ -4,6 +4,9 @@
 begin;
 select plan(24);
 
+-- O expurgo age sobre TODAS as inscrições: começa do zero (o rollback do fim desfaz).
+delete from public.participantes;
+
 update public.config_evento
    set inscricoes_inicio = now() - interval '1 day', inscricoes_fim = now() + interval '1 day',
        submissoes_inicio = now() - interval '1 day', submissoes_fim = now() + interval '1 day';
