@@ -8,6 +8,9 @@ for (const caminho of [
   '/privacidade',
   '/admin',
   '/credenciamento',
+  '/admin/certificados',
+  '/certificado',
+  '/validar',
 ]) {
   test(`sem violação de CSP em ${caminho}`, async ({ page }) => {
     const violacoes: string[] = [];

@@ -124,14 +124,12 @@ describe('certificados de ponta a ponta', () => {
   it('organizador sobe o modelo, salva as posições e libera', async () => {
     const pdf = await PDFDocument.create();
     pdf.addPage([841.89, 595.28]);
-    const envio = await org.storage
-      .from('certificados')
-      .upload(
-        MODELO,
-        new Blob([new Uint8Array(await pdf.save()).slice().buffer as ArrayBuffer], {
-          type: 'application/pdf',
-        }),
-      );
+    const envio = await org.storage.from('certificados').upload(
+      MODELO,
+      new Blob([new Uint8Array(await pdf.save()).slice().buffer as ArrayBuffer], {
+        type: 'application/pdf',
+      }),
+    );
     expect(envio.error).toBeNull();
 
     const campo = { pagina: 0, x: 120, y: 250, largura: 600, tamanho: 24 };

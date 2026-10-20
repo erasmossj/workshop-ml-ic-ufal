@@ -30,6 +30,8 @@
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.3.7",
     "jsqr": "1.4.0",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "4.10.38",
     "qrcode": "^1.5.4",
     "tailwindcss": "^4.3.3"
   },
@@ -48,7 +50,6 @@
     "eslint-plugin-jsx-a11y-x": "^0.2.0",
     "globals": "^17.13.0",
     "nodemailer": "^10.1.2",
-    "pdf-lib": "^1.17.1",
     "prettier": "^3.9.9",
     "prettier-plugin-astro": "^1.1.0",
     "prettier-plugin-tailwindcss": "^0.8.1",

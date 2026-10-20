@@ -3,7 +3,10 @@
 // CPF completo só aqui dentro (CLAUDE.md, regra 2). O texto é desenhado como texto (pdf-lib
 // codifica em hex): nada do nome é interpretado como comando de PDF.
 import { PDFDocument, rgb, StandardFonts, type PDFFont } from 'pdf-lib';
+import { formatarCargaHoraria, formatarCpf } from './carga-horaria.ts';
 import { paraWinAnsi } from './winansi.ts';
+
+export { formatarCargaHoraria, formatarCpf };
 
 export type Fonte = 'helvetica' | 'helvetica-negrito' | 'times' | 'times-negrito';
 export type Alinhamento = 'esquerda' | 'centro' | 'direita';
@@ -38,19 +41,6 @@ const FONTES: Record<Fonte, StandardFonts> = {
 };
 const TAMANHO_MINIMO = 6;
 const CINZA = rgb(0.35, 0.38, 0.45);
-
-/** 1320 → "22 horas"; 60 → "1 hora"; 830 → "13h50". */
-export function formatarCargaHoraria(minutos: number): string {
-  const h = Math.floor(minutos / 60);
-  const m = minutos % 60;
-  if (m === 0) return `${h} ${h === 1 ? 'hora' : 'horas'}`;
-  return `${h}h${String(m).padStart(2, '0')}`;
-}
-
-export function formatarCpf(cpf: string): string {
-  const d = cpf.replace(/\D/g, '');
-  return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9, 11)}`;
-}
 
 /** Maior tamanho (até `tamanho`) em que o texto cabe na largura; nunca abaixo de 6 pt. */
 export function tamanhoQueCabe(
