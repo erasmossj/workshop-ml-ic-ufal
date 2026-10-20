@@ -20,6 +20,10 @@ export type Inscricao = {
   cancelada: boolean;
   pdf_path: string | null;
   email_status: string | null;
+  /** Dias com presença nas palestras (AAAA-MM-DD), do credenciamento (WML-56). */
+  dias_presente: string[];
+  /** Tardes do minicurso com presença (AAAA-MM-DD). */
+  dias_minicurso: string[];
 };
 
 export const STATUS_TRABALHO: Record<string, string> = {
@@ -57,6 +61,31 @@ function celula(valor: string): string {
 
 const simNao = (b: boolean) => (b ? 'Sim' : 'Não');
 
+/** Resposta de public.admin_resumo_presencas() (só contagens). */
+export type ResumoPresencas = {
+  dias: { dia: string; presentes: number }[];
+  minicursos: { slug: string; titulo: string; dia: string; inscritos: number; presentes: number }[];
+};
+
+/** Cartões do painel: presentes por dia (palestras) e por tarde de minicurso. */
+export function cartoesPresenca(r: ResumoPresencas): [string, string][] {
+  return [
+    ...r.dias.map((d): [string, string] => [
+      `Palestras · ${formatarDias([d.dia])}`,
+      `${d.presentes} ${d.presentes === 1 ? 'presente' : 'presentes'}`,
+    ]),
+    ...r.minicursos.map((m): [string, string] => [
+      `${m.titulo} · ${formatarDias([m.dia])}`,
+      `${m.presentes} de ${m.inscritos} inscritos`,
+    ]),
+  ];
+}
+
+/** ['2026-12-02', '2026-12-04'] → '02/12, 04/12'. */
+export function formatarDias(dias: string[] | null | undefined): string {
+  return (dias ?? []).map((d) => `${d.slice(8, 10)}/${d.slice(5, 7)}`).join(', ');
+}
+
 /** Byte order mark: faz o Excel abrir o CSV como UTF-8 (acentos certos). */
 export const BOM = String.fromCharCode(0xfeff);
 
@@ -74,6 +103,8 @@ export function gerarCsv(lista: Inscricao[]): string {
     'Concorre ao prêmio',
     'Inscrita em',
     'Situação',
+    'Dias presentes',
+    'Tardes no minicurso',
   ];
   const linhas = lista.map((i) => [
     i.numero,
@@ -88,6 +119,8 @@ export function gerarCsv(lista: Inscricao[]): string {
     simNao(i.concorre_premio),
     formatarDataHora(i.criada_em),
     i.cancelada ? 'Cancelada' : 'Ativa',
+    formatarDias(i.dias_presente),
+    formatarDias(i.dias_minicurso),
   ]);
   return BOM + [cabecalho, ...linhas].map((l) => l.map(celula).join(';')).join('\r\n');
 }
