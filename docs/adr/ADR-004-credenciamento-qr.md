@@ -9,7 +9,7 @@
 2. **Verificação só no servidor.** A Edge Function `check-in` exige o JWT de um organizador, verifica o HMAC em tempo constante e chama a RPC `check_in()` (service role), que grava em `presencas`. O segredo nunca vai para o navegador.
 3. **Idempotência no banco.** `presencas` tem unicidade em `(participante, dia, minicurso)` com `nulls not distinct`. Repetir o scan devolve `ja_registrado` e não muda nada.
 4. **Operadores = organizadores.** Mesmo login (magic link) e mesma allowlist `organizadores` do painel. Sem papel novo.
-5. **Leitor online, sem fila offline.** A página `/credenciamento` (instalável como app) usa a câmera (`BarcodeDetector`, com `qr-scanner` como alternativa no Safari) e precisa de conexão. Sem rede, a tela avisa e o operador repete. Há **busca manual pelo número de inscrição** para quem esqueceu o QR (registrada com origem `manual`).
+5. **Leitor online, sem fila offline.** A página `/credenciamento` (instalável como app) usa a câmera (`BarcodeDetector`, com `jsQR` como alternativa no Safari/iOS — decodifica no próprio script, sem worker, então o CSP não precisa liberar `blob:`) e precisa de conexão. Sem rede, a tela avisa e o operador repete. Há **busca manual pelo número de inscrição** para quem esqueceu o QR (registrada com origem `manual`).
 6. **Conferência visual.** A resposta mostra o nome completo para o operador conferir com a pessoa; nunca mostra CPF ou e-mail.
 7. A câmera é liberada (`Permissions-Policy: camera=(self)`) **só** na rota `/credenciamento`; o resto do site continua com `camera=()`.
 

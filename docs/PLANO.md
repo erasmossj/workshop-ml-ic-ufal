@@ -117,7 +117,7 @@ k6 com 300 VUs em ~1 min contra **staging** (critérios: p95 < 2 s, 0×5xx, `ocu
 
 ### F5 — Credenciamento QR (pós-MVP, adiantado para 20–21/10)
 
-QR = código de inscrição + HMAC. PWA leitor (BarcodeDetector / `qr-scanner`), modos **Dia** e **Minicurso**, RPC `check_in` idempotente, feedback visual/sonoro, busca manual pelo número. Leitor só online; operadores = organizadores ([ADR-004](adr/ADR-004-credenciamento-qr.md)).
+QR = código de inscrição + HMAC. PWA leitor (BarcodeDetector / `jsQR`), modos **Dia** e **Minicurso**, RPC `check_in` idempotente, feedback visual/sonoro, busca manual pelo número. Leitor só online; operadores = organizadores ([ADR-004](adr/ADR-004-credenciamento-qr.md)).
 
 ### F6 — Certificados (pós-MVP, adiantado para 22–23/10)
 
