@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts } from 'pdf-lib';
+import { PDFDict, PDFDocument, PDFName, PDFString, StandardFonts } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
 import {
   formatarCargaHoraria,
@@ -98,6 +98,27 @@ describe('certificado em PDF', () => {
     await expect(
       gerarCertificado(await modelo(1), { ...campos, cpf: { ...campos.cpf, pagina: 3 } }, dados),
     ).rejects.toThrow('PAGINA_INEXISTENTE');
+  });
+
+  it('remove JavaScript e ações automáticas que viessem no modelo', async () => {
+    const pdf = await PDFDocument.create();
+    const pagina = pdf.addPage([841.89, 595.28]);
+    const js = pdf.context.obj({ S: 'JavaScript', JS: PDFString.of('app.alert(1)') });
+    pdf.catalog.set(PDFName.of('OpenAction'), js);
+    pdf.catalog.set(PDFName.of('AA'), pdf.context.obj({ WC: js }));
+    pdf.catalog.set(
+      PDFName.of('Names'),
+      pdf.context.obj({ JavaScript: pdf.context.obj({ Names: [PDFString.of('x'), js] }) }),
+    );
+    pagina.node.set(PDFName.of('AA'), pdf.context.obj({ O: js }));
+    const bytes = await gerarCertificado(await pdf.save(), campos, dados);
+    const saida = await PDFDocument.load(bytes);
+    expect(saida.catalog.get(PDFName.of('OpenAction'))).toBeUndefined();
+    expect(saida.catalog.get(PDFName.of('AA'))).toBeUndefined();
+    const nomes = saida.catalog.lookupMaybe(PDFName.of('Names'), PDFDict);
+    expect(nomes?.get(PDFName.of('JavaScript'))).toBeUndefined();
+    expect(saida.getPage(0).node.get(PDFName.of('AA'))).toBeUndefined();
+    expect(new TextDecoder('latin1').decode(bytes)).not.toContain('app.alert');
   });
 
   it('arquivo que não é PDF é erro claro', async () => {

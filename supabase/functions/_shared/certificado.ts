@@ -2,7 +2,7 @@
 // organização, nas posições salvas no painel. Usado no e-mail, no download e na prévia do painel.
 // CPF completo só aqui dentro (CLAUDE.md, regra 2). O texto é desenhado como texto (pdf-lib
 // codifica em hex): nada do nome é interpretado como comando de PDF.
-import { PDFDocument, rgb, StandardFonts, type PDFFont } from 'pdf-lib';
+import { PDFDict, PDFDocument, PDFName, PDFRef, rgb, StandardFonts, type PDFFont } from 'pdf-lib';
 import { formatarCargaHoraria, formatarCpf } from './carga-horaria.ts';
 import { paraWinAnsi } from './winansi.ts';
 
@@ -66,6 +66,22 @@ export function posicaoX(
   return x;
 }
 
+/** Tira do modelo o que roda sozinho ao abrir (JavaScript, ações automáticas, anexos). */
+function removerScripts(pdf: PDFDocument) {
+  const remover = (dict: PDFDict | undefined, chave: string) => {
+    if (!dict) return;
+    const valor = dict.get(PDFName.of(chave));
+    if (valor instanceof PDFRef) pdf.context.delete(valor);
+    dict.delete(PDFName.of(chave));
+  };
+  remover(pdf.catalog, 'OpenAction');
+  remover(pdf.catalog, 'AA');
+  const nomes = pdf.catalog.lookupMaybe(PDFName.of('Names'), PDFDict);
+  remover(nomes, 'JavaScript');
+  remover(nomes, 'EmbeddedFiles');
+  for (const pagina of pdf.getPages()) remover(pagina.node, 'AA');
+}
+
 export async function gerarCertificado(
   modelo: Uint8Array,
   campos: Campos,
@@ -77,6 +93,7 @@ export async function gerarCertificado(
   } catch {
     throw new Error('MODELO_ILEGIVEL');
   }
+  removerScripts(pdf);
   const paginas = pdf.getPages();
   const cache = new Map<Fonte, PDFFont>();
   const fonte = async (f: Fonte) => {
