@@ -10,6 +10,8 @@ export type InscricaoDemo = {
   email: string;
   minicurso: boolean;
   trabalho: { titulo: string; premio: boolean; nivel: string } | null;
+  /** Token assinado do QR (vem da Edge Function `register`); ausente no protótipo. */
+  qr?: string;
 };
 
 const CHAVE = 'icml-demo';

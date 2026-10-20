@@ -5,6 +5,7 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { erroSeguro } from '../_shared/erro-seguro.ts';
 import { criarVerificadorDeOrigem } from '../_shared/origens.ts';
+import { assinarInscricao } from '../_shared/qr.ts';
 
 const PDF_MAX_BYTES = 5 * 1024 * 1024;
 const MINICURSO_SLUG = 'ml-na-pratica';
@@ -252,5 +253,18 @@ Deno.serve(async (req) => {
     if (erroCaminho) console.error('gravar pdf_path falhou', causa(erroCaminho));
   }
 
-  return json(201, { numero: inscricao.numero_inscricao }, h);
+  // Token do QR (o mesmo do comprovante): a tela de confirmação mostra o QR que o leitor aceita.
+  // É a credencial da própria pessoa, sem dado pessoal; sem segredo configurado, vai só o número.
+  let qr: string | undefined;
+  try {
+    const segredoQr = Deno.env.get('QR_HMAC_SECRET') ?? '';
+    if (segredoQr) qr = await assinarInscricao(inscricao.numero_inscricao, segredoQr);
+  } catch (e) {
+    console.error('assinar QR falhou', erroSeguro(e));
+  }
+  return json(
+    201,
+    qr ? { numero: inscricao.numero_inscricao, qr } : { numero: inscricao.numero_inscricao },
+    h,
+  );
 });

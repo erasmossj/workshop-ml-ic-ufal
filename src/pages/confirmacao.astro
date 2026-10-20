@@ -47,7 +47,16 @@ const agenda = eventosDeAgenda().map((e, i) => ({
             ICML26-0042
           </p>
         </div>
-        <figure class="justify-self-start rounded-2xl bg-white p-2 sm:justify-self-end">
+        <p
+          id="c-qr-aviso"
+          class="max-w-56 justify-self-start text-sm text-suave sm:justify-self-end"
+        >
+          O QR Code do credenciamento está no comprovante em PDF enviado por e-mail.
+        </p>
+        <figure
+          id="c-qr-figura"
+          class="hidden justify-self-start rounded-2xl bg-white p-2 sm:justify-self-end"
+        >
           <div
             id="c-qr"
             class="size-32"
@@ -130,15 +139,20 @@ const agenda = eventosDeAgenda().map((e, i) => ({
     );
   }
 
-  // Na versão real o QR carrega um token assinado (HMAC), não só o número.
-  const numero = document.getElementById('c-numero')!.textContent ?? '';
-  QRCode.toString(numero, {
-    type: 'svg',
-    margin: 1,
-    color: { dark: '#071a45', light: '#ffffff' },
-  }).then((svg) => {
-    document.getElementById('c-qr')!.innerHTML = svg;
-  });
+  // Só o token assinado (HMAC) vale no leitor do credenciamento. Sem ele (protótipo, ou segredo
+  // ausente no servidor), não mostra QR nenhum: aponta para o comprovante do e-mail.
+  if (dados?.qr) {
+    QRCode.toString(dados.qr, {
+      type: 'svg',
+      margin: 1,
+      errorCorrectionLevel: 'M',
+      color: { dark: '#071a45', light: '#ffffff' },
+    }).then((svg) => {
+      document.getElementById('c-qr')!.innerHTML = svg;
+      document.getElementById('c-qr-figura')!.classList.remove('hidden');
+      document.getElementById('c-qr-aviso')!.classList.add('hidden');
+    });
+  }
 
   document.getElementById('imprimir')!.addEventListener('click', () => window.print());
   document.getElementById('baixar-ics')!.addEventListener('click', () => {
