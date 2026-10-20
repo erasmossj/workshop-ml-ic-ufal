@@ -75,6 +75,20 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         <dl id="resumo" class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></dl>
       </section>
 
+      <section aria-labelledby="t-presencas" class="mt-10">
+        <h2 id="t-presencas" class="font-display text-2xl font-bold">
+          Presenças
+        </h2>
+        <p class="mt-1 text-sm text-suave">
+          Registradas no credenciamento (
+          <a class="texto-acao underline" href="/credenciamento">
+            abrir o leitor de QR
+          </a>
+          ). A planilha exportada traz os dias de cada pessoa.
+        </p>
+        <dl id="presencas" class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></dl>
+      </section>
+
       <section aria-labelledby="t-inscricoes" class="mt-10">
         <div class="flex flex-wrap items-end justify-between gap-3">
           <h2 id="t-inscricoes" class="font-display text-2xl font-bold">
@@ -282,6 +296,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
 <script>
   import { createClient, type SupabaseClient } from '@supabase/supabase-js';
   import {
+    cartoesPresenca,
     deInputLocal,
     filtrar,
     formatarDataHora,
@@ -294,6 +309,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
     STATUS_TRABALHO,
     type Filtros,
     type Inscricao,
+    type ResumoPresencas,
   } from '../../lib/admin';
 
   type Minicurso = {
@@ -427,6 +443,22 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
       renderConfig(config);
       await carregarLista();
       await carregarResumo(config);
+      await carregarPresencas();
+    }
+
+    async function carregarPresencas() {
+      const r = await rpc<ResumoPresencas>('admin_resumo_presencas');
+      if (!r.ok) return;
+      $('presencas').replaceChildren(
+        ...cartoesPresenca(r.data).map(([rotulo, texto]) => {
+          const caixa = el('div', undefined, 'vidro p-4');
+          caixa.append(
+            el('dt', rotulo, 'text-sm text-suave'),
+            el('dd', texto, 'mt-1 font-display text-xl font-bold'),
+          );
+          return caixa;
+        }),
+      );
     }
 
     // ---------------------------------------------------------------- resumo

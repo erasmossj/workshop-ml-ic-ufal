@@ -17,6 +17,9 @@
   --color-acao-2: #e87722;
   --color-sobre-acao: #1a1206;
   --color-erro: #ffb4a8;
+  /* Resultado do leitor de QR (credenciamento): sempre com ícone e texto, nunca só a cor. */
+  --color-ok: #a8f0c0;
+  --color-aviso: #ffe28a;
 
   --font-display: var(--font-sora);
   --font-sans: var(--font-inter);

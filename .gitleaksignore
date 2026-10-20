@@ -1,0 +1,6 @@
+# Falsos positivos revisados (generic-api-key): tokens SINTÉTICOS de QR no teste unitário do
+# check-in, no commit 831aea0 (WML-54). O arquivo atual monta esses tokens sem literal.
+# Formato: <commit>:<arquivo>:<regra>:<linha>. Nunca adicione segredo real aqui — remova-o e rotacione.
+831aea087ee2c680346924795786585da0eab85d:supabase/functions/_shared/check-in.test.ts:generic-api-key:25
+831aea087ee2c680346924795786585da0eab85d:supabase/functions/_shared/check-in.test.ts:generic-api-key:44
+831aea087ee2c680346924795786585da0eab85d:supabase/functions/_shared/check-in.test.ts:generic-api-key:65

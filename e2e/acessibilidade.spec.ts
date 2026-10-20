@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 
 // WCAG 2.2 AA (WML-66): o axe-core não acha tudo (teclado e leitor de tela também são checados à
 // mão), mas impede regressões de contraste, rótulos, nomes acessíveis e estrutura.
-const PAGINAS = ['/', '/inscricao', '/confirmacao', '/privacidade', '/admin'];
+const PAGINAS = ['/', '/inscricao', '/confirmacao', '/privacidade', '/admin', '/credenciamento'];
 
 for (const caminho of PAGINAS) {
   test(`sem violação WCAG 2.2 AA detectável em ${caminho}`, async ({ page }) => {
