@@ -21,4 +21,5 @@
 
 - Trocar o template **depois** da liberação muda a aparência dos próximos downloads (as horas e o código continuam os mesmos). O painel avisa isso.
 - O expurgo (S6) apaga CPF e e-mail em 31/03/2027; depois disso o download deixa de existir e a validação pública continua por código até 31/12/2031 (nome, horas, data).
-- Fontes Montserrat/Open Sans (OFL) embutidas via `@pdf-lib/fontkit` para acentuação; nomes longos reduzem a fonte até caber na caixa.
+- Fontes: por ora, as **fontes padrão do PDF** (Helvetica e Times, normal e negrito), escolhidas no painel. Cobrem os acentos do português, não exigem arquivo extra nem `@pdf-lib/fontkit`, e qualquer leitor de PDF as exibe. Caracteres fora do Latin-1 (raros em nomes) viram o equivalente sem acento ou "?". Isso substitui o "embutir Montserrat/Open Sans" do ADR-002; se a organização quiser a fonte da marca, embutir a TTF (OFL) é uma mudança pequena no gerador. Nomes longos reduzem a fonte até caber na caixa.
+- O gerador remove JavaScript, ações automáticas e anexos que viessem no modelo (S5, T4).
