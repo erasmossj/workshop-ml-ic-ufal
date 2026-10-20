@@ -36,9 +36,29 @@
 **Resultado da rodada 1: 0 Alto/Crítico, 0 Médio.** T5 (sem assinatura digital) é aceito: a
 autenticidade é conferida pelo código em `/validar`.
 
+## Staging — 20/10/2026
+
+Depois das migrations `20261021090000_certificados.sql` e `20261022090000_expurgo.sql` e das funções
+`certificado`, `send-emails` e `expurgo` no staging: **74 verificações, 72 OK, 1 falha, 1 pulada**.
+
+| #   | Caso                                                                                | Resultado                           |
+| --- | ----------------------------------------------------------------------------------- | ----------------------------------- |
+| C1  | Tabelas `atividades_certificado`, `certificados`, `config_certificado` como anônimo | ✅ 401                              |
+| C2  | 11 RPCs de certificado (servidor e painel) como anônimo                             | ✅ 401/404                          |
+| C11 | Bucket `certificados`: listar e gravar como anônimo                                 | ✅ lista vazia · 400                |
+| C11 | `validar_certificado`: código inexistente e injeção                                 | ✅ vazio, sem erro de SQL           |
+| C11 | `certificado`: GET, CORS de origem desconhecida, rajada de tentativas               | ✅ 405 · sem `Allow-Origin` · 429   |
+| C11 | `certificado` com token falso do Turnstile                                          | ⚠️ passou do anti-robô (ver abaixo) |
+
+**A falha não é do código**: o staging usa a **chave secreta de teste** do Turnstile, que aprova
+qualquer token (necessária para o teste de carga do S3 passar). Conferido pelo hash do segredo, sem
+ler o valor: staging = chave de teste; **produção = chave real**. A recusa de token inválido é
+coberta pelos testes de unidade. O caso foi ajustado para conferir o envio **sem** token (deve ser
+recusado), o único verificável no staging. A verificação pulada (C6) é do S3, barrada pelo limite
+desta rodada, e já tinha passado em 19/10.
+
 ## Pendente
 
-- Rodar o pentest do staging com os casos **C11** depois de publicar a migration
-  `20261021090000_certificados.sql` e as funções `certificado` e `send-emails` no staging.
-- Definir `SITE_URL` nos segredos das funções (staging e produção): é o endereço impresso no rodapé
-  do certificado e usado nos links do e-mail.
+- Definir `SITE_URL` nos segredos das funções da **produção** (no staging já está): é o endereço
+  impresso no rodapé do certificado e usado nos links do e-mail.
+- Antes do go-live, conferir de novo que o `TURNSTILE_SECRET_KEY` da produção não é a chave de teste.
