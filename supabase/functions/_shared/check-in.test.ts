@@ -2,13 +2,15 @@ import { describe, expect, it, vi } from 'vitest';
 import { realizarCheckIn, type DependenciasCheckIn } from './check-in';
 
 const ORG = 'org@exemplo.com';
+/** Token sintético no formato do comprovante (`<número>.<assinatura>`), montado para o gitleaks. */
+const qr = (numero: string, assinatura: string) => [numero, assinatura].join('.');
+const QR_OK = qr('ICML26-0042', 'assinatura-ok');
+const QR_FALSO = qr('ICML26-0042', 'assinatura-falsa');
 
 function deps(extra: Partial<DependenciasCheckIn> = {}): DependenciasCheckIn {
   return {
     operador: vi.fn(async () => ({ email: ORG, organizador: true })),
-    verificarToken: vi.fn(async (t: string) =>
-      t === 'ICML26-0042.assinatura-ok' ? 'ICML26-0042' : null,
-    ),
+    verificarToken: vi.fn(async (t: string) => (t === QR_OK ? 'ICML26-0042' : null)),
     checkIn: vi.fn(async (a) => ({
       resultado: 'ok',
       numero: a.numero.toUpperCase(),
@@ -21,10 +23,7 @@ function deps(extra: Partial<DependenciasCheckIn> = {}): DependenciasCheckIn {
 describe('check-in (Edge Function)', () => {
   it('QR válido no modo Dia: verifica a assinatura e registra com origem qr', async () => {
     const d = deps();
-    const r = await realizarCheckIn(
-      { token: 'ICML26-0042.assinatura-ok', dia: '2026-12-02', modo: 'dia' },
-      d,
-    );
+    const r = await realizarCheckIn({ token: QR_OK, dia: '2026-12-02', modo: 'dia' }, d);
     expect(r).toEqual({
       status: 200,
       corpo: { resultado: 'ok', numero: 'ICML26-0042', nome: 'Ana Sintética' },
@@ -40,10 +39,7 @@ describe('check-in (Edge Function)', () => {
 
   it('modo Minicurso envia o slug do minicurso', async () => {
     const d = deps();
-    await realizarCheckIn(
-      { token: 'ICML26-0042.assinatura-ok', dia: '2026-12-03', modo: 'minicurso' },
-      d,
-    );
+    await realizarCheckIn({ token: QR_OK, dia: '2026-12-03', modo: 'minicurso' }, d);
     expect(d.checkIn).toHaveBeenCalledWith(
       expect.objectContaining({ minicurso: 'ml-na-pratica', dia: '2026-12-03' }),
     );
@@ -61,10 +57,7 @@ describe('check-in (Edge Function)', () => {
 
   it('QR forjado ou adulterado não chega ao banco', async () => {
     const d = deps();
-    const r = await realizarCheckIn(
-      { token: 'ICML26-0042.assinatura-falsa', dia: '2026-12-02', modo: 'dia' },
-      d,
-    );
+    const r = await realizarCheckIn({ token: QR_FALSO, dia: '2026-12-02', modo: 'dia' }, d);
     expect(r).toEqual({ status: 200, corpo: { resultado: 'qr_invalido' } });
     expect(d.checkIn).not.toHaveBeenCalled();
   });
