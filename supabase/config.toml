@@ -423,3 +423,8 @@ verify_jwt = false
 # Fila de e-mail: chamada só pelo pg_cron, autenticada pelo cabeçalho x-cron-secret.
 [functions.send-emails]
 verify_jwt = false
+
+# Leitor de QR (credenciamento): valida o JWT do organizador dentro da função (auth.getUser) e
+# confere a allowlist `organizadores`; o gateway não exige JWT para o preflight de CORS passar.
+[functions.check-in]
+verify_jwt = false
