@@ -1,0 +1,555 @@
+---
+import Base from '../layouts/Base.astro';
+import { dias } from '../data/evento';
+
+// Leitor de QR do credenciamento (WML-55 · ADR-004). Acesso: magic link + allowlist
+// `organizadores`, conferida na Edge Function `check-in` e de novo no banco. Fora do menu.
+const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
+---
+
+<Base title="Credenciamento" noindex>
+  <Fragment slot="head">
+    <link rel="manifest" href="/credenciamento.webmanifest" />
+    <link rel="apple-touch-icon" href="/icone-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+  </Fragment>
+
+  <section class="mx-auto max-w-3xl px-5 py-8 md:px-10">
+    <p class="rotulo text-ciano">Organização · acesso restrito</p>
+    <h1 class="mt-2 font-display text-3xl font-bold md:text-4xl">Credenciamento</h1>
+
+    <p
+      id="aviso"
+      role="status"
+      aria-live="polite"
+      class="pointer-events-none fixed bottom-6 left-1/2 z-50 w-[min(92vw,36rem)] -translate-x-1/2 rounded-2xl bg-texto px-5 py-3 text-center font-medium text-fundo-1 opacity-0 shadow-2xl transition-opacity"
+    ></p>
+
+    {!configurado && (
+      <p class="vidro mt-6 p-6">
+        O credenciamento funciona só com o backend configurado (PUBLIC_SUPABASE_URL). Nesta versão
+        de protótipo não há dados para mostrar.
+      </p>
+    )}
+
+    <!-- Login -->
+    <form id="form-login" class="vidro mt-6 hidden p-6" novalidate>
+      <h2 class="font-display text-xl font-bold">Entrar</h2>
+      <p class="mt-2 text-sm text-suave">
+        Use o mesmo e-mail do painel da organização. Enviaremos um link de acesso.
+      </p>
+      <label for="login-email" class="mt-4 block text-sm font-medium">
+        E-mail
+      </label>
+      <input
+        id="login-email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        required
+        class="campo mt-1 w-full"
+      />
+      <button type="submit" class="btn-primario mt-4">
+        Enviar link de acesso
+      </button>
+    </form>
+
+    <!-- Sem acesso -->
+    <div id="sem-acesso" class="vidro mt-6 hidden p-6">
+      <p>Este e-mail não tem acesso ao credenciamento. Fale com a coordenação do evento.</p>
+      <button type="button" class="btn-secundario mt-4" data-sair>
+        Sair
+      </button>
+    </div>
+
+    <!-- Leitor -->
+    <div id="leitor" class="hidden">
+      <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <p class="text-sm text-suave">
+          Conectado como <strong id="quem"></strong>
+        </p>
+        <button type="button" class="btn-secundario px-4 py-2" data-sair>
+          Sair
+        </button>
+      </div>
+
+      <div class="vidro mt-4 grid gap-4 p-5 md:grid-cols-2">
+        <fieldset>
+          <legend class="text-sm font-medium">Dia</legend>
+          <div class="mt-2 grid gap-2">
+            {dias.map((d) => (
+              <label class="flex items-center gap-2">
+                <input type="radio" name="dia" value={d.data} class="size-5" />
+                <span>
+                  {d.rotulo} · {d.semana}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend class="text-sm font-medium">Modo</legend>
+          <div class="mt-2 grid gap-2">
+            <label class="flex items-center gap-2">
+              <input type="radio" name="modo" value="dia" class="size-5" checked />
+              <span>Entrada do dia (palestras)</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="radio" name="modo" value="minicurso" class="size-5" />
+              <span>Minicurso (tarde)</span>
+            </label>
+          </div>
+        </fieldset>
+      </div>
+
+      <div id="camera" class="mt-4 scroll-mt-24">
+        <div class="relative overflow-hidden rounded-2xl bg-fundo-1">
+          <video
+            id="video"
+            class="hidden aspect-square max-h-[45vh] w-full object-cover"
+            playsinline
+            muted
+            aria-label="Imagem da câmera para ler o QR Code"
+          ></video>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-3">
+          <!-- O contêiner é que some/aparece: .btn-* define display e venceria a classe hidden. -->
+          <div id="ligar-caixa">
+            <button type="button" id="ligar" class="btn-primario">
+              Ligar câmera
+            </button>
+          </div>
+          <div id="desligar-caixa" class="hidden">
+            <button type="button" id="desligar" class="btn-secundario">
+              Desligar câmera
+            </button>
+          </div>
+        </div>
+        <p id="sem-camera" class="mt-2 hidden text-sm text-erro"></p>
+      </div>
+
+      <!-- Resultado: ícone + título + texto (não depende só da cor). -->
+      <div
+        id="resultado"
+        aria-live="assertive"
+        aria-atomic="true"
+        class="vidro mt-4 flex min-h-28 items-start gap-4 border-l-8 border-suave p-5"
+      >
+        <span id="resultado-icone" aria-hidden="true" class="font-display text-4xl leading-none">
+          ◎
+        </span>
+        <div>
+          <p id="resultado-titulo" class="font-display text-2xl font-bold">
+            Pronto para ler
+          </p>
+          <p id="resultado-detalhe" class="mt-1 text-suave">
+            Escolha o dia e o modo, ligue a câmera e aponte para o QR do comprovante.
+          </p>
+        </div>
+      </div>
+
+      <!-- Busca manual -->
+      <form id="form-busca" class="vidro mt-6 p-5" novalidate>
+        <h2 class="font-display text-xl font-bold">Sem QR? Busque pelo nome ou número</h2>
+        <label for="busca" class="mt-3 block text-sm font-medium">
+          Nome ou nº de inscrição
+        </label>
+        <input
+          id="busca"
+          type="search"
+          autocomplete="off"
+          enterkeyhint="search"
+          class="campo mt-1 w-full"
+          aria-describedby="busca-ajuda"
+        />
+        <p id="busca-ajuda" class="mt-1 text-sm text-suave">
+          Confira o nome com um documento antes de registrar.
+        </p>
+        <ul id="busca-resultados" class="mt-3 grid gap-2" aria-live="polite"></ul>
+      </form>
+
+      <section aria-labelledby="t-historico" class="mt-6">
+        <h2 id="t-historico" class="font-display text-xl font-bold">
+          Nesta sessão: <span id="contador">0 registros</span>
+        </h2>
+        <ol id="historico" class="mt-2 grid gap-1 text-sm text-suave"></ol>
+      </section>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+  import { filtrar, type Inscricao } from '../lib/admin';
+  import {
+    criarFiltroRepeticao,
+    diaPadrao,
+    hojeEmMaceio,
+    mensagemDoResultado,
+    tokenDoQr,
+    type Mensagem,
+    type Modo,
+    type RespostaCheckIn,
+  } from '../lib/credenciamento';
+
+  const URL_SUPABASE: string | undefined = import.meta.env.PUBLIC_SUPABASE_URL;
+  const CHAVE: string | undefined = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+  const INTERVALO_LEITURA_MS = 200;
+  const PAUSA_APOS_LEITURA_MS = 1500;
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  let ocultarAviso: ReturnType<typeof setTimeout> | undefined;
+  const avisar = (texto: string) => {
+    const aviso = $('aviso');
+    aviso.textContent = texto;
+    aviso.classList.remove('opacity-0');
+    clearTimeout(ocultarAviso);
+    ocultarAviso = setTimeout(() => {
+      aviso.classList.add('opacity-0');
+      aviso.textContent = '';
+    }, 6000);
+  };
+
+  function mostrar(qual: 'login' | 'sem-acesso' | 'leitor') {
+    $('form-login').classList.toggle('hidden', qual !== 'login');
+    $('sem-acesso').classList.toggle('hidden', qual !== 'sem-acesso');
+    $('leitor').classList.toggle('hidden', qual !== 'leitor');
+  }
+
+  // ------------------------------------------------------------- resultado + som
+  const ICONE = { ok: '✓', aviso: '!', erro: '✕' } as const;
+  const BORDA = { ok: 'border-ok', aviso: 'border-aviso', erro: 'border-erro' } as const;
+  const COR = { ok: 'text-ok', aviso: 'text-aviso', erro: 'text-erro' } as const;
+  let audio: AudioContext | null = null;
+
+  function bipe(tom: Mensagem['tom']) {
+    navigator.vibrate?.(tom === 'ok' ? 80 : tom === 'aviso' ? [80, 60, 80] : 300);
+    if (!audio) return;
+    const notas =
+      tom === 'ok'
+        ? [[880, 0.12]]
+        : tom === 'aviso'
+          ? [
+              [660, 0.09],
+              [660, 0.09],
+            ]
+          : [[220, 0.4]];
+    let t = audio.currentTime;
+    for (const [freq, dur] of notas) {
+      const o = audio.createOscillator();
+      const g = audio.createGain();
+      o.frequency.value = freq;
+      g.gain.value = 0.2;
+      o.connect(g).connect(audio.destination);
+      o.start(t);
+      o.stop(t + dur);
+      t += dur + 0.06;
+    }
+  }
+
+  function mostrarResultado(m: Mensagem) {
+    const caixa = $('resultado');
+    caixa.classList.remove('border-suave', ...Object.values(BORDA));
+    caixa.classList.add(BORDA[m.tom]);
+    const icone = $('resultado-icone');
+    icone.textContent = ICONE[m.tom];
+    icone.className = `font-display text-4xl leading-none ${COR[m.tom]}`;
+    $('resultado-titulo').textContent = m.titulo;
+    $('resultado-detalhe').textContent = m.detalhe;
+    bipe(m.tom);
+  }
+
+  let contador = 0;
+  function registrarNoHistorico(m: Mensagem) {
+    if (m.tom === 'ok') {
+      contador++;
+      $('contador').textContent = `${contador} ${contador === 1 ? 'registro' : 'registros'}`;
+    }
+    const item = document.createElement('li');
+    const hora = new Date().toLocaleTimeString('pt-BR', {
+      timeZone: 'America/Maceio',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    item.textContent = `${hora} — ${ICONE[m.tom]} ${m.titulo}: ${m.detalhe.split('.')[0]}`;
+    const lista = $('historico');
+    lista.prepend(item);
+    while (lista.children.length > 8) lista.lastElementChild?.remove();
+  }
+
+  // ------------------------------------------------------------- escolhas
+  const diaAtual = () =>
+    (document.querySelector('input[name="dia"]:checked') as HTMLInputElement | null)?.value ?? '';
+  const modoAtual = () =>
+    ((document.querySelector('input[name="modo"]:checked') as HTMLInputElement | null)?.value ??
+      'dia') as Modo;
+
+  const diasDoEvento = [...document.querySelectorAll<HTMLInputElement>('input[name="dia"]')].map(
+    (r) => r.value,
+  );
+  const padrao = diaPadrao(hojeEmMaceio(), diasDoEvento);
+  document
+    .querySelectorAll<HTMLInputElement>('input[name="dia"]')
+    .forEach((r) => (r.checked = r.value === padrao));
+
+  if (URL_SUPABASE && CHAVE) iniciar(createClient(URL_SUPABASE, CHAVE));
+
+  function iniciar(sb: SupabaseClient) {
+    let lista: Inscricao[] = [];
+    let ocupado = false;
+
+    // ----------------------------------------------------------- sessão
+    sb.auth.onAuthStateChange((evento, sessao) => {
+      if (!sessao) {
+        pararCamera();
+        mostrar('login');
+        return;
+      }
+      if (evento !== 'INITIAL_SESSION' && evento !== 'SIGNED_IN') return;
+      $('quem').textContent = sessao.user.email ?? '';
+      setTimeout(verificarAcesso, 0);
+    });
+
+    async function verificarAcesso() {
+      const { data, error } = await sb.rpc('pode_administrar');
+      if (error || data !== true) {
+        mostrar('sem-acesso');
+        return;
+      }
+      mostrar('leitor');
+      const r = await sb.rpc('admin_listar_inscricoes');
+      if (!r.error) lista = (r.data as Inscricao[]) ?? [];
+    }
+
+    $<HTMLFormElement>('form-login').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const email = $<HTMLInputElement>('login-email').value.trim();
+      if (!email) {
+        avisar('Informe o e-mail.');
+        return;
+      }
+      const { error } = await sb.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: false, emailRedirectTo: `${location.origin}/credenciamento` },
+      });
+      avisar(
+        error?.status === 429
+          ? 'Muitas tentativas. Aguarde alguns minutos.'
+          : 'Se este e-mail tiver acesso, você vai receber um link para entrar. Confira também o spam.',
+      );
+    });
+
+    document.querySelectorAll('[data-sair]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        await sb.auth.signOut();
+        avisar('Você saiu.');
+      }),
+    );
+
+    // ----------------------------------------------------------- check-in
+    async function enviar(corpo: { token: string } | { numero: string }) {
+      if (ocupado) return;
+      ocupado = true;
+      const modo = modoAtual();
+      try {
+        const { data } = await sb.auth.getSession();
+        if (!data.session) {
+          mostrar('login');
+          return;
+        }
+        let r: Response;
+        try {
+          r = await fetch(`${URL_SUPABASE}/functions/v1/check-in`, {
+            method: 'POST',
+            headers: {
+              apikey: CHAVE!,
+              Authorization: `Bearer ${data.session.access_token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ...corpo, dia: diaAtual(), modo }),
+          });
+        } catch {
+          const m: Mensagem = {
+            tom: 'erro',
+            titulo: 'Sem conexão',
+            detalhe:
+              'A presença NÃO foi registrada. Confira a internet (Wi-Fi ou 4G) e leia o QR de novo.',
+          };
+          mostrarResultado(m);
+          registrarNoHistorico(m);
+          return;
+        }
+        if (r.status === 401) {
+          avisar('Sua sessão expirou. Entre de novo.');
+          await sb.auth.signOut();
+          return;
+        }
+        if (r.status === 403) {
+          mostrar('sem-acesso');
+          return;
+        }
+        if (!r.ok) {
+          const m = mensagemDoResultado({ resultado: 'erro' }, modo);
+          mostrarResultado(m);
+          registrarNoHistorico(m);
+          return;
+        }
+        const m = mensagemDoResultado((await r.json()) as RespostaCheckIn, modo);
+        mostrarResultado(m);
+        registrarNoHistorico(m);
+      } finally {
+        ocupado = false;
+      }
+    }
+
+    // ----------------------------------------------------------- câmera
+    let fluxo: MediaStream | null = null;
+    let temporizador: ReturnType<typeof setTimeout> | undefined;
+    const deveProcessar = criarFiltroRepeticao(4000);
+    const video = $<HTMLVideoElement>('video');
+
+    type Leitor = (v: HTMLVideoElement) => Promise<string | null>;
+    let leitor: Leitor | null = null;
+
+    async function criarLeitor(): Promise<Leitor> {
+      type Detector = { detect(v: HTMLVideoElement): Promise<{ rawValue: string }[]> };
+      const BD = (
+        window as unknown as {
+          BarcodeDetector?: {
+            new (o: { formats: string[] }): Detector;
+            getSupportedFormats?(): Promise<string[]>;
+          };
+        }
+      ).BarcodeDetector;
+      if (BD && (await BD.getSupportedFormats?.())?.includes('qr_code')) {
+        const d = new BD({ formats: ['qr_code'] });
+        return async (v) => (await d.detect(v))[0]?.rawValue ?? null;
+      }
+      // Safari/iOS não tem BarcodeDetector: decodifica o quadro com jsQR (sem worker, CSP intacto).
+      const { default: jsQR } = await import('jsqr');
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+      return async (v) => {
+        const w = v.videoWidth;
+        const h = v.videoHeight;
+        if (!w || !h) return null;
+        const escala = Math.min(1, 640 / Math.max(w, h));
+        canvas.width = Math.round(w * escala);
+        canvas.height = Math.round(h * escala);
+        ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        return (
+          jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' })?.data ?? null
+        );
+      };
+    }
+
+    async function ler() {
+      if (!fluxo || !leitor) return;
+      let espera = INTERVALO_LEITURA_MS;
+      try {
+        const texto = ocupado ? null : await leitor(video);
+        if (texto && deveProcessar(texto, Date.now())) {
+          espera = PAUSA_APOS_LEITURA_MS;
+          const token = tokenDoQr(texto);
+          if (token) await enviar({ token });
+          else {
+            const m = mensagemDoResultado({ resultado: 'qr_invalido' }, modoAtual());
+            mostrarResultado(m);
+            registrarNoHistorico(m);
+          }
+        }
+      } catch {
+        // quadro ilegível: segue lendo
+      }
+      if (fluxo) temporizador = setTimeout(ler, espera);
+    }
+
+    async function ligarCamera() {
+      $('sem-camera').classList.add('hidden');
+      // Som só pode começar após um toque do usuário (iOS).
+      audio ??= new AudioContext();
+      void audio.resume();
+      try {
+        fluxo = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' },
+          audio: false,
+        });
+      } catch {
+        const aviso = $('sem-camera');
+        aviso.textContent =
+          'Não foi possível abrir a câmera. Permita o acesso à câmera para este site nas configurações do navegador, ou use a busca manual abaixo.';
+        aviso.classList.remove('hidden');
+        return;
+      }
+      video.srcObject = fluxo;
+      video.classList.remove('hidden');
+      await video.play();
+      leitor ??= await criarLeitor();
+      $('ligar-caixa').classList.add('hidden');
+      $('desligar-caixa').classList.remove('hidden');
+      // Vídeo e resultado juntos na tela do celular.
+      $('camera').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      void ler();
+    }
+
+    function pararCamera() {
+      clearTimeout(temporizador);
+      fluxo?.getTracks().forEach((t) => t.stop());
+      fluxo = null;
+      video.srcObject = null;
+      video.classList.add('hidden');
+      $('ligar-caixa').classList.remove('hidden');
+      $('desligar-caixa').classList.add('hidden');
+    }
+
+    $('ligar').addEventListener('click', () => void ligarCamera());
+    $('desligar').addEventListener('click', pararCamera);
+    // Economiza bateria: tela bloqueada ou aba em segundo plano desliga a câmera.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && fluxo) {
+        pararCamera();
+        avisar('Câmera desligada ao sair da tela. Toque em "Ligar câmera" para continuar.');
+      }
+    });
+
+    // ----------------------------------------------------------- busca manual
+    const resultados = $('busca-resultados');
+    function buscar() {
+      const termo = $<HTMLInputElement>('busca').value.trim();
+      resultados.replaceChildren();
+      if (termo.length < 2) return;
+      const achados = filtrar(lista, { busca: termo, situacao: 'ativas' }).slice(0, 6);
+      if (achados.length === 0) {
+        const li = document.createElement('li');
+        li.className = 'text-sm text-suave';
+        li.textContent = 'Nenhuma inscrição ativa encontrada.';
+        resultados.append(li);
+        return;
+      }
+      for (const i of achados) {
+        const li = document.createElement('li');
+        li.className =
+          'flex flex-wrap items-center justify-between gap-2 rounded-xl bg-fundo-1/60 p-3';
+        const nome = document.createElement('span');
+        nome.textContent = `${i.nome} · ${i.numero}${i.minicurso ? ' · minicurso' : ''}`;
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'btn-secundario px-3 py-1 text-sm';
+        b.textContent = 'Registrar';
+        b.setAttribute('aria-label', `Registrar presença de ${i.nome}`);
+        b.addEventListener('click', () => {
+          audio ??= new AudioContext();
+          void enviar({ numero: i.numero });
+        });
+        li.append(nome, b);
+        resultados.append(li);
+      }
+    }
+    $('busca').addEventListener('input', buscar);
+    $<HTMLFormElement>('form-busca').addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      buscar();
+    });
+  }
+</script>

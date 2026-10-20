@@ -39,6 +39,7 @@ const fullTitle = title ? `${title} · ${evento.sigla}` : `${evento.sigla} — $
     <Font cssVariable="--font-sora" preload />
     <Font cssVariable="--font-inter" preload />
     <Font cssVariable="--font-jetbrains" />
+    <slot name="head" />
   </head>
   <body class="min-h-dvh">
     <a

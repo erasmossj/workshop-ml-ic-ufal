@@ -1,7 +1,14 @@
 import { expect, test } from '@playwright/test';
 
 // CSP (WML-46): nenhuma página pode ter recurso bloqueado pela política gerada no build.
-for (const caminho of ['/', '/inscricao', '/confirmacao', '/privacidade', '/admin']) {
+for (const caminho of [
+  '/',
+  '/inscricao',
+  '/confirmacao',
+  '/privacidade',
+  '/admin',
+  '/credenciamento',
+]) {
   test(`sem violação de CSP em ${caminho}`, async ({ page }) => {
     const violacoes: string[] = [];
     page.on('console', (m) => {

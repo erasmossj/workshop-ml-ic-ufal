@@ -1,0 +1,16 @@
+{
+  "name": "IC-ML 2026 · Credenciamento",
+  "short_name": "Credenciamento",
+  "description": "Leitor de QR Code da organização do IC-ML 2026.",
+  "lang": "pt-BR",
+  "start_url": "/credenciamento",
+  "scope": "/credenciamento",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#071a45",
+  "theme_color": "#071a45",
+  "icons": [
+    { "src": "/icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
