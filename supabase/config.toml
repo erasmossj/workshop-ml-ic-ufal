@@ -428,3 +428,11 @@ verify_jwt = false
 # confere a allowlist `organizadores`; o gateway não exige JWT para o preflight de CORS passar.
 [functions.check-in]
 verify_jwt = false
+
+# Download do certificado pelo participante: público, protegido por Turnstile + limite por origem.
+[functions.certificado]
+verify_jwt = false
+
+# Expurgo LGPD: chamada só pelo pg_cron, autenticada pelo cabeçalho x-cron-secret.
+[functions.expurgo]
+verify_jwt = false

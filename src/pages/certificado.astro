@@ -1,0 +1,168 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Download do certificado pelo participante (WML-60 · ADR-005): e-mail + nº de inscrição +
+// Turnstile. A Edge Function `certificado` monta o PDF na hora. method="post": sem JavaScript, o
+// e-mail nunca vai para a URL (achado P-03 do S3).
+const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
+const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+---
+
+<Base
+  title="Baixar certificado"
+  description="Baixe o seu certificado do IC-ML 2026 com o e-mail e o número de inscrição."
+  noindex
+>
+  <section class="mx-auto max-w-2xl px-5 py-10 md:px-10">
+    <p class="rotulo text-ciano">Certificados</p>
+    <h1 class="mt-2 font-display text-3xl font-bold md:text-4xl">Baixar certificado</h1>
+    <p class="mt-3 text-suave">
+      Use o e-mail da inscrição e o número que está no comprovante (começa com
+      <span class="font-mono">ICML26-</span>). Os certificados são liberados depois do evento e
+      também chegam por e-mail.
+    </p>
+
+    {!configurado && (
+      <p class="vidro mt-6 p-6">
+        O download funciona só com o backend configurado (PUBLIC_SUPABASE_URL). Nesta versão de
+        protótipo não há certificados.
+      </p>
+    )}
+
+    <form id="form-certificado" method="post" class="vidro mt-6 grid gap-4 p-6" novalidate>
+      <div>
+        <label for="email" class="block text-sm font-medium">
+          E-mail da inscrição
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          required
+          aria-describedby="email-erro"
+          class="campo mt-1 w-full"
+        />
+        <p id="email-erro" class="erro-campo" aria-live="polite"></p>
+      </div>
+      <div>
+        <label for="numero" class="block text-sm font-medium">
+          Número de inscrição
+        </label>
+        <input
+          id="numero"
+          name="numero"
+          type="text"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          placeholder="ICML26-0000"
+          required
+          aria-describedby="numero-erro"
+          class="campo mt-1 w-full font-mono uppercase"
+        />
+        <p id="numero-erro" class="erro-campo" aria-live="polite"></p>
+      </div>
+      {turnstileSiteKey ? (
+        <div
+          class="cf-turnstile"
+          data-sitekey={turnstileSiteKey}
+          data-theme="dark"
+          data-language="pt-br"
+        />
+      ) : (
+        <div class="flex items-center gap-3 rounded-xl border border-dashed border-white/30 p-4 text-sm text-suave">
+          <span class="size-5 rounded border-2 border-white/40" aria-hidden="true" />
+          Verificação anti-robô (Cloudflare Turnstile) — ativa quando o backend está configurado.
+        </div>
+      )}
+      <button type="submit" class="btn-primario justify-self-start">
+        Baixar certificado
+      </button>
+    </form>
+
+    <div id="mensagem" class="mt-6" role="status" aria-live="polite"></div>
+
+    <p class="mt-8 text-sm text-suave">
+      Precisa conferir se um certificado é autêntico?{' '}
+      <a href="/validar" class="texto-acao inline-block min-h-6 underline underline-offset-4">
+        Validar certificado
+      </a>
+      .
+    </p>
+  </section>
+  {turnstileSiteKey && (
+    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
+  )}
+</Base>
+
+<script>
+  const API: string | undefined = import.meta.env.PUBLIC_SUPABASE_URL;
+  const CHAVE: string | undefined = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+  const form = document.getElementById('form-certificado') as HTMLFormElement;
+  const mensagem = document.getElementById('mensagem')!;
+  const $ = (id: string) => document.getElementById(id) as HTMLInputElement;
+
+  function avisar(tom: 'ok' | 'erro', texto: string) {
+    const p = document.createElement('p');
+    p.className = `vidro border-l-8 p-5 ${tom === 'ok' ? 'border-ok' : 'border-erro'}`;
+    p.textContent = `${tom === 'ok' ? '✓' : '✕'} ${texto}`;
+    mensagem.replaceChildren(p);
+  }
+
+  function marcar(id: string, erro: string) {
+    $(id).setAttribute('aria-invalid', erro ? 'true' : 'false');
+    document.getElementById(`${id}-erro`)!.textContent = erro;
+  }
+
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const email = $('email').value.trim();
+    const numero = $('numero').value.trim().toUpperCase();
+    marcar(
+      'email',
+      /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(email) ? '' : 'Informe o e-mail da inscrição.',
+    );
+    marcar('numero', /^[A-Z0-9-]{4,20}$/.test(numero) ? '' : 'Informe o número do comprovante.');
+    const invalido = form.querySelector<HTMLElement>('[aria-invalid="true"]');
+    if (invalido) {
+      invalido.focus();
+      return;
+    }
+    if (!API || !CHAVE) {
+      avisar('erro', 'Download indisponível nesta versão de demonstração.');
+      return;
+    }
+    const turnstile =
+      form.querySelector<HTMLInputElement>('[name="cf-turnstile-response"]')?.value ?? '';
+    const botao = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+    botao.disabled = true;
+    botao.textContent = 'Gerando…';
+    try {
+      const r = await fetch(`${API}/functions/v1/certificado`, {
+        method: 'POST',
+        headers: { apikey: CHAVE, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, numero, turnstile }),
+      });
+      if (r.ok) {
+        const url = URL.createObjectURL(await r.blob());
+        const a = Object.assign(document.createElement('a'), {
+          href: url,
+          download: `certificado-${numero}.pdf`,
+        });
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 10_000);
+        avisar('ok', 'Certificado gerado. O download começou — confira a pasta de downloads.');
+      } else {
+        const corpo = await r.json().catch(() => ({}));
+        avisar('erro', corpo.erro ?? 'Não foi possível gerar agora. Tente de novo em instantes.');
+      }
+    } catch {
+      avisar('erro', 'Sem conexão. Confira a internet e tente de novo.');
+    } finally {
+      botao.disabled = false;
+      botao.textContent = 'Baixar certificado';
+      (window as { turnstile?: { reset: () => void } }).turnstile?.reset();
+    }
+  });
+</script>

@@ -212,6 +212,11 @@ const ERROS: Record<string, string> = {
   CPF_JA_NO_MINICURSO: 'Este CPF já ocupa uma vaga no minicurso em outra inscrição.',
   VAGAS_ABAIXO_DAS_OCUPADAS: 'Não é possível deixar menos vagas do que as já ocupadas.',
   JANELAS_INVALIDAS: 'Confira as datas: o início precisa ser antes do fim.',
+  CARGA_INVALIDA: 'Confira a carga horária (até 24 horas) e o título da atividade.',
+  ATIVIDADE_INEXISTENTE: 'Atividade não encontrada. Recarregue a página.',
+  MODELO_INVALIDO: 'O modelo não foi encontrado. Envie o PDF de novo.',
+  CAMPOS_INVALIDOS: 'Confira as posições: página, tamanho (6 a 72) e largura.',
+  MODELO_INCOMPLETO: 'Salve o modelo e as posições antes de liberar os certificados.',
 };
 
 export function mensagemDeErro(codigo: string | undefined): string {

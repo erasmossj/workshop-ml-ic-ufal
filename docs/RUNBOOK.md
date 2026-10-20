@@ -170,8 +170,12 @@ são **proposta**, a confirmar pela organização:
 - Mudou o texto da política? Atualize `privacidade.versao`. Mudou um prazo? Atualize esta tabela também.
 - Pedido de exclusão de um participante (direito do titular): cancele a inscrição no `/admin` e
   registre o pedido. A eliminação definitiva entra no expurgo.
-- O expurgo em si (apagar PDFs, CPFs e e-mails nas datas acima) é a fase **S6** (WML-52), depois dos
-  certificados. Backups somem sozinhos em 14 dias, então não precisam de expurgo.
+- O expurgo é **automático** (S6, WML-52): todo dia às 03:50, só quando um prazo venceu. PDFs saem
+  pela API do Storage; CPF, e-mail e instituição em 01/04/2027; o resto em 01/01/2032. Detalhes e o
+  checklist de revogação de acessos e rotação de segredos:
+  [`seguranca/S6-LGPD-POS-EVENTO.md`](seguranca/S6-LGPD-POS-EVENTO.md). Mudou um prazo? Mude a política
+  (`src/data/evento.ts`) **e** `config_evento` — um teste confere que são iguais. Backups somem
+  sozinhos em 14 dias, então não precisam de expurgo.
 
 ## Keep-alive e backup (WML-37)
 
@@ -276,6 +280,42 @@ Leitor de QR em `https://<site>/credenciamento`, para quem está na lista de org
   exportada traz os dias de cada pessoa ("Dias presentes" e "Tardes no minicurso").
 - Registrou a pessoa errada? Não há botão de desfazer: anote o número e peça ao responsável
   técnico para apagar o registro em `presencas` (SQL Editor da produção).
+
+## Certificados (WML-57..60)
+
+Tudo em `https://<site>/admin/certificados` (botão **Abrir certificados** no painel). Decisões:
+[ADR-002](adr/ADR-002-certificado-pdf.md), [ADR-005](adr/ADR-005-certificados-sob-demanda.md);
+segurança: [S5](seguranca/S5-CERTIFICADOS.md).
+
+### Antes do evento
+
+1. **Carga horária**: confira as 6 linhas (3 manhãs + 3 tardes do minicurso). A programação
+   sugere 22 horas no total; ajuste horas e minutos e clique em **Salvar** em cada linha.
+2. **Modelo**: exporte o certificado aprovado em PDF (Word/Google Docs → "Salvar como PDF"), com
+   espaço em branco onde entram o nome, o CPF e a carga horária.
+3. Em **Modelo e posições**, envie o PDF e arraste as caixas **Nome**, **CPF** e **Horas** para os
+   espaços (ou ajuste pelos números ao lado). Escolha fonte, tamanho e alinhamento.
+4. **Ver prévia com dados fictícios** → confira; baixe a prévia e abra no leitor de PDF.
+5. **Salvar modelo e posições**.
+
+O rodapé com o código de validação e o endereço `/validar` é colocado automaticamente na 1ª página.
+
+### Liberar (depois do evento)
+
+1. Confira as **Presenças** no painel (o certificado só vai para quem tem presença).
+2. **Liberar certificados** → confirme. Cada pessoa com presença recebe o e-mail com o PDF (a fila
+   respeita o teto diário de e-mail; com muitas pessoas, o envio leva mais de um dia).
+3. As horas ficam **fixas** na liberação. Quem ganhar presença depois (correção) entra numa nova
+   liberação — clique de novo; quem já tinha certificado não recebe outro.
+
+### Dúvidas comuns dos participantes
+
+- **Não recebi**: confira o spam; ou baixe em `https://<site>/certificado` com o e-mail e o número
+  de inscrição do comprovante.
+- **Nome errado**: corrija no painel (**Corrigir**) — o próximo download sai com o nome novo.
+- **Horas erradas**: o certificado já emitido guarda as horas da liberação. Para corrigir, o
+  responsável técnico apaga a emissão daquela pessoa (`certificados`) e a organização libera de novo.
+- **Conferir se um certificado é verdadeiro**: `https://<site>/validar` com o código do rodapé.
 
 ## Teste de carga (WML-36) — SOMENTE no staging
 

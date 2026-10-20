@@ -27,7 +27,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
     )}
 
     <!-- Login -->
-    <form id="form-login" class="vidro mt-6 hidden max-w-md p-6" novalidate>
+    <form id="form-login" method="post" class="vidro mt-6 hidden max-w-md p-6" novalidate>
       <h2 class="font-display text-xl font-bold">Entrar</h2>
       <p class="mt-2 text-sm text-suave">
         Enviaremos um link de acesso para o seu e-mail. Só e-mails cadastrados pela coordenação
@@ -87,6 +87,18 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
           ). A planilha exportada traz os dias de cada pessoa.
         </p>
         <dl id="presencas" class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></dl>
+      </section>
+
+      <section aria-labelledby="t-certificados" class="mt-10">
+        <h2 id="t-certificados" class="font-display text-2xl font-bold">
+          Certificados
+        </h2>
+        <p class="mt-1 text-sm text-suave">
+          Carga horária, modelo em PDF com as posições de Nome, CPF e Horas, e liberação.
+        </p>
+        <a href="/admin/certificados" class="btn-secundario mt-3 inline-flex">
+          Abrir certificados
+        </a>
       </section>
 
       <section aria-labelledby="t-inscricoes" class="mt-10">

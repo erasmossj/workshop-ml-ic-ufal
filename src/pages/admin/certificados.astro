@@ -1,0 +1,814 @@
+---
+import Base from '../../layouts/Base.astro';
+
+// Certificados no painel (WML-57..59 · ADR-002/005): carga horária, modelo em PDF com as posições
+// de Nome, CPF e Horas, prévia com dados fictícios e liberação. Toda ação passa por RPC que confere
+// `organizadores` no banco. Arrastar tem alternativa por campos numéricos e setas (WCAG 2.5.7).
+const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
+const CAMPOS = [
+  { id: 'nome', rotulo: 'Nome' },
+  { id: 'cpf', rotulo: 'CPF' },
+  { id: 'horas', rotulo: 'Horas' },
+] as const;
+---
+
+<Base title="Certificados · Painel" noindex>
+  <section class="mx-auto max-w-7xl px-5 py-10 md:px-10">
+    <p class="rotulo text-ciano">Organização · acesso restrito</p>
+    <h1 class="mt-2 font-display text-3xl font-bold md:text-4xl">Certificados</h1>
+    <p class="mt-2">
+      <a href="/admin" class="texto-acao inline-block min-h-6 underline underline-offset-4">
+        ← Voltar ao painel
+      </a>
+    </p>
+
+    <p
+      id="aviso"
+      role="status"
+      aria-live="polite"
+      class="pointer-events-none fixed bottom-6 left-1/2 z-50 w-[min(92vw,36rem)] -translate-x-1/2 rounded-2xl bg-texto px-5 py-3 text-center font-medium text-fundo-1 opacity-0 shadow-2xl transition-opacity"
+    ></p>
+
+    {!configurado && (
+      <p class="vidro mt-6 p-6">
+        Os certificados funcionam só com o backend configurado (PUBLIC_SUPABASE_URL). Nesta versão
+        de protótipo não há dados para mostrar.
+      </p>
+    )}
+
+    <form id="form-login" method="post" class="vidro mt-6 hidden max-w-md p-6" novalidate>
+      <h2 class="font-display text-xl font-bold">Entrar</h2>
+      <p class="mt-2 text-sm text-suave">Use o mesmo e-mail do painel da organização.</p>
+      <label for="login-email" class="mt-4 block text-sm font-medium">
+        E-mail
+      </label>
+      <input
+        id="login-email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        required
+        class="campo mt-1 w-full"
+      />
+      <button type="submit" class="btn-primario mt-4">
+        Enviar link de acesso
+      </button>
+    </form>
+
+    <div id="sem-acesso" class="vidro mt-6 hidden max-w-md p-6">
+      <p>Este e-mail não tem acesso ao painel. Fale com a coordenação do evento.</p>
+      <button type="button" class="btn-secundario mt-4" data-sair>
+        Sair
+      </button>
+    </div>
+
+    <div id="painel" class="hidden">
+      <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <p class="text-sm text-suave">
+          Conectado como <strong id="quem"></strong>
+        </p>
+        <button type="button" class="btn-secundario px-4 py-2" data-sair>
+          Sair
+        </button>
+      </div>
+
+      <!-- 1. Carga horária -->
+      <section aria-labelledby="t-carga" class="mt-8">
+        <h2 id="t-carga" class="font-display text-2xl font-bold">
+          1. Carga horária
+        </h2>
+        <p class="mt-1 text-sm text-suave">
+          Horas que cada presença vale no certificado. Manhã = presença no dia (palestras); tarde =
+          presença no minicurso. Mudanças valem para os certificados liberados depois.
+        </p>
+        <div class="vidro mt-4 overflow-x-auto p-4">
+          <table class="w-full min-w-[40rem] text-left text-sm">
+            <thead>
+              <tr class="text-suave">
+                <th scope="col" class="p-2">
+                  Dia
+                </th>
+                <th scope="col" class="p-2">
+                  Período
+                </th>
+                <th scope="col" class="p-2">
+                  Título
+                </th>
+                <th scope="col" class="p-2">
+                  Carga
+                </th>
+                <th scope="col" class="p-2">
+                  <span class="sr-only">Ações</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="tabela-carga"></tbody>
+          </table>
+          <p class="mt-3 text-sm">
+            Evento completo: <strong id="carga-total">—</strong>
+          </p>
+        </div>
+      </section>
+
+      <!-- 2. Modelo e posições -->
+      <section aria-labelledby="t-modelo" class="mt-10">
+        <h2 id="t-modelo" class="font-display text-2xl font-bold">
+          2. Modelo e posições
+        </h2>
+        <p id="modelo-status" class="mt-1 text-sm text-suave"></p>
+        <div class="vidro mt-4 p-4">
+          <label for="arquivo-modelo" class="block text-sm font-medium">
+            Modelo em PDF (até 5 MB) — veio do Word? Use "Salvar como PDF".
+          </label>
+          <input
+            id="arquivo-modelo"
+            type="file"
+            accept="application/pdf"
+            class="mt-1 block w-full text-sm"
+          />
+        </div>
+
+        <div id="editor" class="mt-4 hidden gap-6 lg:grid-cols-[1fr_22rem]">
+          <div>
+            <label for="pagina-vista" class="block text-sm font-medium">
+              Página exibida
+            </label>
+            <select id="pagina-vista" class="campo mt-1"></select>
+            <p class="mt-2 text-sm text-suave">
+              Arraste as caixas para o lugar certo, ou ajuste os números ao lado. Com uma caixa
+              selecionada, as setas movem 1 ponto (Shift: 10).
+            </p>
+            <div id="area-modelo" class="mt-3 overflow-auto">
+              <div id="palco" class="relative inline-block bg-white">
+                <canvas id="tela-modelo" class="block"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 grid content-start gap-4 lg:mt-0">
+            {CAMPOS.map((c) => (
+              <fieldset class="vidro grid grid-cols-2 gap-2 p-4" data-campo={c.id}>
+                <legend class="px-1 font-display font-bold">{c.rotulo}</legend>
+                <label class="text-sm">
+                  Página
+                  <select id={`${c.id}-pagina`} class="campo mt-1 w-full" />
+                </label>
+                <label class="text-sm">
+                  Tamanho (pt)
+                  <input
+                    id={`${c.id}-tamanho`}
+                    type="number"
+                    min="6"
+                    max="72"
+                    step="1"
+                    class="campo mt-1 w-full"
+                  />
+                </label>
+                <label class="text-sm">
+                  X (pt)
+                  <input
+                    id={`${c.id}-x`}
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    class="campo mt-1 w-full"
+                  />
+                </label>
+                <label class="text-sm">
+                  Y (pt, do topo)
+                  <input
+                    id={`${c.id}-y`}
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    class="campo mt-1 w-full"
+                  />
+                </label>
+                <label class="text-sm">
+                  Largura (pt)
+                  <input
+                    id={`${c.id}-largura`}
+                    type="number"
+                    min="10"
+                    step="0.5"
+                    class="campo mt-1 w-full"
+                  />
+                </label>
+                <label class="text-sm">
+                  Alinhamento
+                  <select id={`${c.id}-alinhamento`} class="campo mt-1 w-full">
+                    <option value="esquerda">Esquerda</option>
+                    <option value="centro">Centro</option>
+                    <option value="direita">Direita</option>
+                  </select>
+                </label>
+                <label class="col-span-2 text-sm">
+                  Fonte
+                  <select id={`${c.id}-fonte`} class="campo mt-1 w-full">
+                    <option value="helvetica">Helvetica</option>
+                    <option value="helvetica-negrito">Helvetica negrito</option>
+                    <option value="times">Times</option>
+                    <option value="times-negrito">Times negrito</option>
+                  </select>
+                </label>
+              </fieldset>
+            ))}
+          </div>
+        </div>
+
+        <div id="acoes-modelo" class="mt-4 hidden flex-wrap gap-3">
+          <button type="button" id="gerar-previa" class="btn-secundario">
+            Ver prévia com dados fictícios
+          </button>
+          <button type="button" id="salvar-modelo" class="btn-primario">
+            Salvar modelo e posições
+          </button>
+        </div>
+        <div id="previa" class="mt-4 hidden">
+          <h3 class="font-display text-lg font-bold">Prévia (dados fictícios)</h3>
+          <p class="text-sm text-suave">
+            Nomes longos diminuem a fonte até caber na caixa. O rodapé com o código de validação é
+            colocado automaticamente.{' '}
+            <button
+              type="button"
+              id="baixar-previa"
+              class="texto-acao inline-block min-h-6 cursor-pointer underline underline-offset-4"
+            >
+              Baixar a prévia em PDF
+            </button>
+          </p>
+          <div id="area-previa" class="mt-2 overflow-auto">
+            <canvas id="tela-previa" class="block bg-white"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Liberação -->
+      <section aria-labelledby="t-liberar" class="mt-10">
+        <h2 id="t-liberar" class="font-display text-2xl font-bold">
+          3. Liberar certificados
+        </h2>
+        <p class="mt-1 text-sm text-suave">
+          Libere depois do evento. Cada pessoa com presença recebe o certificado por e-mail (a fila
+          respeita o teto diário) e pode baixá-lo em <span class="font-mono">/certificado</span>. As
+          horas ficam fixas na liberação; quem ganhar presença depois entra numa nova liberação.
+        </p>
+        <dl id="resumo-cert" class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5"></dl>
+        <button type="button" id="liberar" class="btn-primario mt-4">
+          Liberar certificados
+        </button>
+      </section>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+  import * as pdfjs from 'pdfjs-dist';
+  import urlDoWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+  import {
+    formatarCargaHoraria,
+    gerarCertificado,
+    type Campo,
+    type Campos,
+  } from '../../../supabase/functions/_shared/certificado';
+  import { mensagemDeErro } from '../../lib/admin';
+  import {
+    camposPadrao,
+    DADOS_FICTICIOS,
+    limitar,
+    moverPorTela,
+    paraHorasEMinutos,
+    paraMinutos,
+    type Dimensoes,
+  } from '../../lib/editor-certificado';
+
+  pdfjs.GlobalWorkerOptions.workerSrc = urlDoWorker;
+
+  type NomeCampo = keyof Campos;
+  type Atividade = {
+    id: number;
+    dia: string;
+    tipo: 'palestras' | 'minicurso';
+    minicurso: string | null;
+    titulo: string;
+    minutos: number;
+  };
+  type Modelo = {
+    template_path: string | null;
+    campos: Campos | null;
+    atualizado_em: string | null;
+  };
+  type ResumoCert = {
+    modelo_configurado: boolean;
+    com_horas: number;
+    emitidos: number;
+    emails_pendentes: number;
+    emails_enviados: number;
+    emails_falhou: number;
+  };
+
+  const URL_SUPABASE: string | undefined = import.meta.env.PUBLIC_SUPABASE_URL;
+  const CHAVE: string | undefined = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+  const NOMES: NomeCampo[] = ['nome', 'cpf', 'horas'];
+  const ROTULOS: Record<NomeCampo, string> = { nome: 'Nome', cpf: 'CPF', horas: 'Horas' };
+  const EXEMPLOS: Record<NomeCampo, string> = {
+    nome: DADOS_FICTICIOS.nome,
+    cpf: '529.982.247-25',
+    horas: formatarCargaHoraria(DADOS_FICTICIOS.minutos),
+  };
+  const MAX_BYTES = 5 * 1024 * 1024;
+  // Sem eval (CSP). Fontes padrão do PDF (Helvetica, Times) usam as do sistema; embutidas viram FontFace.
+  const OPCOES_PDF = { isEvalSupported: false };
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  let ocultarAviso: ReturnType<typeof setTimeout> | undefined;
+  const avisar = (texto: string) => {
+    const aviso = $('aviso');
+    aviso.textContent = texto;
+    aviso.classList.remove('opacity-0');
+    clearTimeout(ocultarAviso);
+    ocultarAviso = setTimeout(() => {
+      aviso.classList.add('opacity-0');
+      aviso.textContent = '';
+    }, 8000);
+  };
+  const mostrar = (qual: 'login' | 'sem-acesso' | 'painel') => {
+    $('form-login').classList.toggle('hidden', qual !== 'login');
+    $('sem-acesso').classList.toggle('hidden', qual !== 'sem-acesso');
+    $('painel').classList.toggle('hidden', qual !== 'painel');
+  };
+  const dataCurta = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
+  const comoBlob = (bytes: Uint8Array) =>
+    new Blob([bytes.slice().buffer as ArrayBuffer], { type: 'application/pdf' });
+
+  if (URL_SUPABASE && CHAVE) iniciar(createClient(URL_SUPABASE, CHAVE));
+
+  function iniciar(sb: SupabaseClient) {
+    /** RPC que devolve dados; em erro mostra a mensagem e devolve null. */
+    async function ler<T>(nome: string): Promise<T | null> {
+      const { data, error } = await sb.rpc(nome);
+      if (error) {
+        avisar(mensagemDeErro(error.message));
+        return null;
+      }
+      return data as T;
+    }
+
+    // ------------------------------------------------------------- sessão
+    sb.auth.onAuthStateChange((evento, sessao) => {
+      if (!sessao) {
+        mostrar('login');
+        return;
+      }
+      if (evento !== 'INITIAL_SESSION' && evento !== 'SIGNED_IN') return;
+      $('quem').textContent = sessao.user.email ?? '';
+      setTimeout(carregarTudo, 0);
+    });
+
+    $<HTMLFormElement>('form-login').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const email = $<HTMLInputElement>('login-email').value.trim();
+      if (!email) return avisar('Informe o e-mail.');
+      const { error } = await sb.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: false, emailRedirectTo: `${location.origin}/admin` },
+      });
+      avisar(
+        error?.status === 429
+          ? 'Muitas tentativas. Aguarde alguns minutos.'
+          : 'Se este e-mail tiver acesso, você vai receber um link para entrar. Confira também o spam.',
+      );
+    });
+    document.querySelectorAll('[data-sair]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        await sb.auth.signOut();
+        avisar('Você saiu do painel.');
+      }),
+    );
+
+    async function carregarTudo() {
+      const { data, error } = await sb.rpc('admin_listar_atividades');
+      if (error) {
+        mostrar(error.message === 'NAO_AUTORIZADO' ? 'sem-acesso' : 'login');
+        return;
+      }
+      mostrar('painel');
+      renderCarga(data as Atividade[]);
+      await carregarModelo();
+      await carregarResumo();
+    }
+
+    // ------------------------------------------------------------- 1. carga horária
+    function renderCarga(atividades: Atividade[]) {
+      $('carga-total').textContent = formatarCargaHoraria(
+        atividades.reduce((t, a) => t + a.minutos, 0),
+      );
+      $('tabela-carga').replaceChildren(
+        ...atividades.map((a) => {
+          const tr = document.createElement('tr');
+          tr.className = 'border-t border-white/10';
+          const periodo = a.tipo === 'palestras' ? 'Manhã (palestras)' : 'Tarde (minicurso)';
+          const contexto = `${periodo}, ${dataCurta(a.dia)}`;
+          const [h, m] = paraHorasEMinutos(a.minutos);
+          const celula = (filho: Node | string) => {
+            const td = document.createElement('td');
+            td.className = 'p-2 align-middle';
+            td.append(filho);
+            return td;
+          };
+          const entrada = (props: Record<string, string | number>, rotulo: string) => {
+            const e = document.createElement('input');
+            Object.assign(e, props);
+            e.setAttribute('aria-label', `${rotulo} — ${contexto}`);
+            return e;
+          };
+          const titulo = entrada(
+            { value: a.titulo, maxLength: 120, className: 'campo w-full' },
+            'Título',
+          );
+          const horas = entrada(
+            { type: 'number', min: '0', max: '24', value: String(h), className: 'campo w-16' },
+            'Horas',
+          );
+          const minutos = entrada(
+            { type: 'number', min: '0', max: '59', value: String(m), className: 'campo w-16' },
+            'Minutos',
+          );
+          const carga = document.createElement('div');
+          carga.className = 'flex items-center gap-1';
+          carga.append(horas, 'h', minutos, 'min');
+          const salvar = Object.assign(document.createElement('button'), {
+            type: 'button',
+            textContent: 'Salvar',
+            className: 'btn-secundario px-3 py-1 text-sm',
+          });
+          salvar.setAttribute('aria-label', `Salvar carga — ${contexto}`);
+          salvar.addEventListener('click', async () => {
+            const total = paraMinutos(Number(horas.value), Number(minutos.value));
+            if (total === null) return avisar(mensagemDeErro('CARGA_INVALIDA'));
+            const { error } = await sb.rpc('admin_definir_carga', {
+              p_id: a.id,
+              p_titulo: titulo.value,
+              p_minutos: total,
+            });
+            if (error) return avisar(mensagemDeErro(error.message));
+            const lista = await ler<Atividade[]>('admin_listar_atividades');
+            if (lista) renderCarga(lista);
+            avisar(`Carga de ${contexto} salva.`);
+            await carregarResumo();
+          });
+          tr.append(
+            celula(dataCurta(a.dia)),
+            celula(periodo),
+            celula(titulo),
+            celula(carga),
+            celula(salvar),
+          );
+          return tr;
+        }),
+      );
+    }
+
+    // ------------------------------------------------------------- 2. modelo e posições
+    let bytesModelo: Uint8Array | null = null;
+    let caminhoSalvo: string | null = null;
+    let arquivoNovo = false;
+    let dimsPaginas: Dimensoes[] = [];
+    let paginaVista = 0;
+    let escala = 1;
+    let campos: Campos | null = null;
+
+    async function carregarModelo() {
+      const m = await ler<Modelo>('admin_obter_modelo_certificado');
+      if (!m) return;
+      caminhoSalvo = m.template_path;
+      if (!m.template_path) {
+        $('modelo-status').textContent = 'Nenhum modelo salvo ainda.';
+        return;
+      }
+      $('modelo-status').textContent = m.atualizado_em
+        ? `Modelo salvo em ${new Date(m.atualizado_em).toLocaleString('pt-BR', { timeZone: 'America/Maceio' })}.`
+        : 'Modelo salvo.';
+      const { data, error } = await sb.storage.from('certificados').download(m.template_path);
+      if (error || !data) return avisar('Não foi possível abrir o modelo salvo. Envie de novo.');
+      await abrirModelo(new Uint8Array(await data.arrayBuffer()), m.campos);
+    }
+
+    async function abrirModelo(bytes: Uint8Array, salvos: Campos | null) {
+      const doc = await pdfjs.getDocument({ data: bytes.slice(), ...OPCOES_PDF }).promise;
+      dimsPaginas = [];
+      for (let i = 1; i <= doc.numPages; i++) {
+        const vp = (await doc.getPage(i)).getViewport({ scale: 1 });
+        dimsPaginas.push({ largura: vp.width, altura: vp.height });
+      }
+      bytesModelo = bytes;
+      const validos =
+        salvos && NOMES.every((n) => salvos[n].pagina < dimsPaginas.length) ? salvos : null;
+      campos = validos ?? camposPadrao(dimsPaginas[0]);
+      paginaVista = campos.nome.pagina;
+      const opcoes = () =>
+        dimsPaginas.map((_, i) =>
+          Object.assign(document.createElement('option'), {
+            value: String(i),
+            textContent: `Página ${i + 1}`,
+          }),
+        );
+      $('pagina-vista').replaceChildren(...opcoes());
+      for (const n of NOMES) $(`${n}-pagina`).replaceChildren(...opcoes());
+      $<HTMLSelectElement>('pagina-vista').value = String(paginaVista);
+      $('editor').classList.replace('hidden', 'grid');
+      $('acoes-modelo').classList.replace('hidden', 'flex');
+      preencherControles();
+      await desenharPagina();
+    }
+
+    async function desenhar(
+      bytes: Uint8Array,
+      pagina: number,
+      canvas: HTMLCanvasElement,
+      area: HTMLElement,
+    ) {
+      const doc = await pdfjs.getDocument({ data: bytes.slice(), ...OPCOES_PDF }).promise;
+      const page = await doc.getPage(pagina + 1);
+      const base = page.getViewport({ scale: 1 });
+      const s = Math.min(1.5, Math.max(280, area.clientWidth - 8) / base.width);
+      const vp = page.getViewport({ scale: s });
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(vp.width * dpr);
+      canvas.height = Math.floor(vp.height * dpr);
+      canvas.style.width = `${vp.width}px`;
+      canvas.style.height = `${vp.height}px`;
+      await page.render({
+        canvasContext: canvas.getContext('2d')!,
+        viewport: vp,
+        transform: dpr === 1 ? undefined : [dpr, 0, 0, dpr, 0, 0],
+      }).promise;
+      return s;
+    }
+
+    async function desenharPagina() {
+      if (!bytesModelo) return;
+      escala = await desenhar(bytesModelo, paginaVista, $('tela-modelo'), $('area-modelo'));
+      desenharCaixas();
+    }
+
+    function desenharCaixas() {
+      const palco = $('palco');
+      palco.querySelectorAll('[data-caixa]').forEach((e) => e.remove());
+      if (!campos) return;
+      for (const n of NOMES) {
+        const c = campos[n];
+        if (c.pagina !== paginaVista) continue;
+        const caixa = document.createElement('div');
+        caixa.dataset.caixa = n;
+        caixa.tabIndex = 0;
+        caixa.setAttribute('role', 'group');
+        caixa.setAttribute(
+          'aria-label',
+          `Caixa ${ROTULOS[n]}: arraste ou use as setas para mover. Também dá para ajustar pelos números ao lado.`,
+        );
+        caixa.className =
+          'absolute cursor-move touch-none overflow-visible whitespace-nowrap border-2 border-dashed border-acao-2 bg-acao-1/20 text-fundo-1 outline-offset-2 focus-visible:outline-4 focus-visible:outline-acao-2';
+        Object.assign(caixa.style, {
+          left: `${c.x * escala}px`,
+          top: `${c.y * escala}px`,
+          width: `${c.largura * escala}px`,
+          height: `${c.tamanho * 1.25 * escala}px`,
+          fontSize: `${c.tamanho * escala}px`,
+          lineHeight: `${c.tamanho * 1.25 * escala}px`,
+          textAlign:
+            c.alinhamento === 'centro' ? 'center' : c.alinhamento === 'direita' ? 'right' : 'left',
+          fontFamily: c.fonte.startsWith('times')
+            ? '"Times New Roman", serif'
+            : 'Helvetica, Arial, sans-serif',
+          fontWeight: c.fonte.endsWith('negrito') ? '700' : '400',
+        });
+        const texto = document.createElement('span');
+        texto.className = 'block overflow-hidden';
+        texto.textContent = EXEMPLOS[n];
+        const etiqueta = document.createElement('span');
+        etiqueta.className =
+          'absolute -top-5 left-0 rounded bg-acao-2 px-1 text-xs leading-4 font-bold text-sobre-acao';
+        etiqueta.style.fontFamily = 'inherit';
+        etiqueta.style.fontSize = '11px';
+        etiqueta.textContent = ROTULOS[n];
+        caixa.append(texto, etiqueta);
+        ligarArrastar(caixa, n);
+        palco.append(caixa);
+      }
+    }
+
+    function atualizar(n: NomeCampo, novo: Campo) {
+      if (!campos) return;
+      campos = { ...campos, [n]: limitar(novo, dimsPaginas[novo.pagina] ?? dimsPaginas[0]) };
+      preencherControles(n);
+      desenharCaixas();
+      ($('palco').querySelector(`[data-caixa="${n}"]`) as HTMLElement | null)?.focus();
+    }
+
+    function ligarArrastar(caixa: HTMLElement, n: NomeCampo) {
+      caixa.addEventListener('pointerdown', (ev) => {
+        if (!campos) return;
+        caixa.setPointerCapture(ev.pointerId);
+        const inicio = { x: ev.clientX, y: ev.clientY, campo: campos[n] };
+        const mover = (e: PointerEvent) => {
+          if (!campos) return;
+          const c = moverPorTela(
+            inicio.campo,
+            e.clientX - inicio.x,
+            e.clientY - inicio.y,
+            escala,
+            dimsPaginas[inicio.campo.pagina],
+          );
+          campos = { ...campos, [n]: c };
+          caixa.style.left = `${c.x * escala}px`;
+          caixa.style.top = `${c.y * escala}px`;
+          preencherControles(n);
+        };
+        const soltar = () => {
+          caixa.removeEventListener('pointermove', mover);
+          caixa.removeEventListener('pointerup', soltar);
+          caixa.removeEventListener('pointercancel', soltar);
+        };
+        caixa.addEventListener('pointermove', mover);
+        caixa.addEventListener('pointerup', soltar);
+        caixa.addEventListener('pointercancel', soltar);
+      });
+      caixa.addEventListener('keydown', (ev) => {
+        if (!campos) return;
+        const passo = ev.shiftKey ? 10 : 1;
+        const d: Record<string, [number, number]> = {
+          ArrowLeft: [-passo, 0],
+          ArrowRight: [passo, 0],
+          ArrowUp: [0, -passo],
+          ArrowDown: [0, passo],
+        };
+        if (!d[ev.key]) return;
+        ev.preventDefault();
+        const c = campos[n];
+        atualizar(n, { ...c, x: c.x + d[ev.key][0], y: c.y + d[ev.key][1] });
+      });
+    }
+
+    const chaves = ['pagina', 'x', 'y', 'largura', 'tamanho', 'alinhamento', 'fonte'] as const;
+    function preencherControles(so?: NomeCampo) {
+      if (!campos) return;
+      for (const n of so ? [so] : NOMES) {
+        for (const k of chaves) {
+          ($(`${n}-${k}`) as HTMLInputElement).value = String(campos[n][k]);
+        }
+      }
+    }
+    for (const n of NOMES) {
+      for (const k of chaves) {
+        $(`${n}-${k}`).addEventListener('change', () => {
+          if (!campos) return;
+          const bruto = ($(`${n}-${k}`) as HTMLInputElement).value;
+          const valor = k === 'alinhamento' || k === 'fonte' ? bruto : Number(bruto);
+          if (typeof valor === 'number' && !Number.isFinite(valor)) {
+            preencherControles(n);
+            return;
+          }
+          const novo = { ...campos[n], [k]: valor } as Campo;
+          if (k === 'pagina') {
+            paginaVista = novo.pagina;
+            $<HTMLSelectElement>('pagina-vista').value = String(paginaVista);
+            campos = { ...campos, [n]: limitar(novo, dimsPaginas[novo.pagina]) };
+            preencherControles(n);
+            void desenharPagina();
+            return;
+          }
+          atualizar(n, novo);
+        });
+      }
+    }
+    $('pagina-vista').addEventListener('change', () => {
+      paginaVista = Number($<HTMLSelectElement>('pagina-vista').value);
+      void desenharPagina();
+    });
+
+    $<HTMLInputElement>('arquivo-modelo').addEventListener('change', async (ev) => {
+      const arquivo = (ev.target as HTMLInputElement).files?.[0];
+      if (!arquivo) return;
+      if (arquivo.size > MAX_BYTES) return avisar('O modelo deve ter no máximo 5 MB.');
+      const bytes = new Uint8Array(await arquivo.arrayBuffer());
+      if (new TextDecoder().decode(bytes.slice(0, 5)) !== '%PDF-') {
+        return avisar('Envie o modelo em PDF.');
+      }
+      try {
+        await abrirModelo(bytes, campos);
+        arquivoNovo = true;
+        $('modelo-status').textContent =
+          'Novo modelo carregado — ajuste as posições e clique em "Salvar modelo e posições".';
+      } catch {
+        avisar('Não foi possível abrir este PDF. Ele está protegido por senha ou corrompido?');
+      }
+    });
+
+    let urlPrevia: string | null = null;
+    $('baixar-previa').addEventListener('click', () => {
+      if (!urlPrevia) return;
+      Object.assign(document.createElement('a'), {
+        href: urlPrevia,
+        download: 'previa-certificado.pdf',
+      }).click();
+    });
+
+    $('gerar-previa').addEventListener('click', async () => {
+      if (!bytesModelo || !campos) return;
+      try {
+        const pdf = await gerarCertificado(bytesModelo, campos, {
+          ...DADOS_FICTICIOS,
+          urlValidacao: `${location.origin}/validar`,
+        });
+        // O botão de baixar só aparece com o arquivo pronto.
+        if (urlPrevia) URL.revokeObjectURL(urlPrevia);
+        urlPrevia = URL.createObjectURL(comoBlob(pdf));
+        $('previa').classList.remove('hidden');
+        await desenhar(pdf, campos.nome.pagina, $('tela-previa'), $('area-previa'));
+        $('previa').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch {
+        avisar('Não foi possível gerar a prévia com este modelo.');
+      }
+    });
+
+    $('salvar-modelo').addEventListener('click', async () => {
+      if (!bytesModelo || !campos) return;
+      let caminho = caminhoSalvo;
+      if (arquivoNovo || !caminho) {
+        caminho = `${crypto.randomUUID()}.pdf`;
+        const { error } = await sb.storage
+          .from('certificados')
+          .upload(caminho, comoBlob(bytesModelo), {
+            contentType: 'application/pdf',
+            upsert: false,
+          });
+        if (error) return avisar('Não foi possível enviar o modelo. Tente de novo.');
+      }
+      const { error } = await sb.rpc('admin_salvar_modelo_certificado', {
+        p_template_path: caminho,
+        p_campos: campos,
+      });
+      if (error) {
+        if (caminho !== caminhoSalvo) await sb.storage.from('certificados').remove([caminho]);
+        return avisar(mensagemDeErro(error.message));
+      }
+      if (caminhoSalvo && caminhoSalvo !== caminho) {
+        await sb.storage.from('certificados').remove([caminhoSalvo]);
+      }
+      caminhoSalvo = caminho;
+      arquivoNovo = false;
+      $('modelo-status').textContent = 'Modelo e posições salvos agora.';
+      avisar('Modelo e posições salvos.');
+      await carregarResumo();
+    });
+
+    // ------------------------------------------------------------- 3. liberação
+    async function carregarResumo() {
+      const r = await ler<ResumoCert>('admin_resumo_certificados');
+      if (!r) return;
+      const cartoes: [string, string][] = [
+        ['Com presença', String(r.com_horas)],
+        ['Certificados emitidos', String(r.emitidos)],
+        ['E-mails enviados', String(r.emails_enviados)],
+        ['E-mails na fila', String(r.emails_pendentes)],
+        ['E-mails com falha', String(r.emails_falhou)],
+      ];
+      $('resumo-cert').replaceChildren(
+        ...cartoes.map(([rotulo, valor]) => {
+          const caixa = document.createElement('div');
+          caixa.className = 'vidro p-4';
+          caixa.append(
+            Object.assign(document.createElement('dt'), {
+              className: 'text-sm text-suave',
+              textContent: rotulo,
+            }),
+            Object.assign(document.createElement('dd'), {
+              className: 'mt-1 font-display text-xl font-bold',
+              textContent: valor,
+            }),
+          );
+          return caixa;
+        }),
+      );
+      const botao = $<HTMLButtonElement>('liberar');
+      botao.disabled = !r.modelo_configurado;
+      botao.title = r.modelo_configurado ? '' : 'Salve o modelo e as posições primeiro.';
+      botao.dataset.pendentes = String(Math.max(0, r.com_horas - r.emitidos));
+    }
+
+    $('liberar').addEventListener('click', async () => {
+      const pendentes = Number($('liberar').dataset.pendentes ?? '0');
+      const mensagem = `Liberar certificados agora? ${pendentes} pessoa(s) com presença ainda sem certificado vão receber o e-mail. Esta ação não pode ser desfeita.`;
+      if (!confirm(mensagem)) return;
+      const r = await ler<{ emitidos: number }>('admin_liberar_certificados');
+      if (!r) return;
+      avisar(
+        r.emitidos === 0
+          ? 'Nenhum certificado novo: todos com presença já tinham o seu.'
+          : `${r.emitidos} certificado(s) emitido(s). Os e-mails estão na fila.`,
+      );
+      await carregarResumo();
+    });
+  }
+</script>
