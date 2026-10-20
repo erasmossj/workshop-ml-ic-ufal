@@ -4,6 +4,9 @@
 import { PDFDocument, PDFFont, PDFPage, rgb, StandardFonts } from 'pdf-lib';
 import QRCode from 'qrcode';
 import { EVENTO } from './evento-gerado.ts';
+import { paraWinAnsi } from './winansi.ts';
+
+export { paraWinAnsi };
 
 export type DadosComprovante = {
   numero: string;
@@ -28,20 +31,6 @@ const BRANCO = rgb(1, 1, 1);
 const LARGURA = 595.28; // A4
 const ALTURA = 841.89;
 const MARGEM = 56;
-
-/** Troca caracteres que a fonte padrão não codifica: tira o acento ou usa "?". */
-export function paraWinAnsi(texto: string, suportados: Set<number>): string {
-  let saida = '';
-  for (const c of texto) {
-    if (suportados.has(c.codePointAt(0)!)) {
-      saida += c;
-      continue;
-    }
-    const base = c.normalize('NFD').replace(/\p{M}/gu, '');
-    saida += [...base].every((b) => suportados.has(b.codePointAt(0)!)) && base ? base : '?';
-  }
-  return saida;
-}
 
 function quebrarLinhas(texto: string, fonte: PDFFont, tamanho: number, largura: number): string[] {
   const linhas: string[] = [];

@@ -1,9 +1,12 @@
 // Edge Function `send-emails` (WML-29..31): chamada pelo pg_cron (public.disparar_envio_emails)
 // com o cabeçalho x-cron-secret. Reserva um lote da fila (teto diário no banco), monta o e-mail
-// de confirmação com comprovante + .ics e envia pelo Gmail (SMTP 465); Brevo é a reserva.
+// de confirmação com comprovante + .ics — ou o do certificado (WML-59), com o PDF montado na hora
+// sobre o modelo da organização — e envia pelo Gmail (SMTP 465); Brevo é a reserva.
 // Regra LGPD: nada de CPF, nome ou e-mail em logs — só contagens.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import nodemailer from 'nodemailer';
+import type { Campos } from '../_shared/certificado.ts';
+import { montarEmailCertificado } from '../_shared/email-certificado.ts';
 import { montarEmailConfirmacao, type Mensagem } from '../_shared/email-confirmacao.ts';
 import {
   erroSeguro,
@@ -13,16 +16,9 @@ import {
   type Provedor,
 } from '../_shared/envio.ts';
 import { EVENTO } from '../_shared/evento-gerado.ts';
+import { segredoConfere } from '../_shared/segredo-cron.ts';
 
 const env = (nome: string) => Deno.env.get(nome) ?? '';
-
-function segredoConfere(recebido: string, esperado: string): boolean {
-  if (esperado.length < 32 || recebido.length !== esperado.length) return false;
-  let diferenca = 0;
-  for (let i = 0; i < esperado.length; i++)
-    diferenca |= esperado.charCodeAt(i) ^ recebido.charCodeAt(i);
-  return diferenca === 0;
-}
 
 function base64(bytes: Uint8Array): string {
   let binario = '';
@@ -118,6 +114,23 @@ Deno.serve(async (req) => {
     },
   };
 
+  // Modelo do certificado: baixado do bucket privado uma vez por execução.
+  let modeloCache: { modelo: Uint8Array; campos: Campos } | null = null;
+  const carregarModelo = async () => {
+    if (modeloCache) return modeloCache;
+    const { data: cfg, error } = await admin
+      .from('config_certificado')
+      .select('template_path, campos')
+      .single();
+    if (error || !cfg?.template_path || !cfg.campos) throw new Error('MODELO_INCOMPLETO');
+    const { data: arquivo, error: erroArquivo } = await admin.storage
+      .from('certificados')
+      .download(cfg.template_path);
+    if (erroArquivo || !arquivo) throw new Error('MODELO_INDISPONIVEL');
+    modeloCache = { modelo: new Uint8Array(await arquivo.arrayBuffer()), campos: cfg.campos };
+    return modeloCache;
+  };
+
   const provedores = [provedorGmail(), provedorBrevo()].filter((p): p is Provedor => p !== null);
   const segredoQr = env('QR_HMAC_SECRET');
   try {
@@ -126,6 +139,27 @@ Deno.serve(async (req) => {
       provedores,
       lote: Number(env('EMAIL_LOTE') || '10'),
       montar: async (item) => {
+        if (item.tipo === 'certificado') {
+          const siteUrl = env('SITE_URL');
+          if (!siteUrl) throw new Error('SITE_URL_AUSENTE');
+          const { data, error } = await admin.rpc('certificado_por_numero', {
+            p_numero: item.numero,
+          });
+          const c = (data as { nome: string; cpf: string; minutos: number; codigo: string }[])?.[0];
+          if (error || !c) throw new Error('CERTIFICADO_INEXISTENTE');
+          const { modelo, campos } = await carregarModelo();
+          return montarEmailCertificado(
+            {
+              numero: item.numero,
+              nome: c.nome,
+              email: item.email,
+              cpf: c.cpf,
+              minutos: c.minutos,
+              codigo: c.codigo,
+            },
+            { modelo, campos, siteUrl },
+          );
+        }
         if (item.tipo !== 'confirmacao') throw new Error('TIPO_NAO_SUPORTADO');
         return montarEmailConfirmacao(
           {
