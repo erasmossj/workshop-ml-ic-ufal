@@ -22,7 +22,7 @@ Site de divulgação **e** inscrição do **IC-ML 2026 — Workshop de Machine L
 3. **Vagas de minicurso só via RPC `register_participant()` / `cancel_registration()`.** Nunca atualize `minicursos.ocupadas` em outro lugar; a atomicidade (ADR-003) é o que impede overbooking.
 4. **RLS deny-by-default.** Toda tabela nova nasce com RLS habilitado e sem policy para `anon`. Escrita pública só passa pela Edge Function `register` (Turnstile + validação + rate-limit).
 5. **Segredos** (service role, chaves Turnstile/Gmail/HMAC) só em variáveis de ambiente do Supabase/Vercel/GitHub. Nada de segredo no código do cliente (`PUBLIC_*` só para valores realmente públicos).
-6. **E-mail único, CPF repetível.** Unicidade em `lower(trim(email))`; unicidade em `(cpf, minicurso_id)` nas inscrições de minicurso.
+6. **E-mail único entre inscrições ativas, CPF repetível.** Unicidade em `lower(trim(email))` só para inscrições não canceladas (cancelou → pode se inscrever de novo, com número novo; WML-67); unicidade em `(cpf, minicurso_id)` nas inscrições de minicurso.
 7. **Datas/horas** sempre em `America/Maceio` na interface e validadas no servidor.
 8. **Interface em PT-BR**, linguagem simples, acessível (WCAG 2.2 AA).
 
