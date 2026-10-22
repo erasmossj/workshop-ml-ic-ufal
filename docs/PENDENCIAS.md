@@ -4,7 +4,7 @@
 > Confluence (espaço `WML`, página "Pendências"). Resolveu? Marque aqui e no Confluence. Itens de
 > desenvolvimento ficam no Jira (`WML`).
 >
-> Atualizado em 20/10/2026. Abertura das inscrições: **30/10/2026**. Entrega aos stakeholders (MVP +
+> Atualizado em 22/10/2026. Abertura das inscrições: **30/10/2026**. Entrega aos stakeholders (MVP +
 > credenciamento + certificados): **23/10/2026**, no staging.
 
 ## Antes da abertura das inscrições (30/10)
@@ -36,4 +36,4 @@
 | 13  | Habilitar o **Confluence** no site Atlassian, criar o espaço `WML` e reautorizar o conector (WML-13)    | agora       | admin.atlassian.com · `/mcp` no Claude Code                     | Resolvida (19/10) |
 | 14  | Revisar e aprovar no Jira o que está em "Fazendo" (itens feitos por IA só vão para "Feito" com revisão) | contínuo    | Jira `WML`                                                      | Aberta            |
 | 15  | Se o SMTP do login do painel usar o Gmail de testes, trocar junto com o item 1                          | 30/10       | Supabase → Authentication → SMTP Settings                       | Aberta            |
-| 16  | **Testar o leitor de QR** (`/credenciamento` no staging) em um iPhone e um Android                      | 22/10       | Preview do PR de credenciamento                                 | Aberta            |
+| 16  | **Testar o leitor de QR** (`/credenciamento` no staging) em um iPhone e um Android                      | 22/10       | Preview do PR de credenciamento                                 | Resolvida (22/10) |
