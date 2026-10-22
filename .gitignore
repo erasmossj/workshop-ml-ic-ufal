@@ -22,6 +22,7 @@ dumps/
 *.sql.gz
 *.dump
 uploads/
+modelo-certificado-demo.pdf
 
 # testes
 coverage/

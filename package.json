@@ -23,7 +23,8 @@
     "test:concorrencia": "node scripts/teste-concorrencia.mjs 100",
     "functions:serve": "supabase functions serve --env-file supabase/functions/.env",
     "test:integracao": "vitest run --config vitest.integracao.config.ts",
-    "gerar:evento": "node scripts/gerar-evento-funcoes.mjs"
+    "gerar:evento": "node scripts/gerar-evento-funcoes.mjs",
+    "demo:modelo": "node scripts/gerar-modelo-demo.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
