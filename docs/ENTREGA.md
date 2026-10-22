@@ -19,7 +19,7 @@
      variadas (de 0 a 22 horas). Ninguém recebe e-mail (`exemplo.com`).
 4. **Modelo de certificado**: `npm run demo:modelo` gera `modelo-certificado-demo.pdf` (fora do Git).
 5. **Celular do leitor**: entre em `/credenciamento` do staging com o login de organizador e ligue a
-   câmera uma vez (pendência 16: testar em um iPhone e em um Android).
+   câmera uma vez (o leitor já foi testado no celular).
 6. **Abas abertas**: site, `/admin` já logado, `/admin/certificados`, o Gmail de testes do evento e
    um gerador de CPF fictício. **Nunca** use CPF real na demonstração.
 
