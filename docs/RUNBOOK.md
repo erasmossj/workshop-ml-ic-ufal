@@ -318,6 +318,14 @@ O rodapé com o código de validação e o endereço `/validar` é colocado auto
   responsável técnico apaga a emissão daquela pessoa (`certificados`) e a organização libera de novo.
 - **Conferir se um certificado é verdadeiro**: `https://<site>/validar` com o código do rodapé.
 
+## Dados de demonstração (WML-40) — SOMENTE no staging
+
+Para apresentar o sistema com dados fictícios: [`supabase/demo/popular-demo.sql`](../supabase/demo/popular-demo.sql)
+(12 pessoas `demo-NN@exemplo.com`, com minicurso, trabalhos, uma cancelada e presenças) e, no fim,
+[`supabase/demo/limpar-demo.sql`](../supabase/demo/limpar-demo.sql). Os dois rodam no SQL Editor do
+staging e recusam a produção. Modelo de certificado de exemplo: `npm run demo:modelo`. Roteiro
+completo: [ENTREGA](ENTREGA.md).
+
 ## Teste de carga (WML-36) — SOMENTE no staging
 
 `load/inscricao.js`: 300 pessoas se inscrevendo ao mesmo tempo (metade no minicurso). Critérios:
