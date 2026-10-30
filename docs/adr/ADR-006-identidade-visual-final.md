@@ -23,5 +23,5 @@
 - Custo zero mantido: todas as fontes são OFL; `@pdf-lib/fontkit` é MIT.
 - Contraste conferido (WCAG 2.2 AA): o par mais justo é ink-300 sobre bg-300 (4,51:1). O foco dos campos do Figma (borda lima + brilho) é desenhado como `outline`, para haver contorno de foco real.
 - Se os arquivos de `_shared/marca/` não estiverem disponíveis na função, o PDF sai com Helvetica/Courier e sem logos — o envio nunca para por causa da marca.
-- Atualiza o ADR-005 quanto às fontes: o comprovante e o rodapé do certificado passam a usar as fontes da marca. As fontes dos campos do certificado (Nome, CPF, Horas) continuam Helvetica/Times, escolhidas no painel; oferecer DM Sans ali exige migration (vai junto da WML-69).
+- Atualiza o ADR-005 quanto às fontes: o comprovante e o rodapé do certificado passam a usar as fontes da marca. As fontes dos campos do certificado (Nome, CPF, Horas) continuam Helvetica/Times, escolhidas no painel; oferecer DM Sans ali exige migration (restrição no banco) e ainda está pendente — abrir issue própria.
 - Pendência de design: no componente "Logo conjunto" do Figma, o "R" de "COMPUTER" encosta na borda direita do quadro (632 px). O SVG foi usado como está; corrigir no Figma e reexportar.
