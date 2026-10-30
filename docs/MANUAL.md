@@ -7,9 +7,12 @@
 
 ## Antes de começar
 
-- **Endereço do staging:** `<LINK DO STAGING>` — abra pelo link recebido; ele libera o acesso sem
-  pedir conta. Neste manual, `/inscricao`, `/admin` etc. são páginas desse endereço (ex.:
-  `<LINK DO STAGING>/admin`).
+- **Link de acesso:** `<LINK DO STAGING>` (o link compartilhável da Vercel, que termina em
+  `?_vercel_share=…`; fica só no Confluence, nunca no repositório). **Abra o link completo uma vez
+  em cada navegador e aparelho** (computador e celular): ele libera o acesso sem pedir conta. Se
+  aparecer uma tela de login da Vercel, abra o link completo de novo. Depois disso, `/inscricao`,
+  `/admin` etc. são páginas do mesmo endereço, sem o `?_vercel_share=…` (ex.: `<ENDEREÇO>/admin`).
+  Não repasse o link a quem não participa da validação.
 - **É um ambiente de teste.** Nada do que você fizer aqui afeta o site oficial nem as inscrições
   reais. Pode errar, repetir e testar à vontade.
 - **Use nome e CPF fictícios.** Nunca digite seu CPF real. Gere um CPF de teste em um gerador de
@@ -31,7 +34,7 @@ O manual tem duas partes:
 
 ### A1. Conhecer o site
 
-1. Abra o link do staging.
+1. Abra o link de acesso do início deste manual.
 2. Confira a página inicial: datas (02 a 04/12/2026), local, programação dos 3 dias, minicurso,
    chamada de trabalhos, cronograma e perguntas frequentes (menu no topo: Sobre, Programação,
    Minicurso, Trabalhos, FAQ).
@@ -85,7 +88,7 @@ Tente provocar estes erros — o sistema deve recusar com uma mensagem clara:
 > certificados (Parte B, passos B5 e B6). Se você não tem acesso de organizador, combine com quem
 > tem.
 
-1. Acesse `/certificado` digitando o endereço (ex.: `<LINK DO STAGING>/certificado`).
+1. Acesse `/certificado` digitando o endereço (ex.: `<ENDEREÇO>/certificado`).
 2. Informe o **e-mail** e o **número de inscrição** do comprovante, faça a verificação anti-robô e
    clique em **Baixar certificado**.
 3. O PDF é baixado, com o seu nome, o CPF completo (só no certificado) e a carga horária das
@@ -108,7 +111,8 @@ Tente provocar estes erros — o sistema deve recusar com uma mensagem clara:
 ### B1. Entrar no painel
 
 1. Acesse `/admin`, informe o seu e-mail e clique em **Enviar link de acesso**.
-2. Abra o e-mail e clique no link. Você volta ao painel já conectado.
+2. Abra o e-mail **no mesmo navegador** em que abriu o link de acesso deste manual e clique no
+   link. Você volta ao painel já conectado.
 3. Para sair, use **Sair** no topo.
 
 ### B2. Inscrições
@@ -145,7 +149,9 @@ dia e por tarde.
 
 ### B5. Credenciamento (no celular)
 
-1. No celular, acesse `/credenciamento` e entre com o mesmo e-mail do painel (link por e-mail).
+1. No celular, abra primeiro o **link de acesso completo** do início deste manual. Depois acesse
+   `/credenciamento` e entre com o mesmo e-mail do painel (link por e-mail, aberto no próprio
+   celular).
 2. Escolha o **Dia** e o **Modo**: **Entrada do dia (palestras)** ou **Minicurso (tarde)**.
 3. Toque em **Ligar câmera** (permita o uso da câmera) e aponte para o QR Code do comprovante — pode
    ser o PDF aberto na tela de outro aparelho.
@@ -173,6 +179,8 @@ dia e por tarde.
 
 ## Dúvidas frequentes
 
+- **Apareceu uma tela de login da Vercel.** Este navegador ainda não abriu o link de acesso. Abra
+  o link completo do início deste manual e tente de novo.
 - **O e-mail não chegou.** Espere alguns minutos e confira spam e abas Promoções/Atualizações. O
   comprovante também pode ser salvo na tela de confirmação.
 - **"Muitas tentativas. Aguarde alguns minutos e tente de novo."** O sistema limita tentativas

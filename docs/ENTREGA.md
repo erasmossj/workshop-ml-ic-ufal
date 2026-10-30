@@ -123,7 +123,13 @@ usuário — validação no staging" no Confluence, enviada em PDF junto com o l
 
 1. **Link**: gere o link compartilhável do preview na Vercel (Deployments → o preview → **Share**)
    e troque `<LINK DO STAGING>` na página do Confluence. Só então exporte o PDF (**⋯ → Exportar →
-   PDF**).
+   PDF**). O link (com `?_vercel_share=`) dá acesso ao preview: nunca o coloque no repositório,
+   que é público. Ele aponta para o preview de um branch; se o branch receber commits novos ou for
+   apagado durante a validação, confira se o link continua abrindo.
+   - **Login do painel no preview**: o link de acesso por e-mail volta para o endereço do preview.
+     Ele precisa estar em Supabase do staging → **Authentication → URL Configuration → Redirect
+     URLs** (ex.: `https://workshop-ml-ic-ufal-*-erasmo-junior.vercel.app/**`). Teste o passo B1 do
+     manual uma vez antes de enviar.
 2. **Staging igual à `main`** (passo 1 da véspera, acima).
 3. **Painel do staging → Configuração**: inscrições e submissões **abertas**; vagas do minicurso
    **preenchidas** (campo vazio = minicurso fechado).
