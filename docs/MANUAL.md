@@ -197,7 +197,7 @@ na tela de confirmação.
 
 Endereço: `/privacidade` (link no rodapé e no formulário). Explica, em linguagem simples:
 
-- quais dados são pedidos (nome, CPF, e-mail, instituição, minicurso, trabalho) e para quê;
+- quais dados são pedidos (nome, CPF, e-mail, vínculo, curso, instituição, perfil LinkedIn/Lattes, minicurso, trabalho) e para quê;
 - a base legal (o seu consentimento, dado ao marcar a caixa de aceite);
 - quem processa os dados (hospedagem, banco de dados, e-mail e anti-robô) e que eles não são
   vendidos nem cedidos;

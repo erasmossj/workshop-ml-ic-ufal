@@ -45,6 +45,7 @@ function formulario(campos: Record<string, string | Blob> = {}): FormData {
     cpf: '529.982.247-25',
     email: novoEmail(),
     consentimento: 'sim',
+    vinculo: 'graduacao',
     'cf-turnstile-response': 'XXXX.DUMMY.TOKEN.XXXX',
     ...campos,
   };
@@ -130,6 +131,41 @@ describe('Edge Function register', () => {
     const { status, corpo } = await enviar(fd);
     expect(status).toBe(422);
     expect(corpo.campo).toBe('consentimento');
+  });
+
+  it('exige o vínculo (crachá)', async () => {
+    const fd = formulario();
+    fd.delete('vinculo');
+    const { status, corpo } = await enviar(fd);
+    expect(status).toBe(422);
+    expect(corpo.campo).toBe('vinculo');
+  });
+
+  it('grava curso e o perfil normalizado (LinkedIn/Lattes)', async () => {
+    const email = novoEmail();
+    const r = await enviar(
+      formulario({
+        email,
+        vinculo: 'mestrado',
+        curso: 'Computação',
+        perfil: 'lattes.cnpq.br/1234567890123456',
+      }),
+    );
+    expect(r.status).toBe(201);
+    const [gravado] = await (
+      await rest(`participantes?select=vinculo,curso,perfil_url&email=eq.${email}`)
+    ).json();
+    expect(gravado).toEqual({
+      vinculo: 'mestrado',
+      curso: 'Computação',
+      perfil_url: 'https://lattes.cnpq.br/1234567890123456',
+    });
+  });
+
+  it('recusa perfil fora do LinkedIn/Lattes (o link vira QR impresso)', async () => {
+    const { status, corpo } = await enviar(formulario({ perfil: 'https://evil.com/in/ana' }));
+    expect(status).toBe(422);
+    expect(corpo).toMatchObject({ codigo: 'PERFIL_INVALIDO', campo: 'perfil' });
   });
 
   it('exige o token do Turnstile', async () => {

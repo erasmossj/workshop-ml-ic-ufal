@@ -10,6 +10,11 @@ export type Inscricao = {
   email: string;
   cpf_mascarado: string;
   instituicao: string | null;
+  /** graduacao | mestrado | outro — null em inscrições anteriores à WML-69. */
+  vinculo: string | null;
+  curso: string | null;
+  /** LinkedIn ou Lattes, já normalizado em https pelo banco (vira QR no crachá). */
+  perfil_url: string | null;
   minicurso: boolean;
   apresenta_trabalho: boolean;
   titulo_trabalho: string | null;
@@ -87,6 +92,12 @@ export function formatarDias(dias: string[] | null | undefined): string {
 }
 
 /** Byte order mark: faz o Excel abrir o CSV como UTF-8 (acentos certos). */
+export const VINCULO: Record<string, string> = {
+  graduacao: 'Graduação',
+  mestrado: 'Mestrado',
+  outro: 'Outro',
+};
+
 export const BOM = String.fromCharCode(0xfeff);
 
 export function gerarCsv(lista: Inscricao[]): string {
@@ -96,6 +107,9 @@ export function gerarCsv(lista: Inscricao[]): string {
     'E-mail',
     'CPF (mascarado)',
     'Instituição',
+    'Vínculo',
+    'Curso',
+    'Perfil (LinkedIn/Lattes)',
     'Minicurso',
     'Apresenta trabalho',
     'Título do trabalho',
@@ -112,6 +126,9 @@ export function gerarCsv(lista: Inscricao[]): string {
     i.email,
     i.cpf_mascarado,
     i.instituicao ?? '',
+    i.vinculo ? (VINCULO[i.vinculo] ?? i.vinculo) : '',
+    i.curso ?? '',
+    i.perfil_url ?? '',
     simNao(i.minicurso),
     simNao(i.apresenta_trabalho),
     i.titulo_trabalho ?? '',
@@ -208,6 +225,9 @@ const ERROS: Record<string, string> = {
   CPF_INVALIDO: 'CPF inválido. Confira os números.',
   EMAIL_INVALIDO: 'E-mail inválido.',
   INSTITUICAO_INVALIDA: 'Instituição muito longa (máximo de 160 caracteres).',
+  VINCULO_INVALIDO: 'Escolha o vínculo: graduação, mestrado ou outro.',
+  CURSO_INVALIDO: 'Curso muito longo (máximo de 120 caracteres).',
+  PERFIL_INVALIDO: 'Use um link do LinkedIn (linkedin.com/in/…) ou do Lattes (lattes.cnpq.br/…).',
   EMAIL_JA_INSCRITO: 'Já existe outra inscrição com este e-mail.',
   CPF_JA_NO_MINICURSO: 'Este CPF já ocupa uma vaga no minicurso em outra inscrição.',
   VAGAS_ABAIXO_DAS_OCUPADAS: 'Não é possível deixar menos vagas do que as já ocupadas.',

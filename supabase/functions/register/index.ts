@@ -47,6 +47,21 @@ const ERROS: Record<string, Resposta> = {
     campo: 'minicurso',
   },
   NIVEL_OBRIGATORIO: { status: 422, erro: 'Escolha a categoria para concorrer.', campo: 'nivel' },
+  VINCULO_INVALIDO: {
+    status: 422,
+    erro: 'Escolha seu vínculo: graduação, mestrado ou outro.',
+    campo: 'vinculo',
+  },
+  CURSO_INVALIDO: {
+    status: 422,
+    erro: 'O curso deve ter no máximo 120 caracteres.',
+    campo: 'curso',
+  },
+  PERFIL_INVALIDO: {
+    status: 422,
+    erro: 'Use o link do seu perfil no LinkedIn (linkedin.com/in/…) ou no Lattes (lattes.cnpq.br/…).',
+    campo: 'perfil',
+  },
   TRABALHO_INVALIDO: {
     status: 422,
     erro: 'Confira título, autores e resumo do trabalho.',
@@ -166,6 +181,12 @@ Deno.serve(async (req) => {
     );
   }
 
+  // 3b. Vínculo (obrigatório para o crachá). Formato de curso e perfil: o banco valida.
+  if (!['graduacao', 'mestrado', 'outro'].includes(texto('vinculo'))) {
+    const { status, erro, campo } = ERROS.VINCULO_INVALIDO;
+    return json(status, { erro, campo }, h);
+  }
+
   // 4. Minicurso (opt-in).
   let minicursos: number[] = [];
   if (texto('minicurso') === 'sim') {
@@ -229,6 +250,9 @@ Deno.serve(async (req) => {
     p_instituicao: texto('instituicao') || null,
     p_minicursos: minicursos,
     p_trabalho: trabalho,
+    p_vinculo: texto('vinculo'),
+    p_curso: texto('curso') || null,
+    p_perfil: texto('perfil') || null,
   });
   if (error) {
     if (caminho) await admin.storage.from('trabalhos').remove([caminho]);
