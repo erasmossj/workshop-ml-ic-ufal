@@ -113,3 +113,39 @@ Detalhes em [PENDENCIAS](PENDENCIAS.md).
 3. Atualize [PENDENCIAS](PENDENCIAS.md) (e a página no Confluence) com as decisões tomadas.
 4. Itens em "Fazendo" (certificados WML-57..60 e WML-51, este WML-40) só vão para "Feito" com a
    aprovação do responsável.
+
+## Validação pelos stakeholders (manual)
+
+Os stakeholders testam sozinhos, no staging, seguindo o [MANUAL](MANUAL.md) (página "Manual do
+usuário — validação no staging" no Confluence, enviada em PDF junto com o link).
+
+### Antes de enviar
+
+1. **Link**: gere o link compartilhável do preview na Vercel (Deployments → o preview → **Share**)
+   e troque `<LINK DO STAGING>` na página do Confluence. Só então exporte o PDF (**⋯ → Exportar →
+   PDF**).
+2. **Staging igual à `main`** (passo 1 da véspera, acima).
+3. **Painel do staging → Configuração**: inscrições e submissões **abertas**; vagas do minicurso
+   **preenchidas** (campo vazio = minicurso fechado).
+4. **Dados de demonstração**: se o `popular-demo.sql` ainda estiver no staging, rode o
+   `limpar-demo.sql` antes (ele também religa o envio de e-mails).
+5. **Parte B do manual**: inclua os e-mails de quem vai testar o painel na tabela `organizadores`
+   do **staging** ([Dar ou tirar acesso](RUNBOOK.md#dar-ou-tirar-acesso-de-um-organizador)). Receba
+   os e-mails por canal privado.
+6. **Teste em grupo na mesma rede** (ex.: Wi-Fi do IC): o limite do staging é de 5 inscrições por
+   rede a cada 10 min. Suba durante a validação e volte depois:
+   ```powershell
+   npx supabase secrets set --project-ref aiyzqeckoyalrhlvhmmf RATE_LIMIT_MAX=50
+   ```
+7. **Certificado de quem só tem a Parte A** (passo A5): alguém com acesso precisa registrar a
+   presença dessas pessoas (`/credenciamento`, busca manual), ter um modelo salvo e liberar os
+   certificados.
+
+### Depois da validação
+
+1. Volte o limite: `npx supabase secrets set --project-ref aiyzqeckoyalrhlvhmmf RATE_LIMIT_MAX=5`.
+2. Tire os testadores da tabela `organizadores` do staging.
+3. Cancele as inscrições de teste no painel do staging. Elas têm e-mails reais dos testadores: para
+   apagar, use o SQL de limpeza do [teste de carga](RUNBOOK.md#3-limpar-e-restaurar-nesta-ordem)
+   trocando o filtro `like 'carga-%@exemplo.com'` pela lista de e-mails.
+4. Registre cada relato como issue no Jira `WML`.
