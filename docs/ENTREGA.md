@@ -117,7 +117,7 @@ Detalhes em [PENDENCIAS](PENDENCIAS.md).
 ## Validação pelos stakeholders (manual)
 
 Os stakeholders testam sozinhos, no staging, seguindo o [MANUAL](MANUAL.md) (página "Manual do
-usuário — validação no staging" no Confluence, enviada em PDF junto com o link).
+usuário — IC-ML 2026" no Confluence, enviada em PDF junto com o link).
 
 ### Antes de enviar
 
