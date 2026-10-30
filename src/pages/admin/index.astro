@@ -103,6 +103,18 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         </a>
       </section>
 
+      <section aria-labelledby="t-crachas" class="mt-10">
+        <h2 id="t-crachas" class="h2">
+          Crachás
+        </h2>
+        <p class="mt-1 text-sm text-ink-200">
+          Crachás 100×140 mm dos participantes e da organização, prontos para imprimir.
+        </p>
+        <a href="/admin/crachas" class="btn-secundario mt-3 inline-flex">
+          Abrir crachás
+        </a>
+      </section>
+
       <section aria-labelledby="t-inscricoes" class="mt-10">
         <div class="flex flex-wrap items-end justify-between gap-3">
           <h2 id="t-inscricoes" class="h2">
@@ -641,6 +653,9 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         );
         acoes.append(
           botao('Corrigir', 'btn-secundario px-3 py-1 text-sm', () => abrirCorrecao(i)),
+          botao('Crachá', 'btn-secundario ml-2 px-3 py-1 text-sm', () =>
+            location.assign(`/admin/crachas?n=${encodeURIComponent(i.numero)}`),
+          ),
           botao('Cancelar', 'btn-secundario ml-2 px-3 py-1 text-sm', async () => {
             if (!confirm(`Cancelar a inscrição ${i.numero}? A vaga do minicurso será liberada.`)) {
               return;

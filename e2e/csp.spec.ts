@@ -9,6 +9,7 @@ for (const caminho of [
   '/admin',
   '/credenciamento',
   '/admin/certificados',
+  '/admin/crachas',
   '/certificado',
   '/validar',
 ]) {
