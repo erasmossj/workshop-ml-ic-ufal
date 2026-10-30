@@ -13,54 +13,58 @@ const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SI
   description="Baixe o seu certificado do IC-ML 2026 com o e-mail e o número de inscrição."
   noindex
 >
-  <section class="mx-auto max-w-2xl px-5 py-10 md:px-10">
-    <p class="rotulo text-ciano">Certificados</p>
-    <h1 class="mt-2 font-display text-3xl font-bold md:text-4xl">Baixar certificado</h1>
-    <p class="mt-3 text-suave">
-      Use o e-mail da inscrição e o número que está no comprovante (começa com
+  <section class="mx-auto max-w-2xl px-4 py-10 md:px-10">
+    <p class="rotulo text-lime-ink">Certificados</p>
+    <h1 class="mt-4 display-m">Baixar certificado</h1>
+    <p class="mt-3 text-ink-200">
+      Use o e-mail da inscrição e o número que está no comprovante (começa com{' '}
       <span class="font-mono">ICML26-</span>). Os certificados são liberados depois do evento e
       também chegam por e-mail.
     </p>
 
     {!configurado && (
-      <p class="vidro mt-6 p-6">
+      <p class="painel mt-6 p-6">
         O download funciona só com o backend configurado (PUBLIC_SUPABASE_URL). Nesta versão de
         protótipo não há certificados.
       </p>
     )}
 
-    <form id="form-certificado" method="post" class="vidro mt-6 grid gap-4 p-6" novalidate>
+    <form id="form-certificado" method="post" class="painel mt-6 grid gap-4 p-6" novalidate>
       <div>
-        <label for="email" class="block text-sm font-medium">
+        <label for="email" class="rotulo-campo">
           E-mail da inscrição
         </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          autocomplete="email"
-          required
-          aria-describedby="email-erro"
-          class="campo mt-1 w-full"
-        />
+        <div class="terminal">
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            aria-describedby="email-erro"
+            class="campo w-full"
+          />
+        </div>
         <p id="email-erro" class="erro-campo" aria-live="polite"></p>
       </div>
       <div>
-        <label for="numero" class="block text-sm font-medium">
+        <label for="numero" class="rotulo-campo">
           Número de inscrição
         </label>
-        <input
-          id="numero"
-          name="numero"
-          type="text"
-          autocomplete="off"
-          autocapitalize="characters"
-          spellcheck="false"
-          placeholder="ICML26-0000"
-          required
-          aria-describedby="numero-erro"
-          class="campo mt-1 w-full font-mono uppercase"
-        />
+        <div class="terminal">
+          <input
+            id="numero"
+            name="numero"
+            type="text"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            placeholder="ICML26-0000"
+            required
+            aria-describedby="numero-erro"
+            class="campo w-full font-mono uppercase"
+          />
+        </div>
         <p id="numero-erro" class="erro-campo" aria-live="polite"></p>
       </div>
       {turnstileSiteKey ? (
@@ -71,8 +75,8 @@ const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SI
           data-language="pt-br"
         />
       ) : (
-        <div class="flex items-center gap-3 rounded-xl border border-dashed border-white/30 p-4 text-sm text-suave">
-          <span class="size-5 rounded border-2 border-white/40" aria-hidden="true" />
+        <div class="flex items-center gap-3 rounded-1 border border-dashed border-line-200 p-4 text-sm text-ink-200">
+          <span class="size-4.5 rounded-1 border border-line-200" aria-hidden="true" />
           Verificação anti-robô (Cloudflare Turnstile) — ativa quando o backend está configurado.
         </div>
       )}
@@ -83,9 +87,9 @@ const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SI
 
     <div id="mensagem" class="mt-6" role="status" aria-live="polite"></div>
 
-    <p class="mt-8 text-sm text-suave">
+    <p class="mt-8 text-sm text-ink-200">
       Precisa conferir se um certificado é autêntico?{' '}
-      <a href="/validar" class="texto-acao inline-block min-h-6 underline underline-offset-4">
+      <a href="/validar" class="text-lime-ink inline-block min-h-6 underline underline-offset-4">
         Validar certificado
       </a>
       .
@@ -105,7 +109,7 @@ const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SI
 
   function avisar(tom: 'ok' | 'erro', texto: string) {
     const p = document.createElement('p');
-    p.className = `vidro border-l-8 p-5 ${tom === 'ok' ? 'border-ok' : 'border-erro'}`;
+    p.className = `painel border-l-8 p-5 ${tom === 'ok' ? 'border-lime-ink' : 'border-danger'}`;
     p.textContent = `${tom === 'ok' ? '✓' : '✕'} ${texto}`;
     mensagem.replaceChildren(p);
   }

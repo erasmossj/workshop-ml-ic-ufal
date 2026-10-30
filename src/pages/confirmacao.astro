@@ -10,11 +10,11 @@ const agenda = eventosDeAgenda().map((e, i) => ({
 ---
 
 <Base title="Inscrição confirmada" description="Comprovante de inscrição no IC-ML 2026.">
-  <div class="mx-auto max-w-3xl px-5 py-12 md:px-10 md:py-16">
-    <article class="vidro p-6 md:p-10" aria-labelledby="ok-t">
+  <div class="mx-auto max-w-3xl px-4 py-12 md:px-10 md:py-16">
+    <article class="painel p-6 md:p-10" aria-labelledby="ok-t">
       <div class="flex items-center gap-4">
         <span
-          class="grid size-14 shrink-0 place-items-center rounded-full bg-linear-to-br from-acao-1 to-acao-2 text-sobre-acao"
+          class="grid size-14 shrink-0 place-items-center rounded-1 bg-lime-500 text-on-lime"
           aria-hidden="true"
         >
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -27,35 +27,35 @@ const agenda = eventosDeAgenda().map((e, i) => ({
             ></path>
           </svg>
         </span>
-        <p class="rotulo text-ciano">Comprovante · IC-ML 2026</p>
+        <p class="rotulo text-lime-ink">Comprovante · IC-ML 2026</p>
       </div>
-      <h1 id="ok-t" class="mt-5 font-display text-4xl leading-tight font-extrabold md:text-5xl">
+      <h1 id="ok-t" class="mt-5 display-l">
         Inscrição confirmada.
       </h1>
-      <p class="mt-4 text-suave">
+      <p class="mt-4 text-ink-200">
         Enviamos o comprovante para{' '}
-        <strong id="c-email" class="text-texto">
+        <strong id="c-email" class="text-ink-100">
           voce@exemplo.com
         </strong>
         . Não chegou? Confira a caixa de spam.
       </p>
 
-      <div class="mt-8 grid gap-6 border-y border-white/20 py-6 sm:grid-cols-[1fr_auto] sm:items-center">
+      <div class="mt-8 grid gap-6 border-y border-line-100 py-6 sm:grid-cols-[1fr_auto] sm:items-center">
         <div>
-          <p class="rotulo text-suave">Número de inscrição</p>
-          <p id="c-numero" class="mt-1 font-mono text-4xl font-medium text-ciano">
+          <p class="rotulo text-ink-200">Número de inscrição</p>
+          <p id="c-numero" class="mt-2 numeral-m break-all text-lime-ink">
             ICML26-0042
           </p>
         </div>
         <p
           id="c-qr-aviso"
-          class="max-w-56 justify-self-start text-sm text-suave sm:justify-self-end"
+          class="max-w-56 justify-self-start text-sm text-ink-200 sm:justify-self-end"
         >
           O QR Code do credenciamento está no comprovante em PDF enviado por e-mail.
         </p>
         <figure
           id="c-qr-figura"
-          class="hidden justify-self-start rounded-2xl bg-white p-2 sm:justify-self-end"
+          class="modo-claro hidden justify-self-start rounded-2 bg-bg-200 p-2 sm:justify-self-end"
         >
           <div
             id="c-qr"
@@ -76,7 +76,7 @@ const agenda = eventosDeAgenda().map((e, i) => ({
           ['Trabalho', 'c-trabalho', 'Não submetido'],
         ].map(([rotulo, id, valor]) => (
           <div class="flex flex-col justify-between gap-1 sm:flex-row sm:gap-6">
-            <dt class="text-suave">{rotulo}</dt>
+            <dt class="text-ink-200">{rotulo}</dt>
             <dd id={id ?? undefined} class="font-semibold sm:text-right">
               {valor}
             </dd>
@@ -92,7 +92,7 @@ const agenda = eventosDeAgenda().map((e, i) => ({
           Adicionar à agenda (.ics)
         </button>
       </div>
-      <p class="no-print mt-4 text-sm text-suave">
+      <p class="no-print mt-4 text-sm text-ink-200">
         Ou no Google Agenda:{' '}
         {agenda.map((a, i) => (
           <>
@@ -101,14 +101,14 @@ const agenda = eventosDeAgenda().map((e, i) => ({
               href={a.url}
               target="_blank"
               rel="noopener noreferrer"
-              class="font-semibold text-texto underline underline-offset-4"
+              class="font-semibold text-ink-100 underline underline-offset-4"
             >
               {a.dia}
             </a>
           </>
         ))}
       </p>
-      <p class="mt-6 text-sm text-suave">Apresente o QR Code no credenciamento de cada dia.</p>
+      <p class="mt-6 text-sm text-ink-200">Apresente o QR Code no credenciamento de cada dia.</p>
     </article>
   </div>
 </Base>
@@ -142,11 +142,16 @@ const agenda = eventosDeAgenda().map((e, i) => ({
   // Só o token assinado (HMAC) vale no leitor do credenciamento. Sem ele (protótipo, ou segredo
   // ausente no servidor), não mostra QR nenhum: aponta para o comprovante do e-mail.
   if (dados?.qr) {
+    // Cores do modo Light (impressos), lidas dos tokens do próprio quadro do QR.
+    const tokens = getComputedStyle(document.getElementById('c-qr-figura')!);
     QRCode.toString(dados.qr, {
       type: 'svg',
       margin: 1,
       errorCorrectionLevel: 'M',
-      color: { dark: '#071a45', light: '#ffffff' },
+      color: {
+        dark: tokens.getPropertyValue('--ink-100').trim(),
+        light: tokens.getPropertyValue('--bg-200').trim(),
+      },
     }).then((svg) => {
       document.getElementById('c-qr')!.innerHTML = svg;
       document.getElementById('c-qr-figura')!.classList.remove('hidden');

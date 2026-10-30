@@ -81,6 +81,7 @@ export default function () {
     cpf: cpfSintetico((EXECUCAO % 1000) * 100000 + __VU * 10 + __ITER),
     email: `carga-${id}-${EXECUCAO}@exemplo.com`,
     consentimento: 'sim',
+    vinculo: 'graduacao',
     // Chave de TESTE do Turnstile no staging aceita qualquer token.
     'cf-turnstile-response': 'XXXX.DUMMY.TOKEN.XXXX',
   };

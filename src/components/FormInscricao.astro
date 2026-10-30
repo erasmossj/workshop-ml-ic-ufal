@@ -1,0 +1,669 @@
+---
+/**
+ * Formulário de inscrição (Figma: Hero — site oficial › Coluna de inscrição).
+ * Usado na coluna do hero (home) e em /inscricao. Faixa halftone de corte seco no topo,
+ * cabeçalho de sistema, campos estilo terminal, Checkbox, Choice e FileDrop.
+ */
+import { janela, minicurso, trabalhos } from '../data/evento';
+import { CURSO_MAX, RESUMO_MAX, VINCULOS } from '../lib/validacao';
+
+interface Props {
+  /** h1 em /inscricao; h2 na home. */
+  nivel?: 'h1' | 'h2';
+}
+
+const { nivel = 'h2' } = Astro.props;
+const Titulo = nivel;
+// Com PUBLIC_SUPABASE_URL a inscrição é real (Edge Function `register`); sem, é demonstração.
+const modoReal = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
+const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+const opcional = 'text-ink-300';
+---
+
+<section id="inscricao" aria-labelledby="form-t" class="flex flex-col bg-bg-000">
+  <div class="relative h-32 shrink-0 overflow-hidden border-b border-line-100" aria-hidden="true">
+    <img
+      src="/marca/textura-ribbon-420x132.svg"
+      width="420"
+      height="132"
+      alt=""
+      class="absolute top-0 left-0 h-33 w-105 max-w-none select-none"
+      decoding="async"
+    />
+  </div>
+
+  <div class="flex flex-col gap-3.5 px-4 pt-6 pb-8 sm:px-8">
+    <div class="flex items-center justify-between gap-4 border-b border-line-100 pb-3.5">
+      <p class="rotulo flex items-center gap-2 text-ink-100">
+        <span class="led" aria-hidden="true"></span>
+        Credenciamento
+      </p>
+      <p class="rotulo text-ink-300">
+        <span aria-hidden="true">{janela.textoCurto}</span>
+        <span class="sr-only">Inscrições de 30 de outubro a 16 de novembro</span>
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-0.5">
+      <Titulo id="form-t" class="h2 text-ink-100">
+        Inscrição rápida
+      </Titulo>
+      <p class="body-s text-ink-300">Gratuita e aberta à comunidade. Leva 1 minuto.</p>
+    </div>
+
+    <div
+      id="resumo-erros"
+      class="hidden rounded-1 border border-danger bg-bg-300 p-4 body-s"
+      role="alert"
+      tabindex="-1"
+    >
+      <p class="font-semibold text-danger">Confira os campos abaixo:</p>
+      <ul class="mt-2 list-disc pl-5 text-ink-100"></ul>
+    </div>
+
+    <!-- method="post": se a pessoa enviar antes do script carregar, os dados vão no corpo, nunca
+         na URL (histórico, logs da Vercel). O script intercepta o envio normal. -->
+    <form
+      id="form-inscricao"
+      method="post"
+      enctype="multipart/form-data"
+      class="flex flex-col gap-3.5"
+      novalidate
+    >
+      <div>
+        <label for="nome" class="rotulo-campo">
+          <span>Nome completo</span>
+          <span class="obrigatorio">obrigatório</span>
+        </label>
+        <div class="terminal">
+          <input
+            id="nome"
+            name="nome"
+            class="campo"
+            autocomplete="name"
+            placeholder="como sai no certificado"
+            required
+            aria-describedby="nome-erro"
+          />
+        </div>
+        <p id="nome-erro" class="erro-campo" aria-live="polite"></p>
+      </div>
+
+      <div>
+        <label for="email" class="rotulo-campo">
+          <span>E-mail</span>
+          <span class="obrigatorio">obrigatório</span>
+        </label>
+        <div class="terminal">
+          <input
+            id="email"
+            name="email"
+            type="email"
+            class="campo"
+            autocomplete="email"
+            placeholder="voce@ic.ufal.br"
+            required
+            aria-describedby="email-dica email-erro"
+          />
+        </div>
+        <p id="email-dica" class="ajuda">
+          Comprovante e certificado chegam aqui.
+        </p>
+        <p id="email-erro" class="erro-campo" aria-live="polite"></p>
+      </div>
+
+      <div>
+        <label for="cpf" class="rotulo-campo">
+          <span>CPF</span>
+          <span class="obrigatorio">obrigatório</span>
+        </label>
+        <div class="terminal">
+          <input
+            id="cpf"
+            name="cpf"
+            class="campo"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="000.000.000-00"
+            maxlength="14"
+            required
+            aria-describedby="cpf-dica cpf-erro"
+          />
+        </div>
+        <p id="cpf-dica" class="ajuda">
+          Só para o certificado. Na organização aparece mascarado.
+        </p>
+        <p id="cpf-erro" class="erro-campo" aria-live="polite"></p>
+      </div>
+
+      <div>
+        <p id="vinculo-rotulo" class="rotulo-campo">
+          <span>Vínculo</span>
+          <span class="obrigatorio">obrigatório</span>
+        </p>
+        <!-- Choice (Figma): escolha única segmentada. Sem opção pré-marcada. -->
+        <div
+          id="vinculo"
+          role="radiogroup"
+          aria-labelledby="vinculo-rotulo"
+          aria-describedby="vinculo-erro"
+          tabindex="-1"
+          class="escolha mt-1.5 aria-invalid:border-danger"
+        >
+          {VINCULOS.map((v) => (
+            <label>
+              <input type="radio" name="vinculo" value={v.valor} />
+              {v.rotulo}
+            </label>
+          ))}
+        </div>
+        <p id="vinculo-erro" class="erro-campo" aria-live="polite"></p>
+      </div>
+
+      <fieldset class="flex flex-col gap-3.5 border-t border-line-100 pt-3.5">
+        <legend class="sr-only">Para o crachá (opcional)</legend>
+        <p class="rotulo text-ink-100" aria-hidden="true">
+          Para o crachá · opcional
+        </p>
+        <div>
+          <label for="curso" class="rotulo-campo">
+            <span>Curso</span>
+            <span class={opcional}>opcional</span>
+          </label>
+          <div class="terminal">
+            <input
+              id="curso"
+              name="curso"
+              class="campo"
+              maxlength={CURSO_MAX}
+              placeholder="ex.: Ciência da Computação"
+            />
+          </div>
+        </div>
+        <div>
+          <label for="instituicao" class="rotulo-campo">
+            <span>Instituição</span>
+            <span class={opcional}>opcional</span>
+          </label>
+          <div class="terminal">
+            <input
+              id="instituicao"
+              name="instituicao"
+              class="campo"
+              autocomplete="organization"
+              placeholder="ex.: UFAL"
+            />
+          </div>
+        </div>
+        <div>
+          <label for="perfil" class="rotulo-campo">
+            <span>LinkedIn ou Lattes</span>
+            <span class={opcional}>opcional</span>
+          </label>
+          <div class="terminal">
+            <input
+              id="perfil"
+              name="perfil"
+              class="campo"
+              inputmode="url"
+              autocomplete="url"
+              maxlength="200"
+              placeholder="linkedin.com/in/seu-nome"
+              aria-describedby="perfil-dica perfil-erro"
+            />
+          </div>
+          <p id="perfil-dica" class="ajuda">
+            Vira um QR Code no seu crachá. Aceita LinkedIn (linkedin.com/in/…) ou Lattes
+            (lattes.cnpq.br/…).
+          </p>
+          <p id="perfil-erro" class="erro-campo" aria-live="polite"></p>
+        </div>
+      </fieldset>
+
+      <div>
+        <label for="minicurso" class="flex cursor-pointer items-center gap-3 font-medium body-s">
+          <input
+            id="minicurso"
+            name="minicurso"
+            type="checkbox"
+            value="sim"
+            class="caixa-selecao"
+          />
+          Quero o minicurso (Lab 1, vagas limitadas)
+        </label>
+        <p class="ajuda pl-7.5">
+          {minicurso.vagasRestantesDemo} vagas* · 3 tardes no Google Colab. Quando as vagas acabam,
+          a opção é bloqueada.
+        </p>
+      </div>
+
+      <div>
+        <label for="trabalho" class="flex cursor-pointer items-center gap-3 font-medium body-s">
+          <input
+            id="trabalho"
+            name="trabalho"
+            type="checkbox"
+            value="sim"
+            class="caixa-selecao"
+            aria-controls="campos-trabalho"
+            aria-expanded="false"
+          />
+          Vou submeter trabalho — short paper SBC
+        </label>
+      </div>
+
+      <div
+        id="campos-trabalho"
+        class="flex flex-col gap-3.5 border-l-2 border-line-100 pl-4"
+        hidden
+      >
+        <p class="ajuda mt-0">
+          {trabalhos.formato} Submissões de 30/10 a 16/11 ({janela.textoProrrogacao}).
+        </p>
+        <div>
+          <label for="titulo" class="rotulo-campo">
+            <span>Título do trabalho</span>
+            <span class="obrigatorio">obrigatório</span>
+          </label>
+          <div class="terminal">
+            <input
+              id="titulo"
+              name="titulo"
+              class="campo"
+              maxlength="250"
+              aria-describedby="titulo-erro"
+            />
+          </div>
+          <p id="titulo-erro" class="erro-campo" aria-live="polite"></p>
+        </div>
+        <div>
+          <label for="autores" class="rotulo-campo">
+            <span>Autores</span>
+            <span class="obrigatorio">obrigatório</span>
+          </label>
+          <div class="terminal">
+            <input
+              id="autores"
+              name="autores"
+              class="campo"
+              placeholder="Nome 1, Nome 2…"
+              aria-describedby="autores-erro"
+            />
+          </div>
+          <p id="autores-erro" class="erro-campo" aria-live="polite"></p>
+        </div>
+        <div>
+          <label for="resumo" class="rotulo-campo">
+            <span>Resumo</span>
+            <span class="obrigatorio">obrigatório</span>
+          </label>
+          <div class="terminal">
+            <textarea
+              id="resumo"
+              name="resumo"
+              class="campo min-h-36"
+              maxlength={RESUMO_MAX}
+              aria-describedby="resumo-contador resumo-erro"
+            ></textarea>
+          </div>
+          <p id="resumo-contador" class="ajuda">
+            0 / {RESUMO_MAX} caracteres
+          </p>
+          <p id="resumo-erro" class="erro-campo" aria-live="polite"></p>
+        </div>
+
+        <!-- FileDrop (Figma): Empty tracejado; Active ao arrastar; Filled com o nome do arquivo. -->
+        <div>
+          <label for="pdf" class="rotulo-campo">
+            <span>Arquivo PDF</span>
+            <span class="obrigatorio">obrigatório</span>
+          </label>
+          <div
+            id="pdf-zona"
+            data-estado="vazio"
+            class="group relative mt-1.5 flex items-center gap-4 rounded-1 border border-dashed border-line-200 bg-bg-300 p-4 transition has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-focus-ring has-aria-invalid:border-danger data-[estado=ativo]:border-solid data-[estado=ativo]:border-lime-ink data-[estado=ativo]:bg-lime-900"
+          >
+            <svg
+              width="40"
+              height="48"
+              viewBox="0 0 40 48"
+              fill="none"
+              aria-hidden="true"
+              class="shrink-0 text-line-200"
+            >
+              <path d="M1 1H27L39 13V47H1V1Z" stroke="currentColor" stroke-width="1.5"></path>
+              <path d="M27 1V13H39" stroke="currentColor" stroke-width="1.5"></path>
+              <path d="M28 30H6V41H28V30Z" class="fill-lime-500"></path>
+            </svg>
+            <div class="min-w-0 flex-1 text-[0.8125rem] leading-5">
+              <p id="pdf-titulo" class="font-mono font-medium break-words text-ink-100">
+                Arraste o PDF ou clique para enviar
+              </p>
+              <p
+                id="pdf-dica"
+                class="text-ink-300 group-data-[estado=ativo]:text-lime-ink group-data-[estado=cheio]:text-lime-ink"
+              >
+                Short paper SBC · 4 a 6 páginas · PDF até 5 MB
+              </p>
+            </div>
+            <input
+              id="pdf"
+              name="pdf"
+              type="file"
+              accept="application/pdf,.pdf"
+              class="absolute inset-0 size-full cursor-pointer opacity-0"
+              aria-describedby="pdf-dica pdf-erro"
+            />
+          </div>
+          <p id="pdf-erro" class="erro-campo" aria-live="polite"></p>
+        </div>
+
+        <div>
+          <label for="premio" class="flex cursor-pointer items-center gap-3 font-medium body-s">
+            <input
+              id="premio"
+              name="premio"
+              type="checkbox"
+              value="sim"
+              class="caixa-selecao"
+              aria-describedby="premio-dica"
+            />
+            Quero concorrer à premiação
+          </label>
+          <p id="premio-dica" class="ajuda pl-7.5">
+            Melhor trabalho de graduação e de mestrado.
+          </p>
+        </div>
+        <div>
+          <p id="nivel-rotulo" class="rotulo-campo">
+            Categoria
+          </p>
+          <!-- Choice (Figma): escolha única segmentada. -->
+          <div
+            id="nivel"
+            role="radiogroup"
+            aria-labelledby="nivel-rotulo"
+            aria-describedby="nivel-erro"
+            tabindex="-1"
+            class="escolha mt-1.5 aria-invalid:border-danger"
+          >
+            <label>
+              <input type="radio" name="nivel" value="graduacao" />
+              Graduação
+            </label>
+            <label>
+              <input type="radio" name="nivel" value="mestrado" />
+              Mestrado
+            </label>
+          </div>
+          <p id="nivel-erro" class="erro-campo" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="border-t border-line-100 pt-3.5">
+        <label for="consentimento" class="flex cursor-pointer items-start gap-3 body-s">
+          <input
+            id="consentimento"
+            name="consentimento"
+            type="checkbox"
+            value="sim"
+            class="caixa-selecao mt-0.5"
+            aria-describedby="consentimento-erro"
+          />
+          <span class="text-ink-200">
+            Li e concordo com a{' '}
+            <a
+              href="/privacidade"
+              class="font-semibold text-ink-100 underline underline-offset-4 hover:text-lime-ink"
+            >
+              Política de Privacidade
+            </a>
+            . Nome, CPF e e-mail serão usados para a inscrição e a emissão do certificado; vínculo,
+            curso, instituição e perfil, para o crachá — conforme a LGPD.
+          </span>
+        </label>
+        <p id="consentimento-erro" class="erro-campo" aria-live="polite"></p>
+      </div>
+
+      {turnstileSiteKey ? (
+        <div
+          class="cf-turnstile"
+          data-sitekey={turnstileSiteKey}
+          data-theme="dark"
+          data-language="pt-br"
+        />
+      ) : (
+        <div class="ajuda mt-0 flex items-center gap-3 rounded-1 border border-dashed border-line-200 p-4">
+          <span class="size-4.5 shrink-0 rounded-1 border border-line-200" aria-hidden="true" />
+          Verificação anti-robô (Cloudflare Turnstile) — ativa quando o backend está configurado.
+        </div>
+      )}
+
+      <button type="submit" class="btn-primario btn-lg w-full">
+        Confirmar inscrição
+      </button>
+      {!modoReal && (
+        <p class="ajuda mt-0 text-center">
+          *Número ilustrativo. Demonstração: use{' '}
+          <code class="font-mono text-ink-200">ja@inscrito.com</code> para ver o aviso de e-mail
+          repetido.
+        </p>
+      )}
+    </form>
+  </div>
+  {turnstileSiteKey && (
+    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
+  )}
+</section>
+
+<script>
+  import { cpfValido, formatarCpf, mascararCpf } from '../lib/cpf';
+  import { EMAIL_JA_INSCRITO, gerarNumero, salvarDemo } from '../lib/demo';
+  import {
+    RESUMO_MAX,
+    emailValido,
+    nomeCompletoValido,
+    normalizarEmail,
+    normalizarPerfil,
+    validarPdf,
+  } from '../lib/validacao';
+
+  const form = document.querySelector<HTMLFormElement>('#form-inscricao')!;
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const cpf = $<HTMLInputElement>('cpf');
+  const trabalho = $<HTMLInputElement>('trabalho');
+  const camposTrabalho = $<HTMLDivElement>('campos-trabalho');
+  const resumo = $<HTMLTextAreaElement>('resumo');
+  const resumoErros = $<HTMLDivElement>('resumo-erros');
+  const pdf = $<HTMLInputElement>('pdf');
+  const pdfZona = $<HTMLDivElement>('pdf-zona');
+  const pdfTitulo = $<HTMLParagraphElement>('pdf-titulo');
+  const PDF_TITULO_VAZIO = pdfTitulo.textContent?.trim() ?? '';
+
+  cpf.addEventListener('input', () => {
+    cpf.value = formatarCpf(cpf.value);
+  });
+  resumo.addEventListener('input', () => {
+    $('resumo-contador').textContent = `${resumo.value.length} / ${RESUMO_MAX} caracteres`;
+  });
+  trabalho.addEventListener('change', () => {
+    camposTrabalho.hidden = !trabalho.checked;
+    trabalho.setAttribute('aria-expanded', String(trabalho.checked));
+  });
+
+  // FileDrop: o input cobre a área toda, então soltar o arquivo já o seleciona.
+  const estadoPdf = () => {
+    const arquivo = pdf.files?.[0];
+    pdfZona.dataset.estado = arquivo ? 'cheio' : 'vazio';
+    pdfTitulo.textContent = arquivo ? arquivo.name : PDF_TITULO_VAZIO;
+  };
+  pdf.addEventListener('dragenter', () => (pdfZona.dataset.estado = 'ativo'));
+  pdf.addEventListener('dragleave', estadoPdf);
+  pdf.addEventListener('drop', () => setTimeout(estadoPdf));
+  pdf.addEventListener('change', estadoPdf);
+
+  // Backend real (Edge Function) quando configurado; senão, demonstração local.
+  const API: string | undefined = import.meta.env.PUBLIC_SUPABASE_URL;
+  const CHAVE_PUBLICA: string | undefined = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+  const modoReal = Boolean(API && CHAVE_PUBLICA);
+
+  type Erro = { id: string | null; msg: string };
+
+  function marcar(id: string, msg: string | null) {
+    document.getElementById(id)?.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    const destino = document.getElementById(`${id}-erro`);
+    if (destino) destino.textContent = msg ?? '';
+  }
+
+  function mostrarErros(erros: Erro[]) {
+    const lista = resumoErros.querySelector('ul')!;
+    lista.replaceChildren(
+      ...erros.map(({ id, msg }) => {
+        const li = document.createElement('li');
+        if (id && document.getElementById(id)) {
+          const a = document.createElement('a');
+          a.href = `#${id}`;
+          a.textContent = msg;
+          // block + min-h-6: alvo de ≥ 24 px (WCAG 2.5.8) independente da fonte carregada.
+          a.className = 'block min-h-6 underline underline-offset-4';
+          li.append(a);
+        } else {
+          li.textContent = msg;
+        }
+        return li;
+      }),
+    );
+    resumoErros.classList.toggle('hidden', erros.length === 0);
+    if (erros.length) resumoErros.focus();
+  }
+
+  async function enviarAoServidor(): Promise<{ numero: string; qr?: string } | Erro> {
+    try {
+      const r = await fetch(`${API}/functions/v1/register`, {
+        method: 'POST',
+        headers: { apikey: CHAVE_PUBLICA! },
+        body: new FormData(form),
+      });
+      const corpo = await r.json().catch(() => ({}));
+      if (r.ok && typeof corpo.numero === 'string') {
+        return { numero: corpo.numero, qr: typeof corpo.qr === 'string' ? corpo.qr : undefined };
+      }
+      return {
+        id: typeof corpo.campo === 'string' ? corpo.campo : null,
+        msg: typeof corpo.erro === 'string' ? corpo.erro : 'Erro inesperado. Tente novamente.',
+      };
+    } catch {
+      return {
+        id: null,
+        msg: 'Sem conexão com o servidor. Verifique sua internet e tente de novo.',
+      };
+    }
+  }
+
+  const nivelEscolhido = () =>
+    form.querySelector<HTMLInputElement>('input[name=nivel]:checked')?.value ?? '';
+
+  async function validar(): Promise<{ id: string; msg: string }[]> {
+    const erros: { id: string; msg: string }[] = [];
+    const checar = (id: string, msg: string | null) => {
+      marcar(id, msg);
+      if (msg) erros.push({ id, msg });
+    };
+    const v = (id: string) => $<HTMLInputElement>(id).value.trim();
+
+    checar(
+      'nome',
+      nomeCompletoValido(v('nome')) ? null : 'Informe nome e sobrenome, só com letras.',
+    );
+    const email = normalizarEmail(v('email'));
+    checar(
+      'email',
+      !emailValido(email)
+        ? 'Informe um e-mail válido.'
+        : !modoReal && email === EMAIL_JA_INSCRITO
+          ? 'Este e-mail já tem inscrição. Se errou algum dado, fale com a organização.'
+          : null,
+    );
+    checar('cpf', cpfValido(v('cpf')) ? null : 'CPF inválido. Confira os números.');
+    checar(
+      'vinculo',
+      form.querySelector('input[name=vinculo]:checked')
+        ? null
+        : 'Escolha seu vínculo: graduação, mestrado ou outro.',
+    );
+    checar(
+      'perfil',
+      normalizarPerfil(v('perfil')) === null
+        ? 'Use o link do seu perfil no LinkedIn (linkedin.com/in/…) ou no Lattes (lattes.cnpq.br/…).'
+        : null,
+    );
+
+    if (trabalho.checked) {
+      checar('titulo', v('titulo') ? null : 'Informe o título do trabalho.');
+      checar('autores', v('autores') ? null : 'Informe os autores.');
+      checar('resumo', v('resumo') ? null : 'Escreva o resumo.');
+      const arquivo = pdf.files?.[0];
+      if (!arquivo) checar('pdf', 'Anexe o PDF do trabalho.');
+      else {
+        const bytes = new Uint8Array(await arquivo.slice(0, 5).arrayBuffer());
+        checar('pdf', validarPdf(arquivo, bytes));
+      }
+      const premio = $<HTMLInputElement>('premio').checked;
+      checar('nivel', premio && !nivelEscolhido() ? 'Escolha a categoria para concorrer.' : null);
+    }
+
+    checar(
+      'consentimento',
+      $<HTMLInputElement>('consentimento').checked
+        ? null
+        : 'É preciso concordar para se inscrever.',
+    );
+    return erros;
+  }
+
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const erros = await validar();
+    mostrarErros(erros);
+    if (erros.length) return;
+
+    const botao = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+    const rotuloOriginal = botao.textContent;
+    botao.disabled = true;
+    botao.textContent = 'Enviando…';
+
+    let numero = gerarNumero();
+    let qr: string | undefined;
+    if (modoReal) {
+      const resultado = await enviarAoServidor();
+      if (!('numero' in resultado)) {
+        if (resultado.id) marcar(resultado.id, resultado.msg);
+        mostrarErros([resultado]);
+        (window as { turnstile?: { reset: () => void } }).turnstile?.reset();
+        botao.disabled = false;
+        botao.textContent = rotuloOriginal;
+        return;
+      }
+      numero = resultado.numero;
+      qr = resultado.qr;
+    }
+
+    const v = (id: string) => $<HTMLInputElement>(id).value.trim();
+    salvarDemo({
+      numero,
+      qr,
+      nome: v('nome'),
+      cpfMascarado: mascararCpf(v('cpf')),
+      email: normalizarEmail(v('email')),
+      minicurso: $<HTMLInputElement>('minicurso').checked,
+      trabalho: trabalho.checked
+        ? {
+            titulo: v('titulo'),
+            premio: $<HTMLInputElement>('premio').checked,
+            nivel: nivelEscolhido(),
+          }
+        : null,
+    });
+    setTimeout(() => location.assign('/confirmacao'), modoReal ? 0 : 600);
+  });
+</script>

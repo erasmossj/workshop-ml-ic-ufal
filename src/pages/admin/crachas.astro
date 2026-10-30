@@ -1,0 +1,597 @@
+---
+import Logo from '../../components/Logo.astro';
+import LogoConjunto from '../../components/LogoConjunto.astro';
+import { evento } from '../../data/evento';
+import Base from '../../layouts/Base.astro';
+
+// Crachás 100×140 mm (WML-70), idênticos ao Figma "IC-ML" › Aplicações › Crachás:
+// participante (modo Light) e organização (navy). Sem CPF nem e-mail; o QR leva só ao LinkedIn ou
+// Lattes do participante. Dados da organização são digitados na hora e não são gravados.
+const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
+
+// Grade de pontos do Figma (336×163): 8 × 4, raio 16,625, passo 43,25.
+const pontos = Array.from({ length: 32 }, (_, i) => ({
+  i,
+  cx: 16.625 + (i % 8) * 43.25,
+  cy: 16.625 + Math.floor(i / 8) * 43.25,
+}));
+const canto = 'absolute bg-lime-500';
+---
+
+<Base title="Crachás · Painel" noindex>
+  <section class="no-print mx-auto max-w-7xl px-4 py-10 md:px-16">
+    <p class="rotulo text-lime-ink">Organização · acesso restrito</p>
+    <h1 class="mt-4 display-m">Crachás</h1>
+    <p class="mt-2">
+      <a href="/admin" class="inline-block min-h-6 text-lime-ink underline underline-offset-4">
+        ← Voltar ao painel
+      </a>
+    </p>
+
+    <p
+      id="aviso"
+      role="status"
+      aria-live="polite"
+      class="pointer-events-none fixed bottom-6 left-1/2 z-50 w-[min(92vw,36rem)] -translate-x-1/2 rounded-1 border border-line-200 bg-ink-100 px-5 py-3 text-center font-medium text-bg-000 opacity-0 transition-opacity"
+    ></p>
+
+    {!configurado && (
+      <p class="painel mt-6 p-6">
+        Os crachás funcionam só com o backend configurado (PUBLIC_SUPABASE_URL). Nesta versão de
+        protótipo não há dados para mostrar.
+      </p>
+    )}
+
+    <form id="form-login" method="post" class="painel mt-6 hidden max-w-md p-6" novalidate>
+      <h2 class="h3">Entrar</h2>
+      <p class="mt-2 text-sm text-ink-200">Use o mesmo e-mail do painel da organização.</p>
+      <label for="login-email" class="mt-4 rotulo-campo">
+        E-mail
+      </label>
+      <div class="terminal">
+        <input
+          id="login-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          required
+          class="campo w-full"
+        />
+      </div>
+      <button type="submit" class="btn-primario mt-4">
+        Enviar link de acesso
+      </button>
+    </form>
+
+    <div id="sem-acesso" class="painel mt-6 hidden max-w-md p-6">
+      <p>Este e-mail não tem acesso ao painel. Fale com a coordenação do evento.</p>
+      <button type="button" class="btn-secundario mt-4" data-sair>
+        Sair
+      </button>
+    </div>
+
+    <div id="painel" class="hidden">
+      <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <p class="text-sm text-ink-200">
+          Conectado como <strong id="quem"></strong>
+        </p>
+        <button type="button" class="btn-secundario" data-sair>
+          Sair
+        </button>
+      </div>
+
+      <div class="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+        <!-- Participantes -->
+        <section aria-labelledby="t-participantes" class="painel">
+          <div class="painel-cabecalho">
+            <h2 id="t-participantes" class="rotulo-s flex items-center gap-2 text-ink-100">
+              <span class="led" aria-hidden="true"></span>Participantes
+            </h2>
+            <p id="contagem" class="rotulo-s text-ink-300"></p>
+          </div>
+          <div class="flex flex-col gap-4 p-6">
+            <div>
+              <label for="busca" class="rotulo-campo">
+                Buscar por nome ou número
+              </label>
+              <div class="terminal">
+                <input id="busca" type="search" class="campo w-full" autocomplete="off" />
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <button type="button" id="marcar-todos" class="btn-secundario">
+                Marcar os listados
+              </button>
+              <button type="button" id="desmarcar" class="btn-fantasma">
+                Desmarcar todos
+              </button>
+            </div>
+            <ul id="lista" class="max-h-[28rem] overflow-y-auto border-t border-line-100"></ul>
+            <button type="button" id="gerar-selecionados" class="btn-primario">
+              Gerar crachás selecionados
+            </button>
+          </div>
+        </section>
+
+        <!-- Organização -->
+        <section aria-labelledby="t-organizacao" class="painel self-start">
+          <div class="painel-cabecalho">
+            <h2 id="t-organizacao" class="rotulo-s flex items-center gap-2 text-ink-100">
+              <span class="led" aria-hidden="true"></span>Organização
+            </h2>
+            <p class="rotulo-s text-ink-300">Não é gravado</p>
+          </div>
+          <form id="form-organizacao" class="flex flex-col gap-4 p-6" novalidate>
+            <div>
+              <label for="org-nome" class="rotulo-campo">
+                <span>Nome</span>
+                <span class="obrigatorio">obrigatório</span>
+              </label>
+              <div class="terminal">
+                <input
+                  id="org-nome"
+                  class="campo w-full"
+                  maxlength="120"
+                  autocomplete="off"
+                  aria-describedby="org-nome-erro"
+                />
+              </div>
+              <p id="org-nome-erro" class="erro-campo" aria-live="polite"></p>
+            </div>
+            <div>
+              <label for="org-funcao" class="rotulo-campo">
+                <span>Função</span>
+                <span class="obrigatorio">obrigatório</span>
+              </label>
+              <div class="terminal">
+                <input
+                  id="org-funcao"
+                  class="campo w-full"
+                  maxlength="60"
+                  placeholder="ex.: Coordenação geral · Ramo IEEE UFAL"
+                  autocomplete="off"
+                  aria-describedby="org-funcao-erro"
+                />
+              </div>
+              <p id="org-funcao-erro" class="erro-campo" aria-live="polite"></p>
+            </div>
+            <div>
+              <label for="org-perfil" class="rotulo-campo">
+                <span>LinkedIn ou Lattes</span>
+                <span class="text-ink-300">opcional</span>
+              </label>
+              <div class="terminal">
+                <input
+                  id="org-perfil"
+                  class="campo w-full"
+                  inputmode="url"
+                  autocomplete="off"
+                  aria-describedby="org-perfil-erro"
+                />
+              </div>
+              <p id="org-perfil-erro" class="erro-campo" aria-live="polite"></p>
+            </div>
+            <button type="submit" class="btn-secundario">
+              Adicionar crachá da organização
+            </button>
+          </form>
+        </section>
+      </div>
+
+      <section aria-labelledby="t-impressao" class="mt-10">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 id="t-impressao" class="h2">
+              Prévia e impressão
+            </h2>
+            <p class="mt-1 text-sm text-ink-200">
+              Um crachá por página, 100×140 mm. No diálogo de impressão, escolha "Salvar como PDF"
+              ou a impressora, sem margens e em escala 100%.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button type="button" id="limpar" class="btn-fantasma">
+              Limpar prévia
+            </button>
+            <button type="button" id="imprimir" class="btn-primario">
+              Imprimir crachás
+            </button>
+          </div>
+        </div>
+        <p id="vazio" class="mt-6 text-sm text-ink-300">
+          Nenhum crachá na prévia ainda.
+        </p>
+      </section>
+    </div>
+  </section>
+
+  <!-- Fora da seção (sem margens): é o que vai para o papel. -->
+  <div
+    id="impressao"
+    class="mx-auto flex max-w-7xl flex-wrap gap-6 px-4 pb-16 md:px-16 print:block print:max-w-none print:p-0"
+  ></div>
+
+  <!-- Crachá — Participante (claro). Preenchido por textContent no script. -->
+  <template id="tpl-participante">
+    <article class="cracha modo-claro relative flex h-[560px] w-[400px] flex-col overflow-hidden rounded-3 border border-line-100 bg-bg-000 p-8 text-ink-100">
+      <span
+        class="absolute top-[17px] left-[167px] h-3 w-16 rounded-pill border border-line-200 bg-bg-300"
+        aria-hidden="true"
+      ></span>
+      <div class="h-7 shrink-0"></div>
+      <svg
+        width="336"
+        height="163"
+        viewBox="0 0 336 163"
+        fill="none"
+        aria-hidden="true"
+        class="shrink-0"
+      >
+        {pontos.map((p) => (
+          <circle cx={p.cx} cy={p.cy} r="16.625" data-ponto={p.i} class="fill-bg-300" />
+        ))}
+      </svg>
+      <div class="min-h-0 flex-1"></div>
+      <p>
+        <span data-tag class="tag tag-neutra"></span>
+      </p>
+      <h2
+        data-nome
+        class="mt-3.5 overflow-hidden text-[36px] leading-[1.02] font-semibold tracking-[-0.02em] whitespace-nowrap"
+      >
+        <span data-linha1 class="block"></span>
+        <span data-linha2 class="block"></span>
+      </h2>
+      <p data-curso class="mt-2 truncate font-mono text-[13px] text-ink-300"></p>
+      <div class="mt-6 flex items-end justify-between border-t border-line-100 pt-4">
+        <div class="flex flex-col gap-3">
+          <Logo tom="claro" altura={26} alt="IC-ML 2026" />
+          <LogoConjunto tom="preto" altura={34} carregamento="eager" />
+        </div>
+        <div data-qr class="size-[84px] [&>svg]:size-full"></div>
+      </div>
+    </article>
+  </template>
+
+  <!-- Crachá — Organização (escuro). -->
+  <template id="tpl-organizacao">
+    <article class="cracha modo-escuro relative flex h-[560px] w-[400px] flex-col overflow-hidden rounded-3 border border-navy-900 bg-navy-900 p-8 text-ink-100">
+      <span
+        class="absolute top-[17px] left-[167px] z-10 h-3 w-16 rounded-pill border border-line-200 bg-bg-300"
+        aria-hidden="true"
+      ></span>
+      <div class="absolute top-[61px] left-0 z-10 flex w-full justify-between bg-lime-500 px-8 py-3 font-mono text-[13px] font-semibold tracking-[0.12em] text-on-lime uppercase">
+        <span>Organização</span>
+        <span>{evento.cracha.faixa}</span>
+      </div>
+      <div
+        class="absolute top-[102px] left-0 h-[132px] w-full overflow-hidden border-b border-line-200"
+        aria-hidden="true"
+      >
+        <img
+          src="/marca/textura-ribbon-420x132.svg"
+          width="420"
+          height="132"
+          alt=""
+          class="absolute top-0 -left-2.5 h-33 w-105 max-w-none"
+        />
+      </div>
+      <div class="h-[30px] shrink-0"></div>
+      <div class="min-h-0 flex-1"></div>
+      <div class="flex w-full flex-col items-start">
+        <span
+          data-id
+          class="bg-lime-500 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-on-lime"
+        ></span>
+        <div class="relative w-full px-[18px] py-4">
+          <h2
+            data-nome
+            class="overflow-hidden text-[36px] leading-[1.02] font-semibold tracking-[-0.02em] whitespace-nowrap"
+          >
+            <span data-linha1 class="block"></span>
+            <span data-linha2 class="block"></span>
+          </h2>
+          <span class:list={[canto, 'top-0 left-0 h-0.5 w-3.5']} aria-hidden="true"></span>
+          <span class:list={[canto, 'top-0 left-0 h-3.5 w-0.5']} aria-hidden="true"></span>
+          <span class:list={[canto, 'top-0 right-0 h-0.5 w-3.5']} aria-hidden="true"></span>
+          <span class:list={[canto, 'top-0 right-0 h-3.5 w-0.5']} aria-hidden="true"></span>
+          <span class:list={[canto, 'bottom-0 left-0 h-0.5 w-3.5']} aria-hidden="true"></span>
+          <span class:list={[canto, 'bottom-0 left-0 h-3.5 w-0.5']} aria-hidden="true"></span>
+          <span class:list={[canto, 'right-0 bottom-0 h-0.5 w-3.5']} aria-hidden="true"></span>
+          <span class:list={[canto, 'right-0 bottom-0 h-3.5 w-0.5']} aria-hidden="true"></span>
+        </div>
+      </div>
+      <p data-funcao class="mt-3.5 truncate font-mono text-[13px] text-lime-ink"></p>
+      <div class="mt-6 flex items-end justify-between border-t border-line-200 pt-4">
+        <div class="flex flex-col gap-3">
+          <Logo tom="escuro" altura={26} alt="IC-ML 2026" />
+          <LogoConjunto tom="branco" altura={34} carregamento="eager" />
+        </div>
+        <div data-qr class="size-[84px] [&>svg]:size-full"></div>
+      </div>
+    </article>
+  </template>
+</Base>
+
+<script>
+  import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+  import QRCode from 'qrcode';
+  import { mensagemDeErro, VINCULO, type Inscricao } from '../../lib/admin';
+  import {
+    idOrganizacao,
+    linhaCurso,
+    linhasDoNome,
+    linkDoQr,
+    pontoAceso,
+    tagDoParticipante,
+  } from '../../lib/cracha';
+  import { normalizarPerfil } from '../../lib/validacao';
+
+  const URL_SUPABASE: string | undefined = import.meta.env.PUBLIC_SUPABASE_URL;
+  const CHAVE: string | undefined = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  let ocultarAviso: ReturnType<typeof setTimeout> | undefined;
+  const avisar = (texto: string) => {
+    const aviso = $('aviso');
+    aviso.textContent = texto;
+    aviso.classList.remove('opacity-0');
+    clearTimeout(ocultarAviso);
+    ocultarAviso = setTimeout(() => {
+      aviso.classList.add('opacity-0');
+      aviso.textContent = '';
+    }, 8000);
+  };
+  const mostrar = (qual: 'login' | 'sem-acesso' | 'painel') => {
+    $('form-login').classList.toggle('hidden', qual !== 'login');
+    $('sem-acesso').classList.toggle('hidden', qual !== 'sem-acesso');
+    $('painel').classList.toggle('hidden', qual !== 'painel');
+  };
+
+  // ------------------------------------------------------------------ crachás (DOM)
+  const impressao = $('impressao');
+  let proximoId = 1;
+
+  function clonar(id: 'tpl-participante' | 'tpl-organizacao'): HTMLElement {
+    const tpl = $<HTMLTemplateElement>(id);
+    return tpl.content.firstElementChild!.cloneNode(true) as HTMLElement;
+  }
+
+  function preencherNome(cracha: HTMLElement, nome: string) {
+    const [l1, l2] = linhasDoNome(nome);
+    cracha.querySelector('[data-linha1]')!.textContent = l1;
+    cracha.querySelector('[data-linha2]')!.textContent = l2;
+  }
+
+  /** Reduz o nome até caber na largura do crachá (nunca abaixo de 22 px). */
+  function ajustarNome(cracha: HTMLElement) {
+    const titulo = cracha.querySelector<HTMLElement>('[data-nome]')!;
+    let tamanho = 36;
+    while (titulo.scrollWidth > titulo.clientWidth && tamanho > 22) {
+      tamanho -= 1;
+      titulo.style.fontSize = `${tamanho}px`;
+    }
+  }
+
+  /** QR do perfil (margem de 4 módulos). Sem perfil válido, o espaço fica vazio (Figma). */
+  async function desenharQr(cracha: HTMLElement, perfil: string | null, escuro: boolean) {
+    const link = linkDoQr(perfil);
+    const alvo = cracha.querySelector<HTMLElement>('[data-qr]')!;
+    if (!link) return;
+    const cor = (nome: string) => getComputedStyle(cracha).getPropertyValue(nome).trim();
+    alvo.innerHTML = await QRCode.toString(link, {
+      type: 'svg',
+      margin: 4,
+      errorCorrectionLevel: 'M',
+      color: escuro
+        ? { dark: cor('--lime-500'), light: cor('--navy-900') }
+        : { dark: cor('--ink-100'), light: cor('--bg-000') },
+    });
+    alvo.setAttribute('role', 'img');
+    alvo.setAttribute('aria-label', `QR Code do perfil: ${link}`);
+  }
+
+  async function crachaParticipante(i: Inscricao) {
+    const cracha = clonar('tpl-participante');
+    cracha.setAttribute('aria-label', `Crachá de ${i.nome}`);
+    const aceso = cracha.querySelector(`[data-ponto="${pontoAceso(i.numero)}"]`)!;
+    aceso.setAttribute('r', '17.125');
+    aceso.setAttribute('class', 'fill-lime-500 stroke-lime-ink');
+    const tag = tagDoParticipante(i.vinculo);
+    const elTag = cracha.querySelector('[data-tag]')!;
+    elTag.textContent = tag.texto;
+    elTag.classList.replace('tag-neutra', tag.tom);
+    preencherNome(cracha, i.nome);
+    cracha.querySelector('[data-curso]')!.textContent = linhaCurso(i.curso, i.instituicao);
+    impressao.append(cracha);
+    ajustarNome(cracha);
+    await desenharQr(cracha, i.perfil_url, false);
+  }
+
+  async function crachaOrganizacao(o: { nome: string; funcao: string; perfil: string | null }) {
+    const cracha = clonar('tpl-organizacao');
+    cracha.setAttribute('aria-label', `Crachá da organização: ${o.nome}`);
+    cracha.querySelector('[data-id]')!.textContent = idOrganizacao(proximoId++);
+    preencherNome(cracha, o.nome);
+    cracha.querySelector('[data-funcao]')!.textContent = o.funcao;
+    impressao.append(cracha);
+    ajustarNome(cracha);
+    await desenharQr(cracha, o.perfil, true);
+  }
+
+  const atualizarVazio = () =>
+    $('vazio').classList.toggle('hidden', impressao.childElementCount > 0);
+
+  $('imprimir').addEventListener('click', () => {
+    if (!impressao.childElementCount) return avisar('Gere ao menos um crachá antes de imprimir.');
+    window.print();
+  });
+  $('limpar').addEventListener('click', () => {
+    impressao.replaceChildren();
+    proximoId = 1;
+    atualizarVazio();
+  });
+
+  // Organização: digitado na hora, nunca enviado ao servidor.
+  $<HTMLFormElement>('form-organizacao').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const v = (id: string) => $<HTMLInputElement>(id).value.trim();
+    const marcar = (id: string, msg: string | null) => {
+      $(id).setAttribute('aria-invalid', msg ? 'true' : 'false');
+      $(`${id}-erro`).textContent = msg ?? '';
+      return !msg;
+    };
+    const perfil = normalizarPerfil(v('org-perfil'));
+    const ok = [
+      marcar(
+        'org-nome',
+        v('org-nome').split(/\s+/).length >= 2 ? null : 'Informe nome e sobrenome.',
+      ),
+      marcar('org-funcao', v('org-funcao') ? null : 'Informe a função.'),
+      marcar(
+        'org-perfil',
+        perfil === null ? 'Use um link do LinkedIn (linkedin.com/in/…) ou do Lattes.' : null,
+      ),
+    ].every(Boolean);
+    if (!ok) return;
+    await crachaOrganizacao({ nome: v('org-nome'), funcao: v('org-funcao'), perfil });
+    atualizarVazio();
+    (ev.target as HTMLFormElement).reset();
+    avisar('Crachá da organização adicionado à prévia.');
+  });
+
+  if (URL_SUPABASE && CHAVE) iniciar(createClient(URL_SUPABASE, CHAVE));
+
+  function iniciar(sb: SupabaseClient) {
+    let inscricoes: Inscricao[] = [];
+    const selecionados = new Set<string>();
+
+    sb.auth.onAuthStateChange((evento, sessao) => {
+      if (!sessao) {
+        mostrar('login');
+        return;
+      }
+      if (evento !== 'INITIAL_SESSION' && evento !== 'SIGNED_IN') return;
+      $('quem').textContent = sessao.user.email ?? '';
+      setTimeout(carregar, 0);
+    });
+
+    $<HTMLFormElement>('form-login').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const email = $<HTMLInputElement>('login-email').value.trim();
+      if (!email) return avisar('Informe o e-mail.');
+      const { error } = await sb.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: false, emailRedirectTo: `${location.origin}/admin` },
+      });
+      avisar(
+        error?.status === 429
+          ? 'Muitas tentativas. Aguarde alguns minutos.'
+          : 'Se este e-mail tiver acesso, você vai receber um link para entrar. Confira também o spam.',
+      );
+    });
+    document.querySelectorAll('[data-sair]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        await sb.auth.signOut();
+        avisar('Você saiu do painel.');
+      }),
+    );
+
+    async function carregar() {
+      const { data, error } = await sb.rpc('admin_listar_inscricoes');
+      if (error) {
+        if (error.message === 'NAO_AUTORIZADO') mostrar('sem-acesso');
+        else avisar(mensagemDeErro(error.message));
+        return;
+      }
+      mostrar('painel');
+      inscricoes = (data as Inscricao[]).filter((i) => !i.cancelada);
+      // Vindo do botão "Crachá" do painel: já marca e gera.
+      const numero = new URLSearchParams(location.search).get('n');
+      if (numero && inscricoes.some((i) => i.numero === numero)) {
+        selecionados.add(numero);
+        await gerar([numero]);
+      }
+      renderLista();
+    }
+
+    const normalizar = (t: string) => t.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+    const filtradas = () => {
+      const busca = normalizar($<HTMLInputElement>('busca').value.trim());
+      return inscricoes.filter(
+        (i) =>
+          !busca || normalizar(i.nome).includes(busca) || i.numero.toLowerCase().includes(busca),
+      );
+    };
+
+    function renderLista() {
+      const lista = filtradas();
+      $('contagem').textContent = `${selecionados.size} de ${inscricoes.length} marcados`;
+      $('lista').replaceChildren(
+        ...lista.map((i) => {
+          const li = document.createElement('li');
+          li.className = 'flex items-center gap-3 border-b border-line-100 py-3';
+          const id = `sel-${i.numero}`;
+          const caixa = document.createElement('input');
+          caixa.type = 'checkbox';
+          caixa.id = id;
+          caixa.className = 'caixa-selecao';
+          caixa.checked = selecionados.has(i.numero);
+          caixa.addEventListener('change', () => {
+            if (caixa.checked) selecionados.add(i.numero);
+            else selecionados.delete(i.numero);
+            $('contagem').textContent = `${selecionados.size} de ${inscricoes.length} marcados`;
+          });
+          const rotulo = document.createElement('label');
+          rotulo.htmlFor = id;
+          rotulo.className = 'min-w-0 flex-1 cursor-pointer';
+          const nome = document.createElement('span');
+          nome.className = 'block truncate font-medium';
+          nome.textContent = i.nome;
+          const meta = document.createElement('span');
+          meta.className = 'block font-mono text-xs text-ink-300';
+          meta.textContent = [
+            i.numero,
+            i.vinculo ? VINCULO[i.vinculo] : 'sem vínculo',
+            linkDoQr(i.perfil_url) ? 'com QR' : 'sem QR',
+          ].join(' · ');
+          rotulo.append(nome, meta);
+          const botao = document.createElement('button');
+          botao.type = 'button';
+          botao.className = 'btn-fantasma';
+          botao.textContent = 'Gerar';
+          botao.setAttribute('aria-label', `Gerar crachá de ${i.nome}`);
+          botao.addEventListener('click', () => gerar([i.numero]));
+          li.append(caixa, rotulo, botao);
+          return li;
+        }),
+      );
+    }
+
+    async function gerar(numeros: string[]) {
+      const escolhidas = inscricoes.filter((i) => numeros.includes(i.numero));
+      for (const i of escolhidas) await crachaParticipante(i);
+      atualizarVazio();
+      avisar(
+        escolhidas.length === 1
+          ? `Crachá de ${escolhidas[0].nome} na prévia.`
+          : `${escolhidas.length} crachás na prévia.`,
+      );
+      impressao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    $('busca').addEventListener('input', renderLista);
+    $('marcar-todos').addEventListener('click', () => {
+      for (const i of filtradas()) selecionados.add(i.numero);
+      renderLista();
+    });
+    $('desmarcar').addEventListener('click', () => {
+      selecionados.clear();
+      renderLista();
+    });
+    $('gerar-selecionados').addEventListener('click', () => {
+      if (!selecionados.size) return avisar('Marque ao menos um participante.');
+      void gerar([...selecionados]);
+    });
+  }
+</script>

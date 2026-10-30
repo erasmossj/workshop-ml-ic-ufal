@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   PDF_MAX_BYTES,
+  VINCULOS,
   dentroDaJanela,
   emailValido,
   nomeCompletoValido,
   normalizarEmail,
+  normalizarPerfil,
   validarPdf,
 } from './validacao';
 
@@ -74,5 +76,46 @@ describe('dentroDaJanela', () => {
     expect(dentroDaJanela(new Date('2026-10-30T02:59:59Z'), ini, fim)).toBe(false);
     expect(dentroDaJanela(new Date('2026-11-17T02:59:59Z'), ini, fim)).toBe(true);
     expect(dentroDaJanela(new Date('2026-11-17T03:00:00Z'), ini, fim)).toBe(false);
+  });
+});
+
+describe('normalizarPerfil (LinkedIn ou Lattes para o QR do crachá)', () => {
+  it('devolve o link canônico em https', () => {
+    const casos: [string, string][] = [
+      ['https://www.linkedin.com/in/ana-souza', 'https://www.linkedin.com/in/ana-souza'],
+      ['linkedin.com/in/ana-souza/', 'https://www.linkedin.com/in/ana-souza'],
+      ['http://br.linkedin.com/in/ana_souza-01?utm=x', 'https://www.linkedin.com/in/ana_souza-01'],
+      ['  HTTPS://WWW.LINKEDIN.COM/in/AnaSouza  ', 'https://www.linkedin.com/in/AnaSouza'],
+      ['http://lattes.cnpq.br/1234567890123456', 'https://lattes.cnpq.br/1234567890123456'],
+      ['lattes.cnpq.br/1234567890123456/', 'https://lattes.cnpq.br/1234567890123456'],
+    ];
+    for (const [entrada, saida] of casos) expect(normalizarPerfil(entrada), entrada).toBe(saida);
+  });
+
+  it('vazio é permitido (campo opcional)', () => {
+    expect(normalizarPerfil('')).toBe('');
+    expect(normalizarPerfil('   ')).toBe('');
+  });
+
+  it('recusa outros domínios e formatos (o link vira QR impresso)', () => {
+    for (const url of [
+      'https://evil.com/linkedin.com/in/ana',
+      'https://linkedin.com.evil.com/in/ana',
+      'https://www.linkedin.com/company/ic-ufal',
+      'https://www.linkedin.com/in/a',
+      'javascript:alert(1)',
+      'https://lattes.cnpq.br/123',
+      'https://lattes.cnpq.br/1234567890123456/../x',
+      'ftp://lattes.cnpq.br/1234567890123456',
+      'ana-souza',
+    ]) {
+      expect(normalizarPerfil(url), url).toBeNull();
+    }
+  });
+});
+
+describe('VINCULOS', () => {
+  it('são as opções do Choice do Figma', () => {
+    expect(VINCULOS.map((v) => v.valor)).toEqual(['graduacao', 'mestrado', 'outro']);
   });
 });

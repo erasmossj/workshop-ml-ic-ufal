@@ -1,0 +1,54 @@
+---
+/**
+ * BoundingBox (Figma: Componentes › BoundingBox). Caixa de detecção: traço 2 px + etiqueta com
+ * classe e confiança. Uma por composição em títulos. Lima = assunto do evento; Azul = pessoas e
+ * minicurso. Variante "cantos" para datas e números. A etiqueta é decorativa (aria-hidden).
+ */
+interface Props {
+  classe: string;
+  confianca?: string;
+  tom?: 'lima' | 'azul';
+  variante?: 'caixa' | 'cantos';
+  class?: string;
+  /** Classes do conteúdo dentro da caixa. */
+  conteudo?: string;
+}
+
+const {
+  classe,
+  confianca,
+  tom = 'lima',
+  variante = 'caixa',
+  class: classeRaiz,
+  conteudo = 'px-3 py-1',
+} = Astro.props;
+const lima = tom === 'lima';
+const borda = lima ? 'border-lime-500' : 'border-blue-500';
+const canto = `pointer-events-none absolute h-4 w-4 ${borda}`;
+---
+
+<span class:list={['inline-flex flex-col items-start', classeRaiz]}>
+  <span
+    class:list={[
+      'inline-flex gap-2 px-1.5 py-0.5 font-mono text-[0.6875rem] leading-[1.125rem] whitespace-nowrap',
+      lima ? 'bg-lime-500 text-on-lime' : 'bg-blue-500 text-on-blue',
+    ]}
+    aria-hidden="true"
+  >
+    <span class="font-semibold">{classe}</span>
+    {confianca && <span>{confianca}</span>}
+  </span>
+  {variante === 'caixa' ? (
+    <span class:list={['inline-flex border-2', borda, conteudo]}>
+      <slot />
+    </span>
+  ) : (
+    <span class:list={['relative inline-flex', conteudo]}>
+      <span class:list={[canto, 'top-0 left-0 border-t-2 border-l-2']} aria-hidden="true" />
+      <span class:list={[canto, 'top-0 right-0 border-t-2 border-r-2']} aria-hidden="true" />
+      <span class:list={[canto, 'bottom-0 left-0 border-b-2 border-l-2']} aria-hidden="true" />
+      <span class:list={[canto, 'right-0 bottom-0 border-r-2 border-b-2']} aria-hidden="true" />
+      <slot />
+    </span>
+  )}
+</span>

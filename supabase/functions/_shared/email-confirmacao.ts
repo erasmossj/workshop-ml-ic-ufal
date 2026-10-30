@@ -4,6 +4,7 @@
 import { gerarIcs, googleCalendarUrl, type EventoAgenda } from './agenda.ts';
 import { gerarComprovante } from './comprovante.ts';
 import { EVENTO } from './evento-gerado.ts';
+import { COR } from './marca.ts';
 import { assinarInscricao } from './qr.ts';
 
 export type DadosConfirmacao = {
@@ -27,10 +28,6 @@ export type Mensagem = {
   qr?: string;
 };
 
-// Cores de marca (src/styles/global.css: fundo-1 e acao-2). E-mail não lê variáveis CSS.
-const AZUL = '#071a45';
-const LARANJA = '#e87722';
-
 export function escaparHtml(texto: string): string {
   return texto
     .replace(/&/g, '&amp;')
@@ -38,6 +35,46 @@ export function escaparHtml(texto: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+// Identidade final (Figma "IC-ML", WML-68), modo Light. E-mail não lê variáveis CSS nem SVG:
+// cores de marca.ts (iguais ao .modo-claro do site) e logos em PNG servidos pelo próprio site.
+const TEXTO = "'DM Sans',Arial,Helvetica,sans-serif";
+const MONO = "'IBM Plex Mono','Courier New',monospace";
+export const ESTILO = {
+  link: `color:${COR.blueInk}`,
+  rotulo: `padding:6px 16px 6px 0;font:500 11px/16px ${MONO};letter-spacing:.08em;text-transform:uppercase;color:${COR.ink300};vertical-align:top`,
+  valor: `padding:6px 0;font-weight:600;color:${COR.ink100}`,
+  nota: `color:${COR.ink300};font-size:13px`,
+  mono: `font-family:${MONO}`,
+} as const;
+
+/** Molde comum dos e-mails: topo com logo IC-ML, rótulo de sistema, título e logo conjunto. */
+export function moldeEmail(o: {
+  etiqueta: string;
+  titulo: string;
+  /** HTML já escapado. */
+  corpo: string;
+  siteUrl?: string;
+}): string {
+  const site = o.siteUrl ? escaparHtml(o.siteUrl.replace(/\/$/, '')) : null;
+  const logo = site
+    ? `<img src="${site}/marca/logo-icml-claro.png" width="155" height="30" alt="${escaparHtml(EVENTO.sigla)}" style="display:block;border:0">`
+    : `<p style="margin:0;font:600 20px/30px ${MONO};color:${COR.ink100}">${escaparHtml(EVENTO.sigla)}</p>`;
+  const conjunto = site
+    ? `<img src="${site}/marca/logo-conjunto-preto.png" width="187" height="34" alt="IEEE, IEEE Computer Society — Ramo Estudantil IEEE da UFAL — e Instituto de Computação da UFAL" style="display:block;border:0;margin:0 0 12px">`
+    : '';
+  return `<!doctype html>
+<html lang="pt-BR"><body style="margin:0;padding:24px 12px;background:${COR.bg000};font-family:${TEXTO};font-size:15px;color:${COR.ink100};line-height:1.5">
+<div style="max-width:560px;margin:0 auto;background:${COR.bg200};border:1px solid ${COR.line100};border-radius:6px;overflow:hidden">
+<div style="padding:24px 28px;background:${COR.bg000};border-bottom:3px solid ${COR.lime500}">${logo}</div>
+<div style="padding:28px">
+<p style="margin:0 0 8px;font:500 11px/16px ${MONO};letter-spacing:.08em;text-transform:uppercase;color:${COR.limeInk}">${escaparHtml(o.etiqueta)}</p>
+<h1 style="margin:0 0 16px;font:600 24px/30px ${TEXTO};color:${COR.ink100}">${escaparHtml(o.titulo)}</h1>
+${o.corpo}
+</div>
+<div style="padding:20px 28px;border-top:1px solid ${COR.line100};font-size:12px;line-height:18px;color:${COR.ink300}">${conjunto}${escaparHtml(EVENTO.sigla)} · ${escaparHtml(EVENTO.realizacao)}</div>
+</div></body></html>`;
 }
 
 function diasDoEvento(): EventoAgenda[] {
@@ -86,26 +123,24 @@ export async function montarEmailConfirmacao(
   ].join('\n');
 
   const linha = ([rotulo, valor]: [string, string]) =>
-    `<tr><td style="padding:4px 12px 4px 0;color:#555">${escaparHtml(rotulo)}</td>` +
-    `<td style="padding:4px 0"><strong>${escaparHtml(valor)}</strong></td></tr>`;
-  const html = `<!doctype html>
-<html lang="pt-BR"><body style="margin:0;padding:24px;font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;line-height:1.5">
-<div style="max-width:560px;margin:0 auto">
-<p style="margin:0 0 4px;color:${LARANJA};font-weight:bold;letter-spacing:.05em">${escaparHtml(EVENTO.sigla)}</p>
-<h1 style="margin:0 0 16px;font-size:22px;color:${AZUL}">Inscrição confirmada</h1>
-<p>Olá, ${escaparHtml(primeiroNome)}!</p>
+    `<tr><td style="${ESTILO.rotulo}">${escaparHtml(rotulo)}</td>` +
+    `<td style="${ESTILO.valor}">${escaparHtml(valor)}</td></tr>`;
+  const html = moldeEmail({
+    etiqueta: `Comprovante · ${EVENTO.sigla}`,
+    titulo: 'Inscrição confirmada',
+    siteUrl: opcoes.siteUrl,
+    corpo: `<p>Olá, ${escaparHtml(primeiroNome)}!</p>
 <p>Sua inscrição no <strong>${escaparHtml(EVENTO.sigla)} — ${escaparHtml(EVENTO.nome)}</strong> está confirmada.</p>
 <table role="presentation" style="border-collapse:collapse;margin:16px 0">${detalhes.map(linha).join('')}</table>
 <p><strong>Quando:</strong> ${escaparHtml(EVENTO.datasTexto)}<br>
 <strong>Onde:</strong> ${escaparHtml(EVENTO.local.nome)} — ${escaparHtml(EVENTO.local.endereco)}</p>
 <p>O <strong>comprovante em PDF</strong> está anexado. Leve o QR Code dele (no celular ou impresso) para o credenciamento.</p>
-<p>Adicione à sua agenda (ou abra o arquivo <code>.ics</code> anexado):</p>
-<ul>${links.map((l) => `<li><a href="${escaparHtml(l.url)}" style="color:${AZUL}">${escaparHtml(l.titulo)} — Google Agenda</a></li>`).join('')}</ul>
-${opcoes.siteUrl ? `<p>Programação completa: <a href="${escaparHtml(opcoes.siteUrl)}" style="color:${AZUL}">${escaparHtml(opcoes.siteUrl)}</a></p>` : ''}
-<p style="color:#555;font-size:13px">Se esta mensagem foi para o spam ou lixo eletrônico, marque como &quot;não é spam&quot; para receber os próximos avisos do evento (como o certificado).</p>
-<p style="color:#555;font-size:13px">Se você não fez esta inscrição, ignore esta mensagem.</p>
-<p style="color:#555;font-size:13px">${escaparHtml(EVENTO.sigla)} · ${escaparHtml(EVENTO.realizacao)}</p>
-</div></body></html>`;
+<p>Adicione à sua agenda (ou abra o arquivo <code style="${ESTILO.mono}">.ics</code> anexado):</p>
+<ul>${links.map((l) => `<li><a href="${escaparHtml(l.url)}" style="${ESTILO.link}">${escaparHtml(l.titulo)} — Google Agenda</a></li>`).join('')}</ul>
+${opcoes.siteUrl ? `<p>Programação completa: <a href="${escaparHtml(opcoes.siteUrl)}" style="${ESTILO.link}">${escaparHtml(opcoes.siteUrl)}</a></p>` : ''}
+<p style="${ESTILO.nota}">Se esta mensagem foi para o spam ou lixo eletrônico, marque como &quot;não é spam&quot; para receber os próximos avisos do evento (como o certificado).</p>
+<p style="${ESTILO.nota}">Se você não fez esta inscrição, ignore esta mensagem.</p>`,
+  });
 
   const pdf = await gerarComprovante({
     numero: d.numero,

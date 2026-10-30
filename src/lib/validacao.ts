@@ -37,6 +37,38 @@ export function validarPdf(arquivo: ArquivoInfo, primeirosBytes: Uint8Array): st
   return null;
 }
 
+/** Vínculo com a instituição (Figma: Choice "Vínculo"; Tag do crachá). */
+export const VINCULOS = [
+  { valor: 'graduacao', rotulo: 'Graduação' },
+  { valor: 'mestrado', rotulo: 'Mestrado' },
+  { valor: 'outro', rotulo: 'Outro' },
+] as const;
+export type Vinculo = (typeof VINCULOS)[number]['valor'];
+
+export const CURSO_MAX = 120;
+
+const LINKEDIN_RE = /^(?:[a-z]{2,3}\.|www\.)?linkedin\.com\/in\/([A-Za-z0-9_%-]{3,100})$/i;
+const LATTES_RE = /^(?:www\.)?lattes\.cnpq\.br\/(\d{16})$/i;
+
+/**
+ * Perfil LinkedIn ou Lattes que vira QR no crachá (WML-69). Devolve o link canônico em https,
+ * '' para campo vazio ou null se não for um perfil desses dois sites — o QR impresso nunca aponta
+ * para outro domínio. Mesmas regras de public.normalizar_perfil() no banco.
+ */
+export function normalizarPerfil(url: string): string | null {
+  let v = url.trim();
+  if (!v) return '';
+  v = v
+    .replace(/^https?:\/\//i, '')
+    .replace(/[?#].*$/, '')
+    .replace(/\/+$/, '');
+  const linkedin = LINKEDIN_RE.exec(v);
+  if (linkedin) return `https://www.linkedin.com/in/${linkedin[1]}`;
+  const lattes = LATTES_RE.exec(v);
+  if (lattes) return `https://lattes.cnpq.br/${lattes[1]}`;
+  return null;
+}
+
 /** `inicio`/`fim` em ISO com fuso (ex.: 2026-10-30T00:00:00-03:00). Limites inclusivos. */
 export function dentroDaJanela(agora: Date, inicio: string, fim: string): boolean {
   const t = agora.getTime();

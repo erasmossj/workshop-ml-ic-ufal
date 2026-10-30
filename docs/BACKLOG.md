@@ -2,18 +2,18 @@
 
 > Issues criadas no Jira (`erasmojunior.atlassian.net`, projeto `WML`) em 16/10/2026. Datas = previsão de conclusão (2026). Itens feitos por IA ficam em "Fazendo" até revisão humana.
 
-| Épico                     | Chave  | Tasks      |
-| ------------------------- | ------ | ---------- |
-| E1 Setup e governança     | WML-1  | WML-10..13 |
-| E2 Design e protótipos    | WML-2  | WML-14..23 |
-| E3 Front-end do site      | WML-53 | WML-61..66 |
-| E4 Inscrição (MVP)        | WML-3  | WML-24..28 |
-| E5 E-mail e comprovante   | WML-4  | WML-29..31 |
-| E6 Admin e exportação     | WML-5  | WML-32..35 |
-| E7 Carga, LGPD e operação | WML-6  | WML-36..40 |
-| E8 Segurança (S1–S6)      | WML-7  | WML-41..52 |
-| E9 Credenciamento QR      | WML-8  | WML-54..56 |
-| E10 Certificados          | WML-9  | WML-57..60 |
+| Épico                     | Chave  | Tasks              |
+| ------------------------- | ------ | ------------------ |
+| E1 Setup e governança     | WML-1  | WML-10..13         |
+| E2 Design e protótipos    | WML-2  | WML-14..23         |
+| E3 Front-end do site      | WML-53 | WML-61..66, WML-68 |
+| E4 Inscrição (MVP)        | WML-3  | WML-24..28         |
+| E5 E-mail e comprovante   | WML-4  | WML-29..31         |
+| E6 Admin e exportação     | WML-5  | WML-32..35         |
+| E7 Carga, LGPD e operação | WML-6  | WML-36..40         |
+| E8 Segurança (S1–S6)      | WML-7  | WML-41..52         |
+| E9 Credenciamento QR      | WML-8  | WML-54..56         |
+| E10 Certificados          | WML-9  | WML-57..60         |
 
 ## E1 — Setup e governança
 
@@ -50,6 +50,7 @@
 | 3.5 | Página de confirmação com comprovante para download                                     | 21/10 | F3   |
 | 3.6 | Política de privacidade + termo de consentimento (LGPD)                                 | 23/10 | F4   |
 | 3.7 | Acessibilidade WCAG 2.2 AA + Lighthouse ≥ 90                                            | 23/10 | F4   |
+| 3.8 | Identidade visual final (Figma IC-ML) no site, e-mails e PDFs — WML-68 (ADR-006)        | 30/10 | —    |
 
 ## E4 — Inscrição (MVP)
 
@@ -60,6 +61,7 @@
 | 4.3 | Edge Function `register`: Turnstile, validação CPF/e-mail, rate-limit              | 20/10 | F3   |
 | 4.4 | Upload do PDF do trabalho: URL assinada, validação `%PDF`/5 MB, janela 25/10–16/11 | 21/10 | F3   |
 | 4.5 | Teste de concorrência: N requisições para a última vaga → 1 sucesso                | 20/10 | F3   |
+| 4.6 | Vínculo, curso e perfil LinkedIn/Lattes na inscrição (para o crachá) — WML-69      | —     | —    |
 
 ## E5 — E-mail e comprovante
 
@@ -71,12 +73,13 @@
 
 ## E6 — Admin e exportação
 
-| #   | Tarefa                                                                 | Data  | Fase |
-| --- | ---------------------------------------------------------------------- | ----- | ---- |
-| 6.1 | Login por magic link + allowlist de organizadores                      | 21/10 | F3   |
-| 6.2 | Lista, filtros, vagas, status do trabalho, cancelar/corrigir inscrição | 22/10 | F3   |
-| 6.3 | Export CSV/XLSX com CPF mascarado e escape de fórmulas                 | 22/10 | F3   |
-| 6.4 | Configuração do evento: vagas dos minicursos, janela de submissão      | 22/10 | F3   |
+| #   | Tarefa                                                                    | Data  | Fase |
+| --- | ------------------------------------------------------------------------- | ----- | ---- |
+| 6.1 | Login por magic link + allowlist de organizadores                         | 21/10 | F3   |
+| 6.2 | Lista, filtros, vagas, status do trabalho, cancelar/corrigir inscrição    | 22/10 | F3   |
+| 6.3 | Export CSV/XLSX com CPF mascarado e escape de fórmulas                    | 22/10 | F3   |
+| 6.4 | Configuração do evento: vagas dos minicursos, janela de submissão         | 22/10 | F3   |
+| 6.5 | Crachás 100×140 mm (participante e organização) conforme o Figma — WML-70 | —     | —    |
 
 ## E7 — Carga, LGPD e operação
 

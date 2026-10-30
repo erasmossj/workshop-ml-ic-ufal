@@ -14,48 +14,50 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
     <meta name="apple-mobile-web-app-capable" content="yes" />
   </Fragment>
 
-  <section class="mx-auto max-w-3xl px-5 py-8 md:px-10">
-    <p class="rotulo text-ciano">Organização · acesso restrito</p>
-    <h1 class="mt-2 font-display text-3xl font-bold md:text-4xl">Credenciamento</h1>
+  <section class="mx-auto max-w-3xl px-4 py-8 md:px-10">
+    <p class="rotulo text-lime-ink">Organização · acesso restrito</p>
+    <h1 class="mt-4 display-m">Credenciamento</h1>
 
     <p
       id="aviso"
       role="status"
       aria-live="polite"
-      class="pointer-events-none fixed bottom-6 left-1/2 z-50 w-[min(92vw,36rem)] -translate-x-1/2 rounded-2xl bg-texto px-5 py-3 text-center font-medium text-fundo-1 opacity-0 shadow-2xl transition-opacity"
+      class="pointer-events-none fixed bottom-6 left-1/2 z-50 w-[min(92vw,36rem)] -translate-x-1/2 rounded-1 border border-line-200 bg-ink-100 px-5 py-3 text-center font-medium text-bg-000 opacity-0 transition-opacity"
     ></p>
 
     {!configurado && (
-      <p class="vidro mt-6 p-6">
+      <p class="painel mt-6 p-6">
         O credenciamento funciona só com o backend configurado (PUBLIC_SUPABASE_URL). Nesta versão
         de protótipo não há dados para mostrar.
       </p>
     )}
 
     <!-- Login -->
-    <form id="form-login" method="post" class="vidro mt-6 hidden p-6" novalidate>
-      <h2 class="font-display text-xl font-bold">Entrar</h2>
-      <p class="mt-2 text-sm text-suave">
+    <form id="form-login" method="post" class="painel mt-6 hidden p-6" novalidate>
+      <h2 class="h3">Entrar</h2>
+      <p class="mt-2 text-sm text-ink-200">
         Use o mesmo e-mail do painel da organização. Enviaremos um link de acesso.
       </p>
-      <label for="login-email" class="mt-4 block text-sm font-medium">
+      <label for="login-email" class="mt-4 rotulo-campo">
         E-mail
       </label>
-      <input
-        id="login-email"
-        name="email"
-        type="email"
-        autocomplete="email"
-        required
-        class="campo mt-1 w-full"
-      />
+      <div class="terminal">
+        <input
+          id="login-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          required
+          class="campo w-full"
+        />
+      </div>
       <button type="submit" class="btn-primario mt-4">
         Enviar link de acesso
       </button>
     </form>
 
     <!-- Sem acesso -->
-    <div id="sem-acesso" class="vidro mt-6 hidden p-6">
+    <div id="sem-acesso" class="painel mt-6 hidden p-6">
       <p>Este e-mail não tem acesso ao credenciamento. Fale com a coordenação do evento.</p>
       <button type="button" class="btn-secundario mt-4" data-sair>
         Sair
@@ -65,7 +67,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
     <!-- Leitor -->
     <div id="leitor" class="hidden">
       <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <p class="text-sm text-suave">
+        <p class="text-sm text-ink-200">
           Conectado como <strong id="quem"></strong>
         </p>
         <button type="button" class="btn-secundario px-4 py-2" data-sair>
@@ -73,13 +75,13 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         </button>
       </div>
 
-      <div class="vidro mt-4 grid gap-4 p-5 md:grid-cols-2">
+      <div class="painel mt-4 grid gap-4 p-5 md:grid-cols-2">
         <fieldset>
           <legend class="text-sm font-medium">Dia</legend>
           <div class="mt-2 grid gap-2">
             {dias.map((d) => (
               <label class="flex items-center gap-2">
-                <input type="radio" name="dia" value={d.data} class="size-5" />
+                <input type="radio" name="dia" value={d.data} class="size-4.5 accent-lime-500" />
                 <span>
                   {d.rotulo} · {d.semana}
                 </span>
@@ -91,11 +93,17 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
           <legend class="text-sm font-medium">Modo</legend>
           <div class="mt-2 grid gap-2">
             <label class="flex items-center gap-2">
-              <input type="radio" name="modo" value="dia" class="size-5" checked />
+              <input
+                type="radio"
+                name="modo"
+                value="dia"
+                class="size-4.5 accent-lime-500"
+                checked
+              />
               <span>Entrada do dia (palestras)</span>
             </label>
             <label class="flex items-center gap-2">
-              <input type="radio" name="modo" value="minicurso" class="size-5" />
+              <input type="radio" name="modo" value="minicurso" class="size-4.5 accent-lime-500" />
               <span>Minicurso (tarde)</span>
             </label>
           </div>
@@ -103,7 +111,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
       </div>
 
       <div id="camera" class="mt-4 scroll-mt-24">
-        <div class="relative overflow-hidden rounded-2xl bg-fundo-1">
+        <div class="relative overflow-hidden rounded-2 bg-bg-000">
           <video
             id="video"
             class="hidden aspect-square max-h-[45vh] w-full object-cover"
@@ -125,7 +133,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
             </button>
           </div>
         </div>
-        <p id="sem-camera" class="mt-2 hidden text-sm text-erro"></p>
+        <p id="sem-camera" class="mt-2 hidden text-sm text-danger"></p>
       </div>
 
       <!-- Resultado: ícone + título + texto (não depende só da cor). -->
@@ -133,46 +141,48 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         id="resultado"
         aria-live="assertive"
         aria-atomic="true"
-        class="vidro mt-4 flex min-h-28 items-start gap-4 border-l-8 border-suave p-5"
+        class="painel mt-4 flex min-h-28 items-start gap-4 border-l-8 border-line-200 p-5"
       >
-        <span id="resultado-icone" aria-hidden="true" class="font-display text-4xl leading-none">
+        <span id="resultado-icone" aria-hidden="true" class="font-mono text-4xl leading-none">
           ◎
         </span>
         <div>
-          <p id="resultado-titulo" class="font-display text-2xl font-bold">
+          <p id="resultado-titulo" class="h2">
             Pronto para ler
           </p>
-          <p id="resultado-detalhe" class="mt-1 text-suave">
+          <p id="resultado-detalhe" class="mt-1 text-ink-200">
             Escolha o dia e o modo, ligue a câmera e aponte para o QR do comprovante.
           </p>
         </div>
       </div>
 
       <!-- Busca manual -->
-      <form id="form-busca" method="post" class="vidro mt-6 p-5" novalidate>
-        <h2 class="font-display text-xl font-bold">Sem QR? Busque pelo nome ou número</h2>
-        <label for="busca" class="mt-3 block text-sm font-medium">
+      <form id="form-busca" method="post" class="painel mt-6 p-5" novalidate>
+        <h2 class="h3">Sem QR? Busque pelo nome ou número</h2>
+        <label for="busca" class="mt-3 rotulo-campo">
           Nome ou nº de inscrição
         </label>
-        <input
-          id="busca"
-          type="search"
-          autocomplete="off"
-          enterkeyhint="search"
-          class="campo mt-1 w-full"
-          aria-describedby="busca-ajuda"
-        />
-        <p id="busca-ajuda" class="mt-1 text-sm text-suave">
+        <div class="terminal">
+          <input
+            id="busca"
+            type="search"
+            autocomplete="off"
+            enterkeyhint="search"
+            class="campo w-full"
+            aria-describedby="busca-ajuda"
+          />
+        </div>
+        <p id="busca-ajuda" class="mt-1 text-sm text-ink-200">
           Confira o nome com um documento antes de registrar.
         </p>
         <ul id="busca-resultados" class="mt-3 grid gap-2" aria-live="polite"></ul>
       </form>
 
       <section aria-labelledby="t-historico" class="mt-6">
-        <h2 id="t-historico" class="font-display text-xl font-bold">
+        <h2 id="t-historico" class="h3">
           Nesta sessão: <span id="contador">0 registros</span>
         </h2>
-        <ol id="historico" class="mt-2 grid gap-1 text-sm text-suave"></ol>
+        <ol id="historico" class="mt-2 grid gap-1 text-sm text-ink-200"></ol>
       </section>
     </div>
   </section>
@@ -218,8 +228,8 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
 
   // ------------------------------------------------------------- resultado + som
   const ICONE = { ok: '✓', aviso: '!', erro: '✕' } as const;
-  const BORDA = { ok: 'border-ok', aviso: 'border-aviso', erro: 'border-erro' } as const;
-  const COR = { ok: 'text-ok', aviso: 'text-aviso', erro: 'text-erro' } as const;
+  const BORDA = { ok: 'border-lime-ink', aviso: 'border-blue-ink', erro: 'border-danger' } as const;
+  const COR = { ok: 'text-lime-ink', aviso: 'text-blue-ink', erro: 'text-danger' } as const;
   let audio: AudioContext | null = null;
 
   function bipe(tom: Mensagem['tom']) {
@@ -249,11 +259,11 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
 
   function mostrarResultado(m: Mensagem) {
     const caixa = $('resultado');
-    caixa.classList.remove('border-suave', ...Object.values(BORDA));
+    caixa.classList.remove('border-line-200', ...Object.values(BORDA));
     caixa.classList.add(BORDA[m.tom]);
     const icone = $('resultado-icone');
     icone.textContent = ICONE[m.tom];
-    icone.className = `font-display text-4xl leading-none ${COR[m.tom]}`;
+    icone.className = `font-mono text-4xl leading-none ${COR[m.tom]}`;
     $('resultado-titulo').textContent = m.titulo;
     $('resultado-detalhe').textContent = m.detalhe;
     bipe(m.tom);
@@ -522,15 +532,14 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
       const achados = filtrar(lista, { busca: termo, situacao: 'ativas' }).slice(0, 6);
       if (achados.length === 0) {
         const li = document.createElement('li');
-        li.className = 'text-sm text-suave';
+        li.className = 'text-sm text-ink-200';
         li.textContent = 'Nenhuma inscrição ativa encontrada.';
         resultados.append(li);
         return;
       }
       for (const i of achados) {
         const li = document.createElement('li');
-        li.className =
-          'flex flex-wrap items-center justify-between gap-2 rounded-xl bg-fundo-1/60 p-3';
+        li.className = 'flex flex-wrap items-center justify-between gap-2 rounded-1 bg-bg-300 p-3';
         const nome = document.createElement('span');
         nome.textContent = `${i.nome} · ${i.numero}${i.minicurso ? ' · minicurso' : ''}`;
         const b = document.createElement('button');

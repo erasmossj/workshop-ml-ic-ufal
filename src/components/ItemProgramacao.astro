@@ -1,0 +1,45 @@
+---
+/**
+ * ScheduleItem (Figma: Componentes › ScheduleItem). Horário mono em lime-ink (112 px), atividade
+ * em DM Sans 17 semibold, detalhe em ink-300 e Tag do tipo. Pausa: peso regular e sem tag.
+ */
+import type { Atividade } from '../data/evento';
+
+interface Props {
+  atividade: Atividade;
+  detalhe?: string;
+}
+
+const { atividade: a, detalhe } = Astro.props;
+const pausa = a.tipo === 'pausa';
+const horario = `${a.inicio.replace(':', 'h')}—${a.fim.replace(':', 'h')}`;
+const tags = {
+  palestra: { texto: 'Palestra', classe: 'tag-lima' },
+  minicurso: { texto: 'Minicurso', classe: 'tag-azul' },
+  trabalhos: { texto: 'Trabalhos', classe: 'tag-contorno' },
+  cerimonia: { texto: 'Cerimônia', classe: 'tag-contorno' },
+} as const;
+const tag = pausa ? null : tags[a.tipo as keyof typeof tags];
+---
+
+<li class="grid grid-cols-[5.5rem_1fr] gap-x-4 gap-y-2 border-t border-line-100 py-4 sm:grid-cols-[7rem_1fr_auto]">
+  <p class:list={['dado', pausa ? 'text-ink-300' : 'text-lime-ink']}>
+    <time>{horario}</time>
+  </p>
+  <div class="min-w-0">
+    <p
+      class:list={[
+        'text-[1.0625rem] leading-6',
+        pausa ? 'font-normal text-ink-200' : 'font-semibold text-ink-100',
+      ]}
+    >
+      {a.titulo}
+    </p>
+    {detalhe && <p class="body-s text-ink-300">{detalhe}</p>}
+  </div>
+  {tag && (
+    <p class="col-start-2 sm:col-start-3 sm:row-start-1">
+      <span class:list={['tag', tag.classe]}>{tag.texto}</span>
+    </p>
+  )}
+</li>

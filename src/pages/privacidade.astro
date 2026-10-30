@@ -5,23 +5,23 @@ import { evento, privacidade } from '../data/evento';
 /** Data AAAA-MM-DD → DD/MM/AAAA no fuso de Maceió. */
 const emMaceio = (iso: string) =>
   new Date(`${iso}T12:00:00-03:00`).toLocaleDateString('pt-BR', { timeZone: 'America/Maceio' });
-const secao = 'font-display text-2xl font-extrabold';
-const lista = 'mt-2 flex list-disc flex-col gap-2 pl-6 text-suave';
+const secao = 'h2 text-ink-100';
+const lista = 'mt-2 flex list-disc flex-col gap-2 pl-6 text-ink-200';
 ---
 
 <Base title="Política de privacidade">
-  <article class="vidro mx-auto my-12 max-w-3xl p-6 md:my-16 md:p-10">
+  <article class="painel mx-auto my-12 max-w-3xl p-6 md:my-16 md:p-10">
     {!privacidade.aprovada && (
-      <p class="rotulo text-ciano">Minuta em revisão pela organização — o texto pode mudar</p>
+      <p class="rotulo text-lime-ink">Minuta em revisão pela organização — o texto pode mudar</p>
     )}
-    <h1 class="mt-3 font-display text-5xl leading-none font-extrabold">Política de privacidade</h1>
-    <p class="mt-4 text-suave">
+    <h1 class="mt-3 display-m">Política de privacidade</h1>
+    <p class="mt-4 text-ink-200">
       Versão de {emMaceio(privacidade.versao)} · {evento.sigla} · Lei nº 13.709/2018 (LGPD)
     </p>
     <div class="mt-8 flex flex-col gap-8 text-lg leading-relaxed">
       <section>
         <h2 class={secao}>Quem é o responsável</h2>
-        <p class="mt-2 text-suave">{privacidade.controlador}</p>
+        <p class="mt-2 text-ink-200">{privacidade.controlador}</p>
       </section>
 
       <section>
@@ -29,11 +29,11 @@ const lista = 'mt-2 flex list-disc flex-col gap-2 pl-6 text-suave';
         <ul class={lista}>
           {privacidade.dados.map((d) => (
             <li>
-              <strong class="text-texto">{d.dado}</strong>: {d.motivo}.
+              <strong class="text-ink-100">{d.dado}</strong>: {d.motivo}.
             </li>
           ))}
         </ul>
-        <p class="mt-3 text-suave">
+        <p class="mt-3 text-ink-200">
           O CPF serve só para o certificado e para impedir que a mesma pessoa ocupe duas vagas no
           minicurso.
         </p>
@@ -41,7 +41,7 @@ const lista = 'mt-2 flex list-disc flex-col gap-2 pl-6 text-suave';
 
       <section>
         <h2 class={secao}>Base legal</h2>
-        <p class="mt-2 text-suave">{privacidade.baseLegal}</p>
+        <p class="mt-2 text-ink-200">{privacidade.baseLegal}</p>
       </section>
 
       <section>
@@ -49,11 +49,11 @@ const lista = 'mt-2 flex list-disc flex-col gap-2 pl-6 text-suave';
         <ul class={lista}>
           {privacidade.operadores.map((o) => (
             <li>
-              <strong class="text-texto">{o.nome}</strong>: {o.papel}.
+              <strong class="text-ink-100">{o.nome}</strong>: {o.papel}.
             </li>
           ))}
         </ul>
-        <p class="mt-3 text-suave">{privacidade.compartilhamento}</p>
+        <p class="mt-3 text-ink-200">{privacidade.compartilhamento}</p>
       </section>
 
       <section>
@@ -61,13 +61,13 @@ const lista = 'mt-2 flex list-disc flex-col gap-2 pl-6 text-suave';
         <ul class={lista}>
           {privacidade.retencao.map((r) => (
             <li>
-              <strong class="text-texto">{r.dados}</strong>: até{' '}
+              <strong class="text-ink-100">{r.dados}</strong>: até{' '}
               <time datetime={r.ate}>{emMaceio(r.ate)}</time>
               {'motivo' in r && `, ${r.motivo}`}.
             </li>
           ))}
         </ul>
-        <p class="mt-3 text-suave">{privacidade.retencaoObs}</p>
+        <p class="mt-3 text-ink-200">{privacidade.retencaoObs}</p>
       </section>
 
       <section>
@@ -90,13 +90,13 @@ const lista = 'mt-2 flex list-disc flex-col gap-2 pl-6 text-suave';
 
       <section>
         <h2 class={secao}>Contato</h2>
-        <p class="mt-2 text-suave">
+        <p class="mt-2 text-ink-200">
           {evento.contato ? (
             <>
               Para exercer seus direitos ou tirar dúvidas, escreva para{' '}
               <a
                 href={`mailto:${evento.contato}`}
-                class="font-semibold text-texto underline underline-offset-4"
+                class="font-semibold text-ink-100 underline underline-offset-4"
               >
                 {evento.contato}
               </a>

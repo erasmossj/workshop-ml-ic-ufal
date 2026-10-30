@@ -19,6 +19,9 @@ const base: Inscricao = {
   email: 'ana@exemplo.com',
   cpf_mascarado: '***.982.247-**',
   instituicao: 'UFAL',
+  vinculo: 'graduacao',
+  curso: 'Ciência da Computação',
+  perfil_url: 'https://www.linkedin.com/in/ana-sintetica',
   minicurso: true,
   apresenta_trabalho: true,
   titulo_trabalho: 'Redes neurais',
@@ -72,7 +75,8 @@ describe('gerarCsv', () => {
     expect(csv.charCodeAt(0)).toBe(0xfeff);
     expect(csv.startsWith(BOM)).toBe(true);
     expect(linhas[0]).toBe(
-      'Nº de inscrição;Nome;E-mail;CPF (mascarado);Instituição;Minicurso;Apresenta trabalho;' +
+      'Nº de inscrição;Nome;E-mail;CPF (mascarado);Instituição;Vínculo;Curso;' +
+        'Perfil (LinkedIn/Lattes);Minicurso;Apresenta trabalho;' +
         'Título do trabalho;Status do trabalho;Concorre ao prêmio;Inscrita em;Situação;' +
         'Dias presentes;Tardes no minicurso',
     );
@@ -80,7 +84,8 @@ describe('gerarCsv', () => {
 
   it('traz uma linha por inscrição com data de Maceió e rótulos legíveis', () => {
     expect(linhas[1]).toBe(
-      'ICML26-0001;Ana Sintética;ana@exemplo.com;***.982.247-**;UFAL;Sim;Sim;Redes neurais;' +
+      'ICML26-0001;Ana Sintética;ana@exemplo.com;***.982.247-**;UFAL;Graduação;' +
+        'Ciência da Computação;https://www.linkedin.com/in/ana-sintetica;Sim;Sim;Redes neurais;' +
         'Pendente;Não;30/10/2026 10:05;Ativa;02/12, 04/12;02/12',
     );
   });
@@ -99,6 +104,15 @@ describe('gerarCsv', () => {
     expect(gerarCsv([{ ...base, titulo_trabalho: '=HIPERLINK("x")' }])).toContain(
       `;"'=HIPERLINK(""x"")";`,
     );
+  });
+
+  it('escapa fórmula também no curso (campo livre do participante)', () => {
+    expect(gerarCsv([{ ...base, curso: '@SOMA(1)' }])).toContain(";'@SOMA(1);");
+  });
+
+  it('inscrição antiga sem vínculo, curso e perfil vira células vazias', () => {
+    const antiga = gerarCsv([{ ...base, vinculo: null, curso: null, perfil_url: null }]);
+    expect(antiga.split(String.fromCharCode(13, 10))[1]).toContain(';UFAL;;;;Sim;');
   });
 
   it('nunca tem CPF completo', () => {

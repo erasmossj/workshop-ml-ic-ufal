@@ -163,7 +163,7 @@ são **proposta**, a confirmar pela organização:
 | Dados                                               | Apagar até | Por quê                               |
 | --------------------------------------------------- | ---------- | ------------------------------------- |
 | PDFs dos trabalhos (bucket `trabalhos`)             | 31/01/2027 | Avaliação e programação já concluídas |
-| CPF, e-mail e instituição                           | 31/03/2027 | Prazo para baixar o certificado       |
+| CPF, e-mail, instituição, curso e perfil            | 31/03/2027 | Prazo para baixar o certificado       |
 | Nome, nº de inscrição e carga horária (certificado) | 31/12/2031 | Validação pública da autenticidade    |
 
 - O aceite de cada participante fica em `participantes.consentimento_em`. Ele vale para a versão da
@@ -172,7 +172,7 @@ são **proposta**, a confirmar pela organização:
 - Pedido de exclusão de um participante (direito do titular): cancele a inscrição no `/admin` e
   registre o pedido. A eliminação definitiva entra no expurgo.
 - O expurgo é **automático** (S6, WML-52): todo dia às 03:50, só quando um prazo venceu. PDFs saem
-  pela API do Storage; CPF, e-mail e instituição em 01/04/2027; o resto em 01/01/2032. Detalhes e o
+  pela API do Storage; CPF, e-mail, instituição, curso e perfil em 01/04/2027; o resto em 01/01/2032. Detalhes e o
   checklist de revogação de acessos e rotação de segredos:
   [`seguranca/S6-LGPD-POS-EVENTO.md`](seguranca/S6-LGPD-POS-EVENTO.md). Mudou um prazo? Mude a política
   (`src/data/evento.ts`) **e** `config_evento` — um teste confere que são iguais. Backups somem

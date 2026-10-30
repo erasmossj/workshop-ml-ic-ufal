@@ -13,11 +13,11 @@ const CAMPOS = [
 ---
 
 <Base title="Certificados · Painel" noindex>
-  <section class="mx-auto max-w-7xl px-5 py-10 md:px-10">
-    <p class="rotulo text-ciano">Organização · acesso restrito</p>
-    <h1 class="mt-2 font-display text-3xl font-bold md:text-4xl">Certificados</h1>
+  <section class="mx-auto max-w-7xl px-4 py-10 md:px-16">
+    <p class="rotulo text-lime-ink">Organização · acesso restrito</p>
+    <h1 class="mt-4 display-m">Certificados</h1>
     <p class="mt-2">
-      <a href="/admin" class="texto-acao inline-block min-h-6 underline underline-offset-4">
+      <a href="/admin" class="text-lime-ink inline-block min-h-6 underline underline-offset-4">
         ← Voltar ao painel
       </a>
     </p>
@@ -26,36 +26,38 @@ const CAMPOS = [
       id="aviso"
       role="status"
       aria-live="polite"
-      class="pointer-events-none fixed bottom-6 left-1/2 z-50 w-[min(92vw,36rem)] -translate-x-1/2 rounded-2xl bg-texto px-5 py-3 text-center font-medium text-fundo-1 opacity-0 shadow-2xl transition-opacity"
+      class="pointer-events-none fixed bottom-6 left-1/2 z-50 w-[min(92vw,36rem)] -translate-x-1/2 rounded-1 border border-line-200 bg-ink-100 px-5 py-3 text-center font-medium text-bg-000 opacity-0 transition-opacity"
     ></p>
 
     {!configurado && (
-      <p class="vidro mt-6 p-6">
+      <p class="painel mt-6 p-6">
         Os certificados funcionam só com o backend configurado (PUBLIC_SUPABASE_URL). Nesta versão
         de protótipo não há dados para mostrar.
       </p>
     )}
 
-    <form id="form-login" method="post" class="vidro mt-6 hidden max-w-md p-6" novalidate>
-      <h2 class="font-display text-xl font-bold">Entrar</h2>
-      <p class="mt-2 text-sm text-suave">Use o mesmo e-mail do painel da organização.</p>
-      <label for="login-email" class="mt-4 block text-sm font-medium">
+    <form id="form-login" method="post" class="painel mt-6 hidden max-w-md p-6" novalidate>
+      <h2 class="h3">Entrar</h2>
+      <p class="mt-2 text-sm text-ink-200">Use o mesmo e-mail do painel da organização.</p>
+      <label for="login-email" class="mt-4 rotulo-campo">
         E-mail
       </label>
-      <input
-        id="login-email"
-        name="email"
-        type="email"
-        autocomplete="email"
-        required
-        class="campo mt-1 w-full"
-      />
+      <div class="terminal">
+        <input
+          id="login-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          required
+          class="campo w-full"
+        />
+      </div>
       <button type="submit" class="btn-primario mt-4">
         Enviar link de acesso
       </button>
     </form>
 
-    <div id="sem-acesso" class="vidro mt-6 hidden max-w-md p-6">
+    <div id="sem-acesso" class="painel mt-6 hidden max-w-md p-6">
       <p>Este e-mail não tem acesso ao painel. Fale com a coordenação do evento.</p>
       <button type="button" class="btn-secundario mt-4" data-sair>
         Sair
@@ -64,7 +66,7 @@ const CAMPOS = [
 
     <div id="painel" class="hidden">
       <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <p class="text-sm text-suave">
+        <p class="text-sm text-ink-200">
           Conectado como <strong id="quem"></strong>
         </p>
         <button type="button" class="btn-secundario px-4 py-2" data-sair>
@@ -74,17 +76,17 @@ const CAMPOS = [
 
       <!-- 1. Carga horária -->
       <section aria-labelledby="t-carga" class="mt-8">
-        <h2 id="t-carga" class="font-display text-2xl font-bold">
+        <h2 id="t-carga" class="h2">
           1. Carga horária
         </h2>
-        <p class="mt-1 text-sm text-suave">
+        <p class="mt-1 text-sm text-ink-200">
           Horas que cada presença vale no certificado. Manhã = presença no dia (palestras); tarde =
           presença no minicurso. Mudanças valem para os certificados liberados depois.
         </p>
-        <div class="vidro mt-4 overflow-x-auto p-4">
+        <div class="painel mt-4 overflow-x-auto p-4">
           <table class="w-full min-w-[40rem] text-left text-sm">
             <thead>
-              <tr class="text-suave">
+              <tr class="text-ink-200">
                 <th scope="col" class="p-2">
                   Dia
                 </th>
@@ -112,98 +114,94 @@ const CAMPOS = [
 
       <!-- 2. Modelo e posições -->
       <section aria-labelledby="t-modelo" class="mt-10">
-        <h2 id="t-modelo" class="font-display text-2xl font-bold">
+        <h2 id="t-modelo" class="h2">
           2. Modelo e posições
         </h2>
-        <p id="modelo-status" class="mt-1 text-sm text-suave"></p>
-        <div class="vidro mt-4 p-4">
-          <label for="arquivo-modelo" class="block text-sm font-medium">
+        <p id="modelo-status" class="mt-1 text-sm text-ink-200"></p>
+        <div class="painel mt-4 p-4">
+          <label for="arquivo-modelo" class="rotulo-campo">
             Modelo em PDF (até 5 MB) — veio do Word? Use "Salvar como PDF".
           </label>
           <input
             id="arquivo-modelo"
             type="file"
             accept="application/pdf"
-            class="mt-1 block w-full text-sm"
+            class="mt-1.5 block w-full body-s text-ink-200 file:mr-4 file:min-h-11 file:cursor-pointer file:rounded-1 file:border file:border-line-200 file:bg-bg-300 file:px-4 file:font-mono file:text-xs file:tracking-[0.08em] file:text-ink-100 file:uppercase"
           />
         </div>
 
         <div id="editor" class="mt-4 hidden gap-6 lg:grid-cols-[1fr_22rem]">
           <div>
-            <label for="pagina-vista" class="block text-sm font-medium">
+            <label for="pagina-vista" class="rotulo-campo">
               Página exibida
             </label>
-            <select id="pagina-vista" class="campo mt-1"></select>
-            <p class="mt-2 text-sm text-suave">
+            <select id="pagina-vista" class="campo mt-1.5"></select>
+            <p class="mt-2 text-sm text-ink-200">
               Arraste as caixas para o lugar certo, ou ajuste os números ao lado. Com uma caixa
               selecionada, as setas movem 1 ponto (Shift: 10).
             </p>
             <div id="area-modelo" class="mt-3 overflow-auto">
-              <div id="palco" class="relative inline-block bg-white">
+              <div id="palco" class="modo-claro relative inline-block bg-bg-200">
                 <canvas id="tela-modelo" class="block"></canvas>
               </div>
             </div>
           </div>
           <div class="mt-6 grid content-start gap-4 lg:mt-0">
             {CAMPOS.map((c) => (
-              <fieldset class="vidro grid grid-cols-2 gap-2 p-4" data-campo={c.id}>
-                <legend class="px-1 font-display font-bold">{c.rotulo}</legend>
-                <label class="text-sm">
+              <fieldset class="painel grid grid-cols-2 gap-2 p-4" data-campo={c.id}>
+                <legend class="px-1 font-mono font-semibold">{c.rotulo}</legend>
+                <label class="rotulo-s block text-ink-200">
                   Página
-                  <select id={`${c.id}-pagina`} class="campo mt-1 w-full" />
+                  <select id={`${c.id}-pagina`} class="campo mt-1.5 w-full" />
                 </label>
-                <label class="text-sm">
+                <label class="rotulo-s block text-ink-200">
                   Tamanho (pt)
-                  <input
-                    id={`${c.id}-tamanho`}
-                    type="number"
-                    min="6"
-                    max="72"
-                    step="1"
-                    class="campo mt-1 w-full"
-                  />
+                  <span class="terminal">
+                    <input
+                      id={`${c.id}-tamanho`}
+                      type="number"
+                      min="6"
+                      max="72"
+                      step="1"
+                      class="campo w-full"
+                    />
+                  </span>
                 </label>
-                <label class="text-sm">
+                <label class="rotulo-s block text-ink-200">
                   X (pt)
-                  <input
-                    id={`${c.id}-x`}
-                    type="number"
-                    min="0"
-                    step="0.5"
-                    class="campo mt-1 w-full"
-                  />
+                  <span class="terminal">
+                    <input id={`${c.id}-x`} type="number" min="0" step="0.5" class="campo w-full" />
+                  </span>
                 </label>
-                <label class="text-sm">
+                <label class="rotulo-s block text-ink-200">
                   Y (pt, do topo)
-                  <input
-                    id={`${c.id}-y`}
-                    type="number"
-                    min="0"
-                    step="0.5"
-                    class="campo mt-1 w-full"
-                  />
+                  <span class="terminal">
+                    <input id={`${c.id}-y`} type="number" min="0" step="0.5" class="campo w-full" />
+                  </span>
                 </label>
-                <label class="text-sm">
+                <label class="rotulo-s block text-ink-200">
                   Largura (pt)
-                  <input
-                    id={`${c.id}-largura`}
-                    type="number"
-                    min="10"
-                    step="0.5"
-                    class="campo mt-1 w-full"
-                  />
+                  <span class="terminal">
+                    <input
+                      id={`${c.id}-largura`}
+                      type="number"
+                      min="10"
+                      step="0.5"
+                      class="campo w-full"
+                    />
+                  </span>
                 </label>
-                <label class="text-sm">
+                <label class="rotulo-s block text-ink-200">
                   Alinhamento
-                  <select id={`${c.id}-alinhamento`} class="campo mt-1 w-full">
+                  <select id={`${c.id}-alinhamento`} class="campo mt-1.5 w-full">
                     <option value="esquerda">Esquerda</option>
                     <option value="centro">Centro</option>
                     <option value="direita">Direita</option>
                   </select>
                 </label>
-                <label class="col-span-2 text-sm">
+                <label class="col-span-2 rotulo-s block text-ink-200">
                   Fonte
-                  <select id={`${c.id}-fonte`} class="campo mt-1 w-full">
+                  <select id={`${c.id}-fonte`} class="campo mt-1.5 w-full">
                     <option value="helvetica">Helvetica</option>
                     <option value="helvetica-negrito">Helvetica negrito</option>
                     <option value="times">Times</option>
@@ -224,30 +222,30 @@ const CAMPOS = [
           </button>
         </div>
         <div id="previa" class="mt-4 hidden">
-          <h3 class="font-display text-lg font-bold">Prévia (dados fictícios)</h3>
-          <p class="text-sm text-suave">
+          <h3 class="h3">Prévia (dados fictícios)</h3>
+          <p class="text-sm text-ink-200">
             Nomes longos diminuem a fonte até caber na caixa. O rodapé com o código de validação é
             colocado automaticamente.{' '}
             <button
               type="button"
               id="baixar-previa"
-              class="texto-acao inline-block min-h-6 cursor-pointer underline underline-offset-4"
+              class="text-lime-ink inline-block min-h-6 cursor-pointer underline underline-offset-4"
             >
               Baixar a prévia em PDF
             </button>
           </p>
           <div id="area-previa" class="mt-2 overflow-auto">
-            <canvas id="tela-previa" class="block bg-white"></canvas>
+            <canvas id="tela-previa" class="block bg-bg-200"></canvas>
           </div>
         </div>
       </section>
 
       <!-- 3. Liberação -->
       <section aria-labelledby="t-liberar" class="mt-10">
-        <h2 id="t-liberar" class="font-display text-2xl font-bold">
+        <h2 id="t-liberar" class="h2">
           3. Liberar certificados
         </h2>
-        <p class="mt-1 text-sm text-suave">
+        <p class="mt-1 text-sm text-ink-200">
           Libere depois do evento. Cada pessoa com presença recebe o certificado por e-mail (a fila
           respeita o teto diário) e pode baixá-lo em <span class="font-mono">/certificado</span>. As
           horas ficam fixas na liberação; quem ganhar presença depois entra numa nova liberação.
@@ -406,7 +404,7 @@ const CAMPOS = [
       $('tabela-carga').replaceChildren(
         ...atividades.map((a) => {
           const tr = document.createElement('tr');
-          tr.className = 'border-t border-white/10';
+          tr.className = 'border-t border-line-100';
           const periodo = a.tipo === 'palestras' ? 'Manhã (palestras)' : 'Tarde (minicurso)';
           const contexto = `${periodo}, ${dataCurta(a.dia)}`;
           const [h, m] = paraHorasEMinutos(a.minutos);
@@ -568,7 +566,7 @@ const CAMPOS = [
           `Caixa ${ROTULOS[n]}: arraste ou use as setas para mover. Também dá para ajustar pelos números ao lado.`,
         );
         caixa.className =
-          'absolute cursor-move touch-none overflow-visible whitespace-nowrap border-2 border-dashed border-acao-2 bg-acao-1/20 text-fundo-1 outline-offset-2 focus-visible:outline-4 focus-visible:outline-acao-2';
+          'absolute cursor-move touch-none overflow-visible whitespace-nowrap border-2 border-dashed border-blue-500 bg-blue-500/20 text-ink-100 outline-offset-2 focus-visible:outline-4 focus-visible:outline-blue-500';
         Object.assign(caixa.style, {
           left: `${c.x * escala}px`,
           top: `${c.y * escala}px`,
@@ -588,7 +586,7 @@ const CAMPOS = [
         texto.textContent = EXEMPLOS[n];
         const etiqueta = document.createElement('span');
         etiqueta.className =
-          'absolute -top-5 left-0 rounded bg-acao-2 px-1 text-xs leading-4 font-bold text-sobre-acao';
+          'absolute -top-5 left-0 rounded-1 bg-blue-500 px-1 text-xs leading-4 font-semibold text-on-blue';
         etiqueta.style.fontFamily = 'inherit';
         etiqueta.style.fontSize = '11px';
         etiqueta.textContent = ROTULOS[n];
@@ -777,14 +775,14 @@ const CAMPOS = [
       $('resumo-cert').replaceChildren(
         ...cartoes.map(([rotulo, valor]) => {
           const caixa = document.createElement('div');
-          caixa.className = 'vidro p-4';
+          caixa.className = 'painel p-4';
           caixa.append(
             Object.assign(document.createElement('dt'), {
-              className: 'text-sm text-suave',
+              className: 'text-sm text-ink-200',
               textContent: rotulo,
             }),
             Object.assign(document.createElement('dd'), {
-              className: 'mt-1 font-display text-xl font-bold',
+              className: 'mt-1 h3',
               textContent: valor,
             }),
           );

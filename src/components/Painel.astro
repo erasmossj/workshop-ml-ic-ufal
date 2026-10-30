@@ -1,0 +1,49 @@
+---
+/**
+ * Panel (Figma: Componentes › Panel). Card sólido com cabeçalho de sistema (LED lima, rótulo e
+ * meta) e faixa de pontos na base. `cantos` (Brackets=true) só no card mais importante do grupo.
+ */
+interface Props {
+  rotulo: string;
+  meta?: string;
+  cantos?: boolean;
+  /** Elemento raiz (article para cards com título próprio). */
+  as?: 'div' | 'article' | 'section' | 'li';
+  class?: string;
+  corpo?: string;
+  [atributo: string]: unknown;
+}
+
+const {
+  rotulo,
+  meta,
+  cantos = false,
+  as: Tag = 'div',
+  class: classe,
+  corpo = 'flex flex-col gap-2 p-6',
+  ...resto
+} = Astro.props;
+const canto = 'pointer-events-none absolute h-6.5 w-3.5 border-lime-500';
+---
+
+<Tag class:list={['painel flex flex-col', classe]} {...resto}>
+  <div class="painel-cabecalho">
+    <p class="rotulo-s flex items-center gap-2 text-ink-100">
+      <span class="led" aria-hidden="true"></span>
+      {rotulo}
+    </p>
+    {meta && <p class="rotulo-s text-right text-ink-300">{meta}</p>}
+  </div>
+  <div class:list={['flex-1', corpo]}>
+    <slot />
+  </div>
+  <div class="faixa-pontos" aria-hidden="true"></div>
+  {cantos && (
+    <>
+      <span class:list={[canto, 'top-1.5 left-1.5 border-t-2 border-l-2']} aria-hidden="true" />
+      <span class:list={[canto, 'top-1.5 right-1.5 border-t-2 border-r-2']} aria-hidden="true" />
+      <span class:list={[canto, 'bottom-1.5 left-1.5 border-b-2 border-l-2']} aria-hidden="true" />
+      <span class:list={[canto, 'right-1.5 bottom-1.5 border-r-2 border-b-2']} aria-hidden="true" />
+    </>
+  )}
+</Tag>
