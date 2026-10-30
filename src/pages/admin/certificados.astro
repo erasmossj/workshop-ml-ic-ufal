@@ -282,6 +282,8 @@ const CAMPOS = [
     type Dimensoes,
   } from '../../lib/editor-certificado';
 
+  // pdfjs ≥ 5 não usa eval (CSP ok). Fontes padrão do PDF (Helvetica, Times) usam as do sistema;
+  // embutidas viram FontFace (ADR-005).
   pdfjs.GlobalWorkerOptions.workerSrc = urlDoWorker;
 
   type NomeCampo = keyof Campos;
@@ -317,8 +319,6 @@ const CAMPOS = [
     horas: formatarCargaHoraria(DADOS_FICTICIOS.minutos),
   };
   const MAX_BYTES = 5 * 1024 * 1024;
-  // Sem eval (CSP). Fontes padrão do PDF (Helvetica, Times) usam as do sistema; embutidas viram FontFace.
-  const OPCOES_PDF = { isEvalSupported: false };
 
   const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
   let ocultarAviso: ReturnType<typeof setTimeout> | undefined;
@@ -495,7 +495,7 @@ const CAMPOS = [
     }
 
     async function abrirModelo(bytes: Uint8Array, salvos: Campos | null) {
-      const doc = await pdfjs.getDocument({ data: bytes.slice(), ...OPCOES_PDF }).promise;
+      const doc = await pdfjs.getDocument({ data: bytes.slice() }).promise;
       dimsPaginas = [];
       for (let i = 1; i <= doc.numPages; i++) {
         const vp = (await doc.getPage(i)).getViewport({ scale: 1 });
@@ -528,7 +528,7 @@ const CAMPOS = [
       canvas: HTMLCanvasElement,
       area: HTMLElement,
     ) {
-      const doc = await pdfjs.getDocument({ data: bytes.slice(), ...OPCOES_PDF }).promise;
+      const doc = await pdfjs.getDocument({ data: bytes.slice() }).promise;
       const page = await doc.getPage(pagina + 1);
       const base = page.getViewport({ scale: 1 });
       const s = Math.min(1.5, Math.max(280, area.clientWidth - 8) / base.width);
@@ -539,7 +539,7 @@ const CAMPOS = [
       canvas.style.width = `${vp.width}px`;
       canvas.style.height = `${vp.height}px`;
       await page.render({
-        canvasContext: canvas.getContext('2d')!,
+        canvas,
         viewport: vp,
         transform: dpr === 1 ? undefined : [dpr, 0, 0, dpr, 0, 0],
       }).promise;
