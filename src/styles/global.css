@@ -222,150 +222,154 @@ body {
   line-height: 1.125rem;
 }
 
-/* System/label: mono, caixa alta, espaçado. */
-.rotulo {
-  @apply font-mono text-xs leading-4 font-medium tracking-[0.08em] uppercase;
-}
-.rotulo-s {
-  @apply font-mono text-[0.6875rem] leading-4 font-medium tracking-[0.08em] uppercase;
-}
+/* Componentes em @layer components: os utilitários (ex.: aria-invalid:border-danger, mt-0,
+   px-3) continuam podendo ajustar cada uso. */
+@layer components {
+  /* System/label: mono, caixa alta, espaçado. */
+  .rotulo {
+    @apply font-mono text-xs leading-4 font-medium tracking-[0.08em] uppercase;
+  }
+  .rotulo-s {
+    @apply font-mono text-[0.6875rem] leading-4 font-medium tracking-[0.08em] uppercase;
+  }
 
-/* ---------- Componentes (classes usadas também por scripts) ---------- */
+  /* ---------- Componentes (classes usadas também por scripts) ---------- */
 
-/* Button — rótulo mono em caixa alta, quina de sistema (radius-1). Primary uma vez por tela.
-   Hover acende Glow/glow-sm. */
-.btn-primario,
-.btn-secundario,
-.btn-fantasma {
-  @apply inline-flex min-h-11 items-center justify-center gap-3 rounded-1 px-6 py-3.5 text-center font-mono text-xs leading-4 font-medium tracking-[0.08em] uppercase transition;
-}
-.btn-lg {
-  @apply min-h-13 px-8;
-}
-.btn-primario {
-  @apply bg-lime-500 text-on-lime hover:bg-lime-400 hover:shadow-glow-sm;
-}
-.btn-secundario {
-  @apply border border-line-200 text-ink-100 hover:border-lime-ink hover:text-lime-ink hover:shadow-glow-sm;
-}
-.btn-fantasma {
-  @apply px-3 text-ink-200 hover:bg-lime-900 hover:text-lime-ink;
-}
-:is(.btn-primario, .btn-secundario, .btn-fantasma):disabled,
-:is(.btn-primario, .btn-secundario, .btn-fantasma)[aria-disabled='true'] {
-  @apply cursor-not-allowed border-transparent bg-bg-300 text-ink-300 shadow-none;
-}
+  /* Button — rótulo mono em caixa alta, quina de sistema (radius-1). Primary uma vez por tela.
+     Hover acende Glow/glow-sm. */
+  .btn-primario,
+  .btn-secundario,
+  .btn-fantasma {
+    @apply inline-flex min-h-11 items-center justify-center gap-3 rounded-1 px-6 py-3.5 text-center font-mono text-xs leading-4 font-medium tracking-[0.08em] uppercase transition;
+  }
+  .btn-lg {
+    @apply min-h-13 px-8;
+  }
+  .btn-primario {
+    @apply bg-lime-500 text-on-lime hover:bg-lime-400 hover:shadow-glow-sm;
+  }
+  .btn-secundario {
+    @apply border border-line-200 text-ink-100 hover:border-lime-ink hover:text-lime-ink hover:shadow-glow-sm;
+  }
+  .btn-fantasma {
+    @apply px-3 text-ink-200 hover:bg-lime-900 hover:text-lime-ink;
+  }
+  :is(.btn-primario, .btn-secundario, .btn-fantasma):disabled,
+  :is(.btn-primario, .btn-secundario, .btn-fantasma)[aria-disabled='true'] {
+    @apply cursor-not-allowed border-transparent bg-bg-300 text-ink-300 shadow-none;
+  }
 
-/* Field — campo estilo terminal: rótulo mono caixa alta, prompt ">" em lime-ink, valor mono.
-   Focus: borda lime-ink + glow. Error: danger + mensagem que diz como corrigir. */
-.rotulo-campo {
-  @apply flex items-start justify-between gap-3 font-mono text-[0.6875rem] leading-4 font-medium tracking-[0.08em] text-ink-200 uppercase;
-}
-.obrigatorio {
-  @apply text-lime-ink;
-}
-.terminal {
-  @apply relative mt-1.5 flex;
-}
-.terminal::before {
-  content: '>';
-  @apply pointer-events-none absolute top-3 left-4 font-mono text-sm leading-5 text-lime-ink;
-}
-.terminal:has([aria-invalid='true'])::before {
-  @apply text-danger;
-}
-.campo {
-  @apply w-full rounded-1 border border-line-200 bg-bg-300 px-4 py-3 font-mono text-sm leading-5 text-ink-100 transition placeholder:text-ink-300 aria-invalid:border-danger;
-}
-/* Focus do Figma (Glow/glow-sm): o anel de 1 px a 55% vira outline — contorno de foco real
-   (WCAG 2.4.7) com o mesmo desenho — e o brilho de 18 px fica na sombra. */
-.campo:focus {
-  border-color: var(--lime-ink);
-  outline: 1px solid color-mix(in srgb, var(--glow) 55%, transparent);
-  outline-offset: 0;
-  box-shadow: 0 0 18px 0 color-mix(in srgb, var(--glow) 35%, transparent);
-}
-.campo[aria-invalid='true']:focus {
-  border-color: var(--danger);
-}
-.terminal > .campo {
-  @apply pl-8;
-}
-.campo option {
-  @apply bg-bg-300 text-ink-100;
-}
-.ajuda {
-  @apply mt-1.5 text-[0.8125rem] leading-5 text-ink-300;
-}
-.erro-campo {
-  @apply mt-1.5 text-[0.8125rem] leading-5 text-danger empty:hidden;
-}
+  /* Field — campo estilo terminal: rótulo mono caixa alta, prompt ">" em lime-ink, valor mono.
+     Focus: borda lime-ink + glow. Error: danger + mensagem que diz como corrigir. */
+  .rotulo-campo {
+    @apply flex items-start justify-between gap-3 font-mono text-[0.6875rem] leading-4 font-medium tracking-[0.08em] text-ink-200 uppercase;
+  }
+  .obrigatorio {
+    @apply text-lime-ink;
+  }
+  .terminal {
+    @apply relative mt-1.5 flex;
+  }
+  .terminal::before {
+    content: '>';
+    @apply pointer-events-none absolute top-3 left-4 font-mono text-sm leading-5 text-lime-ink;
+  }
+  .terminal:has([aria-invalid='true'])::before {
+    @apply text-danger;
+  }
+  .campo {
+    @apply w-full rounded-1 border border-line-200 bg-bg-300 px-4 py-3 font-mono text-sm leading-5 text-ink-100 transition placeholder:text-ink-300 aria-invalid:border-danger;
+  }
+  /* Focus do Figma (Glow/glow-sm): o anel de 1 px a 55% vira outline — contorno de foco real
+     (WCAG 2.4.7) com o mesmo desenho — e o brilho de 18 px fica na sombra. */
+  .campo:focus {
+    border-color: var(--lime-ink);
+    outline: 1px solid color-mix(in srgb, var(--glow) 55%, transparent);
+    outline-offset: 0;
+    box-shadow: 0 0 18px 0 color-mix(in srgb, var(--glow) 35%, transparent);
+  }
+  .campo[aria-invalid='true']:focus {
+    border-color: var(--danger);
+  }
+  .terminal > .campo {
+    @apply pl-8;
+  }
+  .campo option {
+    @apply bg-bg-300 text-ink-100;
+  }
+  .ajuda {
+    @apply mt-1.5 text-[0.8125rem] leading-5 text-ink-300;
+  }
+  .erro-campo {
+    @apply mt-1.5 text-[0.8125rem] leading-5 text-danger empty:hidden;
+  }
 
-/* Checkbox — caixa quadrada (radius-1) que acende em lime-500 com quadrado on-lime. */
-.caixa-selecao {
-  @apply grid size-4.5 shrink-0 cursor-pointer appearance-none place-content-center rounded-1 border border-line-200 bg-bg-300 transition checked:border-lime-500 checked:bg-lime-500;
-}
-.caixa-selecao::before {
-  content: '';
-  @apply size-2 scale-0 bg-on-lime transition;
-}
-.caixa-selecao:checked::before {
-  @apply scale-100;
-}
+  /* Checkbox — caixa quadrada (radius-1) que acende em lime-500 com quadrado on-lime. */
+  .caixa-selecao {
+    @apply grid size-4.5 shrink-0 cursor-pointer appearance-none place-content-center rounded-1 border border-line-200 bg-bg-300 transition checked:border-lime-500 checked:bg-lime-500;
+  }
+  .caixa-selecao::before {
+    content: '';
+    @apply size-2 scale-0 bg-on-lime transition;
+  }
+  .caixa-selecao:checked::before {
+    @apply scale-100;
+  }
 
-/* Choice — escolha única segmentada (2–4 opções curtas). Selecionada em lime-500/on-lime. */
-.escolha {
-  @apply flex min-h-10 overflow-hidden rounded-1 border border-line-200;
-}
-.escolha > label {
-  @apply flex flex-1 cursor-pointer items-center justify-center border-r border-line-100 bg-bg-300 px-2 py-3 text-center font-mono text-xs leading-4 font-medium tracking-[0.08em] text-ink-200 uppercase transition last:border-r-0 has-checked:bg-lime-500 has-checked:font-semibold has-checked:text-on-lime has-focus-visible:outline-2 has-focus-visible:-outline-offset-4 has-focus-visible:outline-focus-ring;
-}
-.escolha input {
-  @apply sr-only;
-}
+  /* Choice — escolha única segmentada (2–4 opções curtas). Selecionada em lime-500/on-lime. */
+  .escolha {
+    @apply flex min-h-10 overflow-hidden rounded-1 border border-line-200;
+  }
+  .escolha > label {
+    @apply flex flex-1 cursor-pointer items-center justify-center border-r border-line-100 bg-bg-300 px-2 py-3 text-center font-mono text-xs leading-4 font-medium tracking-[0.08em] text-ink-200 uppercase transition last:border-r-0 has-checked:bg-lime-500 has-checked:font-semibold has-checked:text-on-lime has-focus-visible:outline-2 has-focus-visible:-outline-offset-4 has-focus-visible:outline-focus-ring;
+  }
+  .escolha input {
+    @apply sr-only;
+  }
 
-/* Panel — card sólido (bg-200, borda line-100, radius-2), sem sombra e sem transparência.
-   Cabeçalho de sistema com LED lima e faixa de pontos de corte seco na base. */
-.painel {
-  @apply relative overflow-hidden rounded-2 border border-line-100 bg-bg-200;
-}
-.painel-cabecalho {
-  @apply flex items-center justify-between gap-4 border-b border-line-100 px-6 py-3;
-}
-.led {
-  @apply inline-block size-1.5 shrink-0 bg-lime-500;
-}
-/* Faixa de pontos (Figma: Panel › Faixa de pontos): pontos de 3 px a cada ~8 px em line-200. */
-.faixa-pontos {
-  @apply h-6 border-t border-line-100 bg-bg-100;
-  background-image: radial-gradient(circle, var(--line-200) 1.5px, transparent 1.6px);
-  background-size: 7.95px 8px;
-  background-position: -2.5px -3.5px;
-}
+  /* Panel — card sólido (bg-200, borda line-100, radius-2), sem sombra e sem transparência.
+     Cabeçalho de sistema com LED lima e faixa de pontos de corte seco na base. */
+  .painel {
+    @apply relative overflow-hidden rounded-2 border border-line-100 bg-bg-200;
+  }
+  .painel-cabecalho {
+    @apply flex items-center justify-between gap-4 border-b border-line-100 px-6 py-3;
+  }
+  .led {
+    @apply inline-block size-1.5 shrink-0 bg-lime-500;
+  }
+  /* Faixa de pontos (Figma: Panel › Faixa de pontos): pontos de 3 px a cada ~8 px em line-200. */
+  .faixa-pontos {
+    @apply h-6 border-t border-line-100 bg-bg-100;
+    background-image: radial-gradient(circle, var(--line-200) 1.5px, transparent 1.6px);
+    background-size: 7.95px 8px;
+    background-position: -2.5px -3.5px;
+  }
 
-/* Tag — categoria. Mapeamento fixo: Palestra=Lime, Mini-curso e Mestrado=Blue,
-   Trabalhos=Outline, Graduação=Neutral, Organização=Solid. */
-.tag {
-  @apply inline-flex h-6 shrink-0 items-center gap-1.5 rounded-pill px-2.5 font-mono text-[0.6875rem] leading-4 font-medium tracking-[0.08em] whitespace-nowrap uppercase;
-}
-.tag::before {
-  content: '';
-  @apply size-1.5 rounded-pill bg-current;
-}
-.tag-lima {
-  @apply bg-lime-900 text-lime-ink;
-}
-.tag-azul {
-  @apply bg-blue-900 text-blue-ink;
-}
-.tag-neutra {
-  @apply bg-bg-300 text-ink-200;
-}
-.tag-contorno {
-  @apply border border-line-200 text-ink-200;
-}
-.tag-solida {
-  @apply bg-ink-100 text-bg-000;
+  /* Tag — categoria. Mapeamento fixo: Palestra=Lime, Mini-curso e Mestrado=Blue,
+     Trabalhos=Outline, Graduação=Neutral, Organização=Solid. */
+  .tag {
+    @apply inline-flex h-6 shrink-0 items-center gap-1.5 rounded-pill px-2.5 font-mono text-[0.6875rem] leading-4 font-medium tracking-[0.08em] whitespace-nowrap uppercase;
+  }
+  .tag::before {
+    content: '';
+    @apply size-1.5 rounded-pill bg-current;
+  }
+  .tag-lima {
+    @apply bg-lime-900 text-lime-ink;
+  }
+  .tag-azul {
+    @apply bg-blue-900 text-blue-ink;
+  }
+  .tag-neutra {
+    @apply bg-bg-300 text-ink-200;
+  }
+  .tag-contorno {
+    @apply border border-line-200 text-ink-200;
+  }
+  .tag-solida {
+    @apply bg-ink-100 text-bg-000;
+  }
 }
 
 @media print {
