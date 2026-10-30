@@ -478,6 +478,23 @@ fila** e **E-mails com falha**.
 > **Atenção:** a liberação não pode ser desfeita. As horas de cada pessoa ficam fixas no momento
 > da liberação. Quem ganhar presença depois entra numa nova liberação.
 
+### 4.14 Crachás
+
+No painel, em **Crachás**, clique em **Abrir crachás** (ou no botão **Crachá** de uma linha da lista
+de inscrições, que já abre com aquele participante na prévia).
+
+- **Participantes:** busque pelo nome ou número, marque quem quiser e clique em **Gerar crachás
+  selecionados** (ou em **Gerar** numa linha). Cada crachá traz o nome, o vínculo (graduação,
+  mestrado ou outro), o curso e a instituição e, se a pessoa informou, o QR do LinkedIn ou do Lattes.
+  Sem perfil, o espaço do QR fica vazio. O crachá não mostra CPF nem e-mail.
+- **Organização:** digite nome, função e (opcional) LinkedIn ou Lattes e clique em **Adicionar
+  crachá da organização**. Esses dados não são gravados: valem só para a impressão.
+- **Imprimir:** clique em **Imprimir crachás**. Cada crachá sai em uma página de 100×140 mm. No
+  diálogo, escolha "Salvar como PDF" ou a impressora, **sem margens** e em **escala 100%**.
+
+> O QR do crachá da organização é lima sobre fundo escuro, como no design. A câmera do celular
+> costuma ler; se algum leitor antigo falhar, use a câmera do próprio aparelho.
+
 ## 5. Regras do sistema
 
 - **Horário**: todas as datas e horas seguem o horário de Maceió.

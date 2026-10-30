@@ -23,6 +23,8 @@ export const evento = {
   },
   /** E-mail público do evento — a definir (não publicar a conta de testes). */
   contato: null as string | null,
+  /** Crachá da organização (Figma: faixa lima "ORGANIZAÇÃO · STAFF · 02—04.12"). */
+  cracha: { faixa: 'Staff · 02—04.12' },
   /** Hero (Figma "Hero — site oficial"): linha de data/local e texto de apoio. */
   hero: {
     linha: ['02—04.DEZ.2026', 'Instituto de Computação', 'UFAL'],

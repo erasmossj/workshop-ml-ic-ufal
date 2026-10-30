@@ -37,6 +37,31 @@
   color-scheme: dark;
 }
 
+/* Modo Dark explícito: mantém o desenho escuro mesmo na impressão (crachá da organização). */
+.modo-escuro {
+  --bg-000: #07090b;
+  --bg-100: #0d1114;
+  --bg-200: #131a1f;
+  --bg-300: #1a232a;
+  --line-100: #222c34;
+  --line-200: #62727e;
+  --line-dot: #26323b;
+  --ink-100: #eef2ea;
+  --ink-200: #a9b4ae;
+  --ink-300: #7f8b86;
+  --lime-400: #d9ff73;
+  --lime-ink: #c8ff2e;
+  --lime-900: #18220a;
+  --blue-ink: #86a8ff;
+  --blue-900: #0d1a3a;
+  --danger: #ff7a66;
+  --focus-ring: #c8ff2e;
+  --glow: #c8ff2e;
+  --logo-lit: #c8ff2e;
+  --logo-unlit: #3a4752;
+  color-scheme: dark;
+}
+
 /* Modo Light (impressos). */
 .modo-claro {
   --bg-000: #f4f3ee;
@@ -395,5 +420,25 @@ body {
     --logo-lit: #0d1114;
     --logo-unlit: #c9c8bf;
     color-scheme: light;
+  }
+}
+
+/* Crachá 100×140 mm (Figma: Aplicações › Crachás, 400×560 px). Na tela, prévia reduzida; na
+   impressão, 400 px × 0,9449 = 100 mm, um por página, em página nomeada (não afeta outras). */
+.cracha {
+  zoom: 0.6;
+  flex-shrink: 0;
+}
+@page cracha {
+  size: 100mm 140mm;
+  margin: 0;
+}
+@media print {
+  .cracha {
+    zoom: 0.9449;
+    page: cracha;
+    break-after: page;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }
