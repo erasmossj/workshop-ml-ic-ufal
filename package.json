@@ -50,7 +50,7 @@
     "eslint-plugin-astro": "^3.2.1",
     "eslint-plugin-jsx-a11y-x": "^0.2.0",
     "globals": "^17.13.0",
-    "nodemailer": "^10.1.2",
+    "nodemailer": "^10.1.4",
     "prettier": "^3.9.9",
     "prettier-plugin-astro": "^1.1.0",
     "prettier-plugin-tailwindcss": "^0.8.1",
