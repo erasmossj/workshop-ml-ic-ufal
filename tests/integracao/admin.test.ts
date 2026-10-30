@@ -72,7 +72,8 @@ describe('painel da organização com login real', () => {
     const lista = await org.rpc('admin_listar_inscricoes');
     expect(lista.error).toBeNull();
     expect(Array.isArray(lista.data)).toBe(true);
-    expect(JSON.stringify(lista.data)).not.toMatch(/\d{3}\.?\d{3}\.?\d{3}-?\d{2}"/);
+    // (?<!\d): um ID Lattes (16 dígitos, WML-69) não é CPF; qualquer CPF de 11 dígitos é.
+    expect(JSON.stringify(lista.data)).not.toMatch(/(?<!\d)\d{3}\.?\d{3}\.?\d{3}-?\d{2}"/);
   });
 
   it('usuário autenticado fora da allowlist é recusado', async () => {

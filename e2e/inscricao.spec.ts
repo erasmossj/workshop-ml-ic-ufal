@@ -53,6 +53,9 @@ test('inscrição completa chega à confirmação com CPF mascarado', async ({ p
   await page.locator('#cpf').fill(CPF_TESTE);
   await expect(page.locator('#cpf')).toHaveValue('529.982.247-25');
   await page.locator('#email').fill('participante@exemplo.com');
+  await page.locator('#vinculo').getByText('Mestrado').click();
+  await page.locator('#curso').fill('Ciência da Computação');
+  await page.locator('#perfil').fill('linkedin.com/in/participante-exemplo');
   await page.locator('#minicurso').check();
   await page.getByLabel(/Vou submeter trabalho/).check();
   await page.getByLabel(/^Título do trabalho/).fill('Classificação de imagens com CNNs');
@@ -88,4 +91,18 @@ test('PDF falso (renomeado) é recusado', async ({ page }) => {
   });
   await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
   await expect(page.locator('#pdf-erro')).toContainText('PDF');
+});
+
+test('vínculo é obrigatório e perfil só aceita LinkedIn ou Lattes', async ({ page }) => {
+  await page.goto('/inscricao');
+  await page.locator('#perfil').fill('https://evil.com/in/ana');
+  await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
+  await expect(page.locator('#vinculo-erro')).toContainText('vínculo');
+  await expect(page.locator('#vinculo')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#perfil-erro')).toContainText('LinkedIn');
+  await page.locator('#perfil').fill('lattes.cnpq.br/1234567890123456');
+  await page.locator('#vinculo').getByText('Graduação').click();
+  await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
+  await expect(page.locator('#perfil-erro')).toBeEmpty();
+  await expect(page.locator('#vinculo-erro')).toBeEmpty();
 });

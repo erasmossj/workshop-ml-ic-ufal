@@ -11,13 +11,13 @@ select is(
     where table_schema = 'public' and grantee in ('anon', 'authenticated')), 0,
   'anon/authenticated não têm nenhum privilégio direto em tabelas');
 select ok(
-  not has_function_privilege('anon', 'public.register_participant(text,text,text,text,smallint[],jsonb)', 'execute'),
+  not has_function_privilege('anon', 'public.register_participant(text,text,text,text,smallint[],jsonb,text,text,text)', 'execute'),
   'anon NÃO executa register_participant (só via Edge Function)');
 select ok(
-  not has_function_privilege('authenticated', 'public.register_participant(text,text,text,text,smallint[],jsonb)', 'execute'),
+  not has_function_privilege('authenticated', 'public.register_participant(text,text,text,text,smallint[],jsonb,text,text,text)', 'execute'),
   'authenticated NÃO executa register_participant');
 select ok(
-  has_function_privilege('service_role', 'public.register_participant(text,text,text,text,smallint[],jsonb)', 'execute'),
+  has_function_privilege('service_role', 'public.register_participant(text,text,text,text,smallint[],jsonb,text,text,text)', 'execute'),
   'service_role executa register_participant');
 select ok(has_function_privilege('anon', 'public.vagas_publicas()', 'execute'),
   'anon pode consultar vagas públicas');

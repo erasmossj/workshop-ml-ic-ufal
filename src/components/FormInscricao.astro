@@ -5,7 +5,7 @@
  * cabeçalho de sistema, campos estilo terminal, Checkbox, Choice e FileDrop.
  */
 import { janela, minicurso, trabalhos } from '../data/evento';
-import { RESUMO_MAX } from '../lib/validacao';
+import { CURSO_MAX, RESUMO_MAX, VINCULOS } from '../lib/validacao';
 
 interface Props {
   /** h1 em /inscricao; h2 na home. */
@@ -137,20 +137,88 @@ const opcional = 'text-ink-300';
       </div>
 
       <div>
-        <label for="instituicao" class="rotulo-campo">
-          <span>Instituição</span>
-          <span class={opcional}>opcional</span>
-        </label>
-        <div class="terminal">
-          <input
-            id="instituicao"
-            name="instituicao"
-            class="campo"
-            autocomplete="organization"
-            placeholder="ex.: UFAL"
-          />
+        <p id="vinculo-rotulo" class="rotulo-campo">
+          <span>Vínculo</span>
+          <span class="obrigatorio">obrigatório</span>
+        </p>
+        <!-- Choice (Figma): escolha única segmentada. Sem opção pré-marcada. -->
+        <div
+          id="vinculo"
+          role="radiogroup"
+          aria-labelledby="vinculo-rotulo"
+          aria-describedby="vinculo-erro"
+          tabindex="-1"
+          class="escolha mt-1.5 aria-invalid:border-danger"
+        >
+          {VINCULOS.map((v) => (
+            <label>
+              <input type="radio" name="vinculo" value={v.valor} />
+              {v.rotulo}
+            </label>
+          ))}
         </div>
+        <p id="vinculo-erro" class="erro-campo" aria-live="polite"></p>
       </div>
+
+      <fieldset class="flex flex-col gap-3.5 border-t border-line-100 pt-3.5">
+        <legend class="sr-only">Para o crachá (opcional)</legend>
+        <p class="rotulo text-ink-100" aria-hidden="true">
+          Para o crachá · opcional
+        </p>
+        <div>
+          <label for="curso" class="rotulo-campo">
+            <span>Curso</span>
+            <span class={opcional}>opcional</span>
+          </label>
+          <div class="terminal">
+            <input
+              id="curso"
+              name="curso"
+              class="campo"
+              maxlength={CURSO_MAX}
+              placeholder="ex.: Ciência da Computação"
+            />
+          </div>
+        </div>
+        <div>
+          <label for="instituicao" class="rotulo-campo">
+            <span>Instituição</span>
+            <span class={opcional}>opcional</span>
+          </label>
+          <div class="terminal">
+            <input
+              id="instituicao"
+              name="instituicao"
+              class="campo"
+              autocomplete="organization"
+              placeholder="ex.: UFAL"
+            />
+          </div>
+        </div>
+        <div>
+          <label for="perfil" class="rotulo-campo">
+            <span>LinkedIn ou Lattes</span>
+            <span class={opcional}>opcional</span>
+          </label>
+          <div class="terminal">
+            <input
+              id="perfil"
+              name="perfil"
+              class="campo"
+              inputmode="url"
+              autocomplete="url"
+              maxlength="200"
+              placeholder="linkedin.com/in/seu-nome"
+              aria-describedby="perfil-dica perfil-erro"
+            />
+          </div>
+          <p id="perfil-dica" class="ajuda">
+            Vira um QR Code no seu crachá. Aceita LinkedIn (linkedin.com/in/…) ou Lattes
+            (lattes.cnpq.br/…).
+          </p>
+          <p id="perfil-erro" class="erro-campo" aria-live="polite"></p>
+        </div>
+      </fieldset>
 
       <div>
         <label for="minicurso" class="flex cursor-pointer items-center gap-3 font-medium body-s">
@@ -350,8 +418,8 @@ const opcional = 'text-ink-300';
             >
               Política de Privacidade
             </a>
-            . Nome, CPF e e-mail serão usados para a inscrição e a emissão do certificado, conforme
-            a LGPD.
+            . Nome, CPF e e-mail serão usados para a inscrição e a emissão do certificado; vínculo,
+            curso, instituição e perfil, para o crachá — conforme a LGPD.
           </span>
         </label>
         <p id="consentimento-erro" class="erro-campo" aria-live="polite"></p>
@@ -396,6 +464,7 @@ const opcional = 'text-ink-300';
     emailValido,
     nomeCompletoValido,
     normalizarEmail,
+    normalizarPerfil,
     validarPdf,
   } from '../lib/validacao';
 
@@ -455,8 +524,8 @@ const opcional = 'text-ink-300';
           const a = document.createElement('a');
           a.href = `#${id}`;
           a.textContent = msg;
-          // inline-block + min-h-6: alvo de ≥ 24 px (WCAG 2.5.8) independente da fonte carregada.
-          a.className = 'inline-block min-h-6 underline underline-offset-4';
+          // block + min-h-6: alvo de ≥ 24 px (WCAG 2.5.8) independente da fonte carregada.
+          a.className = 'block min-h-6 underline underline-offset-4';
           li.append(a);
         } else {
           li.textContent = msg;
@@ -516,6 +585,18 @@ const opcional = 'text-ink-300';
           : null,
     );
     checar('cpf', cpfValido(v('cpf')) ? null : 'CPF inválido. Confira os números.');
+    checar(
+      'vinculo',
+      form.querySelector('input[name=vinculo]:checked')
+        ? null
+        : 'Escolha seu vínculo: graduação, mestrado ou outro.',
+    );
+    checar(
+      'perfil',
+      normalizarPerfil(v('perfil')) === null
+        ? 'Use o link do seu perfil no LinkedIn (linkedin.com/in/…) ou no Lattes (lattes.cnpq.br/…).'
+        : null,
+    );
 
     if (trabalho.checked) {
       checar('titulo', v('titulo') ? null : 'Informe o título do trabalho.');

@@ -11,6 +11,7 @@ const PAGINAS = [
   '/admin',
   '/credenciamento',
   '/admin/certificados',
+  '/admin/crachas',
   '/certificado',
   '/validar',
 ];

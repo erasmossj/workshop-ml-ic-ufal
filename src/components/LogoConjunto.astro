@@ -10,9 +10,11 @@ interface Props {
   /** Altura em px — no mínimo 28. */
   altura?: number;
   class?: string;
+  /** 'eager' em impressos (crachá): imagem adiada pode não estar pronta ao imprimir. */
+  carregamento?: 'lazy' | 'eager';
 }
 
-const { tom = 'branco', altura = 44, class: classe } = Astro.props;
+const { tom = 'branco', altura = 44, class: classe, carregamento = 'lazy' } = Astro.props;
 const h = Math.max(altura, 28);
 const w = Math.round((632 / 115) * h * 1000) / 1000;
 ---
@@ -24,5 +26,5 @@ const w = Math.round((632 / 115) * h * 1000) / 1000;
   alt="IEEE, IEEE Computer Society — Ramo Estudantil IEEE da UFAL — e Instituto de Computação da UFAL"
   class={classe}
   decoding="async"
-  loading="lazy"
+  loading={carregamento}
 />

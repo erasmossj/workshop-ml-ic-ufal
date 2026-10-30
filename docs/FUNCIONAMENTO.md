@@ -51,7 +51,8 @@ usado em teste de carga e pentest) e local (`supabase start`, Docker). Cada PR g
 
 ## 1. Inscrição, passo a passo
 
-1. **Formulário** (`/inscricao`): nome, CPF, e-mail, instituição (opcional), minicurso (opcional),
+1. **Formulário** (`/inscricao` e coluna do hero): nome, CPF, e-mail, vínculo (graduação/mestrado/outro),
+   dados do crachá (opcionais: curso, instituição e perfil LinkedIn ou Lattes), minicurso (opcional),
    trabalho (opcional: título, autores, resumo, PDF, prêmio) e aceite da política de privacidade. O
    navegador já valida (CPF com dígito verificador, e-mail, tamanhos), mas o servidor valida de novo.
 2. **Turnstile** gera um token provando que não é robô.

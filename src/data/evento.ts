@@ -23,6 +23,8 @@ export const evento = {
   },
   /** E-mail público do evento — a definir (não publicar a conta de testes). */
   contato: null as string | null,
+  /** Crachá da organização (Figma: faixa lima "ORGANIZAÇÃO · STAFF · 02—04.12"). */
+  cracha: { faixa: 'Staff · 02—04.12' },
   /** Hero (Figma "Hero — site oficial"): linha de data/local e texto de apoio. */
   hero: {
     linha: ['02—04.DEZ.2026', 'Instituto de Computação', 'UFAL'],
@@ -184,6 +186,10 @@ export const privacidade = {
       motivo: 'identificar sua inscrição, enviar o comprovante e emitir o certificado',
     },
     { dado: 'Instituição (opcional)', motivo: 'conhecer o público do evento' },
+    {
+      dado: 'Vínculo, curso (opcional) e perfil no LinkedIn ou Lattes (opcional)',
+      motivo: 'montar o seu crachá; o perfil vira um QR Code impresso nele',
+    },
     { dado: 'Inscrição no minicurso', motivo: 'controlar as vagas do laboratório' },
     {
       dado: 'Título, autores, resumo e PDF do trabalho, se você submeter',
@@ -207,7 +213,7 @@ export const privacidade = {
     'Esses serviços só tratam os dados para executar a tarefa deles, e alguns ficam fora do Brasil (transferência internacional, art. 33 da LGPD). Não vendemos nem cedemos seus dados a ninguém. Nome e trabalho aprovado aparecem na programação do evento.',
   retencao: [
     { dados: 'PDFs dos trabalhos', ate: '2027-01-31' },
-    { dados: 'CPF, e-mail e instituição', ate: '2027-03-31' },
+    { dados: 'CPF, e-mail, instituição, curso e perfil (LinkedIn/Lattes)', ate: '2027-03-31' },
     {
       dados: 'Nome, nº de inscrição e carga horária do certificado',
       ate: '2031-12-31',

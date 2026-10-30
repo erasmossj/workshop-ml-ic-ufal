@@ -24,7 +24,7 @@ insert into storage.objects (bucket_id, name) values ('trabalhos', 'teste-admin.
 
 -- privilégios: anon não executa nada do painel -------------------------------------
 select ok(not has_function_privilege('anon', 'public.admin_cancelar_inscricao(text)', 'execute'), 'anon NÃO cancela');
-select ok(not has_function_privilege('anon', 'public.admin_corrigir_inscricao(text,text,text,text,text)', 'execute'),
+select ok(not has_function_privilege('anon', 'public.admin_corrigir_inscricao(text,text,text,text,text,text,text,text)', 'execute'),
   'anon NÃO corrige');
 select ok(not has_function_privilege('anon', 'public.admin_reenviar_confirmacao(text)', 'execute'), 'anon NÃO reenvia');
 select ok(not has_function_privilege('anon', 'public.admin_obter_config()', 'execute'), 'anon NÃO lê a configuração');

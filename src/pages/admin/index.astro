@@ -103,6 +103,18 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         </a>
       </section>
 
+      <section aria-labelledby="t-crachas" class="mt-10">
+        <h2 id="t-crachas" class="h2">
+          Crachás
+        </h2>
+        <p class="mt-1 text-sm text-ink-200">
+          Crachás 100×140 mm dos participantes e da organização, prontos para imprimir.
+        </p>
+        <a href="/admin/crachas" class="btn-secundario mt-3 inline-flex">
+          Abrir crachás
+        </a>
+      </section>
+
       <section aria-labelledby="t-inscricoes" class="mt-10">
         <div class="flex flex-wrap items-end justify-between gap-3">
           <h2 id="t-inscricoes" class="h2">
@@ -304,6 +316,23 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
           Instituição (opcional)
         </label>
         <input id="c-inst" class="campo" autocomplete="off" />
+        <label for="c-vinculo" class="rotulo-campo">
+          Vínculo
+        </label>
+        <select id="c-vinculo" class="campo">
+          <option value="">Não informado</option>
+          <option value="graduacao">Graduação</option>
+          <option value="mestrado">Mestrado</option>
+          <option value="outro">Outro</option>
+        </select>
+        <label for="c-curso" class="rotulo-campo">
+          Curso (opcional)
+        </label>
+        <input id="c-curso" class="campo" maxlength="120" autocomplete="off" />
+        <label for="c-perfil" class="rotulo-campo">
+          LinkedIn ou Lattes (opcional)
+        </label>
+        <input id="c-perfil" class="campo" inputmode="url" autocomplete="off" />
         <div class="mt-2 flex flex-wrap gap-3">
           <button type="submit" value="salvar" class="btn-primario">
             Salvar correção
@@ -326,6 +355,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
     formatarDataHora,
     gerarCsv,
     mensagemDeErro,
+    VINCULO,
     NIVEL_PREMIO,
     paginar,
     paraInputLocal,
@@ -592,7 +622,22 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
 
       const pessoa = el('td', undefined, 'p-3');
       pessoa.append(el('div', i.nome, 'font-medium'), el('div', i.email, 'text-ink-200'));
-      if (i.instituicao) pessoa.append(el('div', i.instituicao, 'text-xs text-ink-200'));
+      const cracha = [i.vinculo ? (VINCULO[i.vinculo] ?? i.vinculo) : null, i.curso, i.instituicao]
+        .filter(Boolean)
+        .join(' · ');
+      if (cracha) pessoa.append(el('div', cracha, 'text-xs text-ink-200'));
+      if (i.perfil_url) {
+        // Link já normalizado e restrito a LinkedIn/Lattes pelo banco (normalizar_perfil).
+        const a = el(
+          'a',
+          i.perfil_url.includes('lattes') ? 'Lattes' : 'LinkedIn',
+          'text-xs text-lime-ink underline',
+        );
+        a.href = i.perfil_url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        pessoa.append(a);
+      }
       if (i.cancelada) pessoa.append(el('div', 'Cancelada', 'text-xs font-semibold text-danger'));
 
       const email = el('td', STATUS_EMAIL[i.email_status ?? ''] ?? '—', 'p-3');
@@ -608,6 +653,9 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         );
         acoes.append(
           botao('Corrigir', 'btn-secundario px-3 py-1 text-sm', () => abrirCorrecao(i)),
+          botao('Crachá', 'btn-secundario ml-2 px-3 py-1 text-sm', () =>
+            location.assign(`/admin/crachas?n=${encodeURIComponent(i.numero)}`),
+          ),
           botao('Cancelar', 'btn-secundario ml-2 px-3 py-1 text-sm', async () => {
             if (!confirm(`Cancelar a inscrição ${i.numero}? A vaga do minicurso será liberada.`)) {
               return;
@@ -653,6 +701,9 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
       $<HTMLInputElement>('c-email').value = i.email;
       $<HTMLInputElement>('c-cpf').value = '';
       $<HTMLInputElement>('c-inst').value = i.instituicao ?? '';
+      $<HTMLSelectElement>('c-vinculo').value = i.vinculo ?? '';
+      $<HTMLInputElement>('c-curso').value = i.curso ?? '';
+      $<HTMLInputElement>('c-perfil').value = i.perfil_url ?? '';
       dialogo.showModal();
     }
 
@@ -665,6 +716,10 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         p_email: valor('c-email'),
         p_cpf: valor('c-cpf'),
         p_instituicao: valor('c-inst'),
+        // Vazio mantém o vínculo; '' em curso/perfil apaga (admin_corrigir_inscricao).
+        p_vinculo: valor('c-vinculo') || null,
+        p_curso: valor('c-curso'),
+        p_perfil: valor('c-perfil'),
       });
       if (!r.ok) {
         dialogo.showModal();
