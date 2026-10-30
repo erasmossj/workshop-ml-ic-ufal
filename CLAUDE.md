@@ -101,10 +101,10 @@ docker run --rm -i -e BASE_URL=... -e ANON_KEY=... grafana/k6 run - < load/inscr
 
 ## Marca e design
 
-- Fontes de marca: IC/UFAL, IEEE Computer Society (laranja + azul; Montserrat / Open Sans), IEEE RE UFAL (**pendente** — usar placeholders até a diretoria enviar).
-- Cores e fontes só via tokens (`src/styles/tokens.css` / `tailwind.config`) — nunca hex solto em componente.
-- Protótipos Figma e direção escolhida: `docs/marca/` e página "Design" no Confluence.
-- Respeite as regras de uso de logo de cada organização (área de proteção, versões permitidas).
+- Identidade final: Figma **IC-ML** (`LmEPNS2a8dmobLs1sjCfV3`) — ADR-006 e `docs/marca/README.md` (mapa Figma → código). Modo Dark no site, modo Light em impressos (PDF, e-mail, crachá do participante).
+- Fontes: Pixelify Sans (display), Doto (numerais), DM Sans (texto), IBM Plex Mono (rótulos, botões, campos) — todas OFL.
+- Cores, fontes e raios só via tokens com os nomes do Figma (`src/styles/global.css`; impressos: `supabase/functions/_shared/marca.ts`, conferido por teste) — nunca hex solto em componente. A paleta padrão do Tailwind está desligada.
+- Logos: `public/marca/` (SVG exportado do Figma, sem recolorir). Logo conjunto IEEE × CS × IC obrigatório em toda aplicação, ≥ 28 px / 8 mm.
 
 ## O que NÃO fazer
 

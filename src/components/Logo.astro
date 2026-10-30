@@ -1,0 +1,42 @@
+---
+/**
+ * Logo IC-ML 2026 (Figma: Marca › Logo IC-ML). SVG exportado do Figma, sem recolorir.
+ * Escuro (lima) sobre bg-000/bg-100/navy-900; claro (tinta + lima escuro) sobre off-white/papel.
+ * Altura mínima: lockup 24 px, símbolo 20 px.
+ */
+interface Props {
+  variante?: 'lockup' | 'simbolo';
+  tom?: 'escuro' | 'claro';
+  /** Altura em px (a largura segue a proporção do Figma). */
+  altura?: number;
+  class?: string;
+  /** Vazio quando o nome do evento já está escrito ao lado (logo decorativo). */
+  alt?: string;
+}
+
+const {
+  variante = 'lockup',
+  tom = 'escuro',
+  altura = 32,
+  class: classe,
+  alt = 'IC-ML 2026',
+} = Astro.props;
+
+const arquivos = {
+  lockup: {
+    escuro: { src: '/marca/logo-icml-escuro.svg', w: 494, h: 96 },
+    claro: { src: '/marca/logo-icml-claro.svg', w: 371, h: 72 },
+  },
+  simbolo: {
+    escuro: { src: '/marca/logo-icml-simbolo.svg', w: 96, h: 96 },
+    claro: { src: '/marca/logo-icml-simbolo.svg', w: 96, h: 96 },
+  },
+} as const;
+
+const a = arquivos[variante][tom];
+const minimo = variante === 'lockup' ? 24 : 20;
+const h = Math.max(altura, minimo);
+const w = Math.round((a.w / a.h) * h * 1000) / 1000;
+---
+
+<img src={a.src} width={w} height={h} alt={alt} class={classe} decoding="async" />

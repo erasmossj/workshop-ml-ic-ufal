@@ -1,0 +1,28 @@
+---
+/**
+ * Logo conjunto oficial IEEE · IEEE Computer Society (UFAL IEEE Student Branch) · Instituto de
+ * Computação (Figma: Marca › Logo conjunto). Obrigatório em toda aplicação.
+ * Branco sobre fundos escuros/navy, preto sobre claros. Altura mínima 28 px / 8 mm.
+ * Nunca recolorir, desmontar ou aplicar sobre textura.
+ */
+interface Props {
+  tom?: 'branco' | 'preto';
+  /** Altura em px — no mínimo 28. */
+  altura?: number;
+  class?: string;
+}
+
+const { tom = 'branco', altura = 44, class: classe } = Astro.props;
+const h = Math.max(altura, 28);
+const w = Math.round((632 / 115) * h * 1000) / 1000;
+---
+
+<img
+  src={`/marca/logo-conjunto-${tom}.svg`}
+  width={w}
+  height={h}
+  alt="IEEE, IEEE Computer Society — Ramo Estudantil IEEE da UFAL — e Instituto de Computação da UFAL"
+  class={classe}
+  decoding="async"
+  loading="lazy"
+/>

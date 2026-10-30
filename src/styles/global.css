@@ -1,29 +1,115 @@
 @import 'tailwindcss';
 
 /*
- * Direção D — Gradiente moderno (Figma: página "D · Gradiente moderno").
- * Fundo em gradiente azul IEEE → índigo, superfícies de vidro, ação em gradiente laranja IEEE CS.
- * Cores só via tokens. Contraste verificado sobre o tom mais claro do fundo (#0A4F86):
- * texto 8,5:1 · suave 6,7:1 · ciano 6,5:1 · texto-sobre-ação ≥ 6,2:1 nos dois extremos do gradiente.
+ * Identidade visual final — Figma "IC-ML" (LmEPNS2a8dmobLs1sjCfV3), coleção IC-ML / Color.
+ * Modo Dark é o padrão do site; modo Light vale para impressos (crachá do participante,
+ * impressão do comprovante) via .modo-claro e @media print.
+ * Cores, fontes e raios só por estes tokens — a paleta padrão do Tailwind está desligada.
+ * Contraste (WCAG 2.2 AA) conferido: o par mais justo é ink-300 sobre bg-300 (4,51:1).
  */
-@theme inline {
-  --color-fundo-1: #071a45;
-  --color-fundo-2: #0a4f86;
-  --color-fundo-3: #2e1a6e;
-  --color-texto: #ffffff;
-  --color-suave: #dce6f7;
-  --color-ciano: #a5ebff;
-  --color-acao-1: #ffb52e;
-  --color-acao-2: #e87722;
-  --color-sobre-acao: #1a1206;
-  --color-erro: #ffb4a8;
-  /* Resultado do leitor de QR (credenciamento): sempre com ícone e texto, nunca só a cor. */
-  --color-ok: #a8f0c0;
-  --color-aviso: #ffe28a;
 
-  --font-display: var(--font-sora);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-jetbrains);
+:root {
+  --bg-000: #07090b;
+  --bg-100: #0d1114;
+  --bg-200: #131a1f;
+  --bg-300: #1a232a;
+  --navy-900: #0a1622;
+  --line-100: #222c34;
+  --line-200: #62727e;
+  --line-dot: #26323b;
+  --ink-100: #eef2ea;
+  --ink-200: #a9b4ae;
+  --ink-300: #7f8b86;
+  --lime-500: #c8ff2e;
+  --lime-400: #d9ff73;
+  --lime-ink: #c8ff2e;
+  --lime-900: #18220a;
+  --on-lime: #0a0d06;
+  --blue-500: #2a62f5;
+  --blue-ink: #86a8ff;
+  --blue-900: #0d1a3a;
+  --on-blue: #ffffff;
+  --danger: #ff7a66;
+  --focus-ring: #c8ff2e;
+  --glow: #c8ff2e;
+  --logo-lit: #c8ff2e;
+  --logo-unlit: #3a4752;
+  color-scheme: dark;
+}
+
+/* Modo Light (impressos). */
+.modo-claro {
+  --bg-000: #f4f3ee;
+  --bg-100: #ecebe5;
+  --bg-200: #ffffff;
+  --bg-300: #e3e2db;
+  --line-100: #d6d5cd;
+  --line-200: #77766e;
+  --line-dot: #d3d2ca;
+  --ink-100: #0d1114;
+  --ink-200: #3c464c;
+  --ink-300: #5b656b;
+  --lime-400: #b8f20a;
+  --lime-ink: #4a6600;
+  --lime-900: #eefac8;
+  --blue-ink: #1f4fd6;
+  --blue-900: #e3eaff;
+  --danger: #b3301b;
+  --focus-ring: #1f4fd6;
+  --glow: #7aaa00;
+  --logo-lit: #0d1114;
+  --logo-unlit: #c9c8bf;
+  color-scheme: light;
+}
+
+@theme {
+  --color-*: initial;
+  --radius-*: initial;
+  --font-*: initial;
+}
+
+@theme inline {
+  --color-bg-000: var(--bg-000);
+  --color-bg-100: var(--bg-100);
+  --color-bg-200: var(--bg-200);
+  --color-bg-300: var(--bg-300);
+  --color-navy-900: var(--navy-900);
+  --color-line-100: var(--line-100);
+  --color-line-200: var(--line-200);
+  --color-line-dot: var(--line-dot);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-lime-500: var(--lime-500);
+  --color-lime-400: var(--lime-400);
+  --color-lime-ink: var(--lime-ink);
+  --color-lime-900: var(--lime-900);
+  --color-on-lime: var(--on-lime);
+  --color-blue-500: var(--blue-500);
+  --color-blue-ink: var(--blue-ink);
+  --color-blue-900: var(--blue-900);
+  --color-on-blue: var(--on-blue);
+  --color-danger: var(--danger);
+  --color-focus-ring: var(--focus-ring);
+
+  /* Raios: o sistema é reto por padrão (0/1); cards 2; crachá 3; tags e pontos pílula. */
+  --radius-0: 0;
+  --radius-1: 2px;
+  --radius-2: 6px;
+  --radius-3: 16px;
+  --radius-pill: 999px;
+
+  /* Pixel (PP Neue Bit → Pixelify Sans) para display; Doto para numerais;
+     DM Sans para texto; IBM Plex Mono para rótulos, botões e campos. */
+  --font-pixel: var(--font-pixelify);
+  --font-numeral: var(--font-doto);
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-plex-mono);
+
+  /* Glow/glow-sm (hover de botão, foco de campo). */
+  --shadow-glow-sm:
+    0 0 0 1px color-mix(in srgb, var(--glow) 55%, transparent),
+    0 0 18px 0 color-mix(in srgb, var(--glow) 35%, transparent);
 }
 
 html {
@@ -32,19 +118,11 @@ html {
 }
 
 body {
-  @apply font-sans text-texto antialiased;
-  background: linear-gradient(
-      135deg,
-      var(--color-fundo-1) 0%,
-      var(--color-fundo-2) 50%,
-      var(--color-fundo-3) 100%
-    )
-    fixed;
-  background-color: var(--color-fundo-1);
+  @apply bg-bg-000 font-sans text-ink-100 antialiased;
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-ciano);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 3px;
 }
 
@@ -52,66 +130,266 @@ body {
   html {
     scroll-behavior: auto;
   }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0s !important;
+  }
 }
 
-/* Superfície de vidro (glassmorphism). */
-.vidro {
-  @apply rounded-3xl border border-white/20 bg-white/[0.07] backdrop-blur-md;
+/* ---------- Tipografia (estilos de texto do Figma) ---------- */
+
+@utility display-xl {
+  font-family: var(--font-pixel);
+  font-weight: 600;
+  font-size: clamp(3rem, 8vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+}
+/* Headline do hero: 78 px no frame 1280×720, reduz no celular. */
+@utility display-hero {
+  font-family: var(--font-pixel);
+  font-weight: 600;
+  font-size: clamp(2.5rem, 6.1vw, 4.875rem);
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+}
+@utility display-l {
+  font-family: var(--font-pixel);
+  font-weight: 600;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+}
+@utility display-m {
+  font-family: var(--font-pixel);
+  font-weight: 500;
+  font-size: clamp(2rem, 3.5vw, 2.5rem);
+  line-height: 1;
+}
+@utility numeral-xl {
+  font-family: var(--font-numeral);
+  font-weight: 800;
+  font-size: clamp(4rem, 10vw, 7.5rem);
+  line-height: 1;
+  font-variation-settings: 'ROND' 0;
+}
+@utility numeral-m {
+  font-family: var(--font-numeral);
+  font-weight: 700;
+  font-size: 3rem;
+  line-height: 1;
+  font-variation-settings: 'ROND' 0;
+}
+@utility numeral-s {
+  font-family: var(--font-numeral);
+  font-weight: 800;
+  font-size: 2rem;
+  line-height: 1.25;
+  font-variation-settings: 'ROND' 0;
+}
+@utility h1 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+@utility h2 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1.75rem;
+  line-height: 2.125rem;
+  letter-spacing: -0.01em;
+}
+@utility h3 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.625rem;
+}
+@utility body-l {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+@utility body-s {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+@utility dado {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
 }
 
-/* Rótulo técnico (mono, caixa alta, espaçado). */
+/* System/label: mono, caixa alta, espaçado. */
 .rotulo {
-  @apply font-mono text-xs font-medium tracking-[0.18em] uppercase;
+  @apply font-mono text-xs leading-4 font-medium tracking-[0.08em] uppercase;
+}
+.rotulo-s {
+  @apply font-mono text-[0.6875rem] leading-4 font-medium tracking-[0.08em] uppercase;
 }
 
-/* Botões em pílula */
+/* ---------- Componentes (classes usadas também por scripts) ---------- */
+
+/* Button — rótulo mono em caixa alta, quina de sistema (radius-1). Primary uma vez por tela.
+   Hover acende Glow/glow-sm. */
 .btn-primario,
 .btn-secundario,
-.btn-escuro {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-center text-sm font-semibold transition;
+.btn-fantasma {
+  @apply inline-flex min-h-11 items-center justify-center gap-3 rounded-1 px-6 py-3.5 text-center font-mono text-xs leading-4 font-medium tracking-[0.08em] uppercase transition;
+}
+.btn-lg {
+  @apply min-h-13 px-8;
 }
 .btn-primario {
-  @apply bg-linear-to-r from-acao-1 to-acao-2 text-sobre-acao shadow-lg shadow-acao-2/25 hover:brightness-110;
+  @apply bg-lime-500 text-on-lime hover:bg-lime-400 hover:shadow-glow-sm;
 }
 .btn-secundario {
-  @apply border border-white/40 text-texto hover:bg-white/10;
+  @apply border border-line-200 text-ink-100 hover:border-lime-ink hover:text-lime-ink hover:shadow-glow-sm;
 }
-.btn-escuro {
-  @apply bg-sobre-acao text-texto hover:bg-fundo-1;
+.btn-fantasma {
+  @apply px-3 text-ink-200 hover:bg-lime-900 hover:text-lime-ink;
+}
+:is(.btn-primario, .btn-secundario, .btn-fantasma):disabled,
+:is(.btn-primario, .btn-secundario, .btn-fantasma)[aria-disabled='true'] {
+  @apply cursor-not-allowed border-transparent bg-bg-300 text-ink-300 shadow-none;
 }
 
-/* Campos do formulário */
+/* Field — campo estilo terminal: rótulo mono caixa alta, prompt ">" em lime-ink, valor mono.
+   Focus: borda lime-ink + glow. Error: danger + mensagem que diz como corrigir. */
+.rotulo-campo {
+  @apply flex items-start justify-between gap-3 font-mono text-[0.6875rem] leading-4 font-medium tracking-[0.08em] text-ink-200 uppercase;
+}
+.obrigatorio {
+  @apply text-lime-ink;
+}
+.terminal {
+  @apply relative mt-1.5 flex;
+}
+.terminal::before {
+  content: '>';
+  @apply pointer-events-none absolute top-3 left-4 font-mono text-sm leading-5 text-lime-ink;
+}
+.terminal:has([aria-invalid='true'])::before {
+  @apply text-danger;
+}
 .campo {
-  @apply w-full rounded-xl border border-white/25 bg-white/[0.06] px-4 py-3 text-base text-texto placeholder:text-suave/70 focus:border-ciano aria-invalid:border-erro;
+  @apply w-full rounded-1 border border-line-200 bg-bg-300 px-4 py-3 font-mono text-sm leading-5 text-ink-100 transition placeholder:text-ink-300 aria-invalid:border-danger;
+}
+/* Focus do Figma (Glow/glow-sm): o anel de 1 px a 55% vira outline — contorno de foco real
+   (WCAG 2.4.7) com o mesmo desenho — e o brilho de 18 px fica na sombra. */
+.campo:focus {
+  border-color: var(--lime-ink);
+  outline: 1px solid color-mix(in srgb, var(--glow) 55%, transparent);
+  outline-offset: 0;
+  box-shadow: 0 0 18px 0 color-mix(in srgb, var(--glow) 35%, transparent);
+}
+.campo[aria-invalid='true']:focus {
+  border-color: var(--danger);
+}
+.terminal > .campo {
+  @apply pl-8;
 }
 .campo option {
-  color: var(--color-fundo-1);
+  @apply bg-bg-300 text-ink-100;
+}
+.ajuda {
+  @apply mt-1.5 text-[0.8125rem] leading-5 text-ink-300;
 }
 .erro-campo {
-  @apply mt-1.5 text-sm font-medium text-erro;
+  @apply mt-1.5 text-[0.8125rem] leading-5 text-danger empty:hidden;
 }
 
-/* Número com gradiente laranja (blocos do minicurso, datas). */
-.texto-acao {
-  @apply bg-linear-to-r from-acao-1 to-acao-2 bg-clip-text text-transparent;
+/* Checkbox — caixa quadrada (radius-1) que acende em lime-500 com quadrado on-lime. */
+.caixa-selecao {
+  @apply grid size-4.5 shrink-0 cursor-pointer appearance-none place-content-center rounded-1 border border-line-200 bg-bg-300 transition checked:border-lime-500 checked:bg-lime-500;
+}
+.caixa-selecao::before {
+  content: '';
+  @apply size-2 scale-0 bg-on-lime transition;
+}
+.caixa-selecao:checked::before {
+  @apply scale-100;
+}
+
+/* Choice — escolha única segmentada (2–4 opções curtas). Selecionada em lime-500/on-lime. */
+.escolha {
+  @apply flex min-h-10 overflow-hidden rounded-1 border border-line-200;
+}
+.escolha > label {
+  @apply flex flex-1 cursor-pointer items-center justify-center border-r border-line-100 bg-bg-300 px-2 py-3 text-center font-mono text-xs leading-4 font-medium tracking-[0.08em] text-ink-200 uppercase transition last:border-r-0 has-checked:bg-lime-500 has-checked:font-semibold has-checked:text-on-lime has-focus-visible:outline-2 has-focus-visible:-outline-offset-4 has-focus-visible:outline-focus-ring;
+}
+.escolha input {
+  @apply sr-only;
+}
+
+/* Panel — card sólido (bg-200, borda line-100, radius-2), sem sombra e sem transparência.
+   Cabeçalho de sistema com LED lima e faixa de pontos de corte seco na base. */
+.painel {
+  @apply relative overflow-hidden rounded-2 border border-line-100 bg-bg-200;
+}
+.painel-cabecalho {
+  @apply flex items-center justify-between gap-4 border-b border-line-100 px-6 py-3;
+}
+.led {
+  @apply inline-block size-1.5 shrink-0 bg-lime-500;
+}
+/* Faixa de pontos (Figma: Panel › Faixa de pontos): pontos de 3 px a cada ~8 px em line-200. */
+.faixa-pontos {
+  @apply h-6 border-t border-line-100 bg-bg-100;
+  background-image: radial-gradient(circle, var(--line-200) 1.5px, transparent 1.6px);
+  background-size: 7.95px 8px;
+  background-position: -2.5px -3.5px;
+}
+
+/* Tag — categoria. Mapeamento fixo: Palestra=Lime, Mini-curso e Mestrado=Blue,
+   Trabalhos=Outline, Graduação=Neutral, Organização=Solid. */
+.tag {
+  @apply inline-flex h-6 shrink-0 items-center gap-1.5 rounded-pill px-2.5 font-mono text-[0.6875rem] leading-4 font-medium tracking-[0.08em] whitespace-nowrap uppercase;
+}
+.tag::before {
+  content: '';
+  @apply size-1.5 rounded-pill bg-current;
+}
+.tag-lima {
+  @apply bg-lime-900 text-lime-ink;
+}
+.tag-azul {
+  @apply bg-blue-900 text-blue-ink;
+}
+.tag-neutra {
+  @apply bg-bg-300 text-ink-200;
+}
+.tag-contorno {
+  @apply border border-line-200 text-ink-200;
+}
+.tag-solida {
+  @apply bg-ink-100 text-bg-000;
 }
 
 @media print {
   .no-print {
     display: none !important;
   }
-  body {
-    background: #fff !important;
-    color: #000 !important;
-  }
-  .vidro {
-    background: none !important;
-    border-color: #999 !important;
-    backdrop-filter: none !important;
-  }
-  .text-suave,
-  .text-ciano,
-  .text-texto {
-    color: #000 !important;
+  /* Impressão usa o modo Light (impressos), em papel branco. */
+  :root {
+    --bg-000: #ffffff;
+    --bg-100: #ffffff;
+    --bg-200: #ffffff;
+    --bg-300: #ffffff;
+    --line-100: #d6d5cd;
+    --line-200: #77766e;
+    --ink-100: #0d1114;
+    --ink-200: #3c464c;
+    --ink-300: #5b656b;
+    --lime-ink: #4a6600;
+    --lime-900: #eefac8;
+    --blue-ink: #1f4fd6;
+    --blue-900: #e3eaff;
+    --danger: #b3301b;
+    --logo-lit: #0d1114;
+    --logo-unlit: #c9c8bf;
+    color-scheme: light;
   }
 }

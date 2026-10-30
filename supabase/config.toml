@@ -421,8 +421,10 @@ enabled = true
 verify_jwt = false
 
 # Fila de e-mail: chamada só pelo pg_cron, autenticada pelo cabeçalho x-cron-secret.
+# static_files: fontes (OFL) e logos da identidade embutidos no comprovante PDF (WML-68).
 [functions.send-emails]
 verify_jwt = false
+static_files = ["./functions/_shared/marca/*"]
 
 # Leitor de QR (credenciamento): valida o JWT do organizador dentro da função (auth.getUser) e
 # confere a allowlist `organizadores`; o gateway não exige JWT para o preflight de CORS passar.
@@ -432,6 +434,7 @@ verify_jwt = false
 # Download do certificado pelo participante: público, protegido por Turnstile + limite por origem.
 [functions.certificado]
 verify_jwt = false
+static_files = ["./functions/_shared/marca/*"]
 
 # Expurgo LGPD: chamada só pelo pg_cron, autenticada pelo cabeçalho x-cron-secret.
 [functions.expurgo]

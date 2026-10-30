@@ -11,9 +11,11 @@ interface Props {
   description?: string;
   /** Páginas internas (ex.: /admin) ficam fora dos buscadores. */
   noindex?: boolean;
+  /** A home desenha a nav dentro do hero (Figma: Hero — site oficial). */
+  semCabecalho?: boolean;
 }
 
-const { title, description = evento.resumo, noindex = false } = Astro.props;
+const { title, description = evento.resumo, noindex = false, semCabecalho = false } = Astro.props;
 // VERCEL_ENV é definida pela Vercel no build (production | preview | development).
 const faixa = textoDaFaixa({
   backend: Boolean(import.meta.env.PUBLIC_SUPABASE_URL),
@@ -30,31 +32,33 @@ const fullTitle = title ? `${title} · ${evento.sigla}` : `${evento.sigla} — $
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
-    <meta name="theme-color" content="#071a45" />
+    <!-- bg-000 (Figma IC-ML / Color, modo Dark) -->
+    <meta name="theme-color" content="#07090b" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pt_BR" />
-    <Font cssVariable="--font-sora" preload />
-    <Font cssVariable="--font-inter" preload />
-    <Font cssVariable="--font-jetbrains" />
+    <Font cssVariable="--font-pixelify" preload />
+    <Font cssVariable="--font-dm-sans" preload />
+    <Font cssVariable="--font-plex-mono" preload />
+    <Font cssVariable="--font-doto" />
     <slot name="head" />
   </head>
   <body class="min-h-dvh">
     <a
       href="#conteudo"
-      class="sr-only z-50 rounded-full bg-texto px-4 py-2 text-fundo-1 focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+      class="rotulo sr-only z-50 rounded-1 bg-lime-500 px-4 py-3 text-on-lime focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
     >
       Pular para o conteúdo
     </a>
     <p
-      class="no-print bg-linear-to-r from-acao-1 to-acao-2 px-4 py-2 text-center text-sm font-medium text-sobre-acao"
+      class="no-print border-b border-line-100 bg-lime-900 px-4 py-2 text-center dado text-lime-ink"
       role="note"
     >
       {faixa}
     </p>
-    <Header />
+    {!semCabecalho && <Header />}
     <main id="conteudo">
       <slot />
     </main>

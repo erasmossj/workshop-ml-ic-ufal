@@ -1,41 +1,49 @@
-# Marca e protótipos
+# Marca e design
 
-## Figma
+## Identidade final (em uso)
 
-Arquivo: **[WML — Protótipos (I Workshop de ML IC/UFAL)](https://www.figma.com/design/rmT8Cf1Z1UG3ATgNBtTGqa)**
+Arquivo Figma: **[IC-ML](https://www.figma.com/design/LmEPNS2a8dmobLs1sjCfV3/IC-ML)** — decisão em [ADR-006](../adr/ADR-006-identidade-visual-final.md).
 
-| Página                      | Conteúdo                                                                 |
-| --------------------------- | ------------------------------------------------------------------------ |
-| 00 · Capa & Referências     | Como avaliar, direções, padrões da pesquisa, tokens de marca, pendências |
-| A · Institucional acadêmica | IC/UFAL em destaque, sóbrio; hero dividido com card de data/local        |
-| B · Neural / dark tech      | Fundo escuro, rede neural como gráfico, laranja IEEE CS como ação        |
-| C · Editorial bold          | Tipografia gigante (Fraunces), papel off-white, fios pretos              |
-| D · Gradiente moderno       | Gradiente azul IEEE → índigo, cards de vidro, botões em gradiente        |
-| E · Conversão primeiro      | Formulário no hero, contador de vagas, barra fixa no mobile              |
+| Página      | Conteúdo                                                                                      |
+| ----------- | --------------------------------------------------------------------------------------------- |
+| Capa        | Capa do design system                                                                         |
+| Fundamentos | Coleção IC-ML / Color (modos Dark e Light), tipografia, espaço (4 px) e raios                 |
+| Marca       | Logo IC-ML (lockup, símbolo, wordmark), logo conjunto IEEE × CS × IC e regras de uso          |
+| Componentes | Button, Tag, BoundingBox, Field, Checkbox, Choice, FileDrop, ScheduleItem, Panel, QR          |
+| Aplicações  | Hero do site oficial (1280×720), carrossel de programação (5 × 1080×1350), crachás 100×140 mm |
+| Texturas    | Faixas e cantos de pontos (halftone)                                                          |
 
-Cada direção tem: Landing (desktop 1440 / mobile 390), Inscrição (desktop/mobile), Confirmação (desktop) e componentes locais (Botão, Tag, Campo, Card/Palestrante, Item/Programação, Logo/Slot, Opção/Minicurso).
+### Onde está no código
 
-Protótipo codificado: **direção D — Gradiente moderno** (escolhida em 16/10). Direção do site definitivo: a confirmar com os stakeholders.
+| Figma                       | Código                                                                                                             |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| IC-ML / Color (Dark, Light) | `src/styles/global.css` (`:root`, `.modo-claro`, `@media print`); impressos: `supabase/functions/_shared/marca.ts` |
+| Tipografia                  | `astro.config.mjs` (fontes) + utilitários `display-*`, `numeral-*`, `h1`–`h3`, `body-*`, `.rotulo`, `dado`         |
+| Espaço                      | escala padrão do Tailwind (space-1…9 = `1, 2, 3, 4, 6, 8, 12, 16, 24`)                                             |
+| Raios                       | `rounded-0`, `rounded-1` (2 px), `rounded-2` (6 px), `rounded-3` (16 px), `rounded-pill`                           |
+| Button                      | `.btn-primario`, `.btn-secundario`, `.btn-fantasma` (+ `.btn-lg`); seta: `Seta.astro`                              |
+| Field                       | `.rotulo-campo` + `.terminal` + `.campo`; ajuda `.ajuda`; erro `.erro-campo`                                       |
+| Checkbox / Choice           | `.caixa-selecao` / `.escolha`                                                                                      |
+| FileDrop                    | `#pdf-zona` em `FormInscricao.astro`                                                                               |
+| Tag                         | `.tag` + `.tag-lima`, `.tag-azul`, `.tag-neutra`, `.tag-contorno`, `.tag-solida`                                   |
+| Panel                       | `Painel.astro` (`.painel`, `.led`, `.faixa-pontos`)                                                                |
+| ScheduleItem                | `ItemProgramacao.astro`                                                                                            |
+| BoundingBox                 | `Deteccao.astro`                                                                                                   |
+| Logos e texturas            | `public/marca/*.svg` (exportados do Figma), `Logo.astro`, `LogoConjunto.astro`                                     |
+| Hero — site oficial         | `src/pages/index.astro` + `FormInscricao.astro`                                                                    |
 
-## Tokens de marca
+### Regras de uso (resumo do Figma)
 
-| Token                  | Valor                  | Fonte                                                                |
-| ---------------------- | ---------------------- | -------------------------------------------------------------------- |
-| IEEE CS laranja        | `#FFA300` (PMS 137 C)  | Brand guide IEEE Computer Society                                    |
-| IEEE CS laranja escuro | `#E87722` (PMS 158 C)  | Brand guide IEEE Computer Society                                    |
-| IEEE azul              | `#00629B`              | IEEE master brand                                                    |
-| IC/UFAL azul           | `#0B4F8C`              | **Provisório** — IC/UFAL não publica guia; confirmar com o Instituto |
-| Tipografia IEEE CS     | Montserrat + Open Sans | Brand guide IEEE Computer Society (Google Fonts)                     |
+- Logo conjunto IEEE × CS × IC **obrigatório em toda aplicação**, no rodapé, altura mínima 28 px / 8 mm, separado do IC-ML por space-6 (32 px). Branco sobre fundos escuros; preto sobre claros.
+- Área de proteção do IC-ML: uma coluna de pontos do símbolo (≈ ⅛ da altura do lockup). Tamanho mínimo: lockup 24 px / 12 mm; símbolo 20 px / 8 mm.
+- Não: recolorir o wordmark em lima, aplicar glow ou gradiente, girar, trocar o pixel por fonte, aplicar sobre textura, fundir com o logo do IEEE.
+- Button Primary uma vez por tela; rótulo com verbo, até 3 palavras. BoundingBox uma por composição.
+- Tag: Palestra = Lima; Minicurso e Mestrado = Azul; Trabalhos = Contorno; Graduação = Neutra; Organização = Sólida.
 
-Logos (IC/UFAL, IEEE RE UFAL, IEEE CS UFAL) aparecem como _slots_ até recebermos os arquivos oficiais. IEEE RE UFAL: aguardando diretoria (WML-23).
+### Pendências
 
-## Pesquisa de referências — padrões adotados
+- No componente "Logo conjunto", o "R" de "COMPUTER" encosta na borda direita do quadro — corrigir no Figma e reexportar `public/marca/logo-conjunto-*.svg` (e os PNGs de `public/marca/` e `supabase/functions/_shared/marca/`).
 
-- Nome, data, local e CTA acima da dobra.
-- CTA de inscrição persistente e repetido em pontos lógicos da rolagem.
-- Inscrição sem sair do site e com poucos campos.
-- Programação por dia com horários claros; palestrantes como prova social.
-- Status de vagas visível e estado "esgotado" explícito.
-- Confirmação imediata na tela + e-mail, com comprovante e "adicionar à agenda".
+## Histórico — protótipos (16/10/2026)
 
-Fontes: [Dryfta — 12 design elements (2026)](https://dryfta.com/12-design-elements-for-a-terrific-conference-website-in-2026/), [Bizzabo — registration landing pages](https://www.bizzabo.com/blog/event-registration-landing-page-examples-tips), [Fourwaves — conference website designs](https://fourwaves.com/blog/conference-website-designs), [IEEE CS Brand Guide](https://www.computer.org/about/ieee-computer-society-brand-guide), [IEEE Students Visual Identity](https://brand-experience.ieee.org/guidelines/sub-brand-resources/students).
+Arquivo: [WML — Protótipos](https://www.figma.com/design/rmT8Cf1Z1UG3ATgNBtTGqa) com as direções A–E. A direção D ("Gradiente moderno") foi usada no MVP até a identidade final (ADR-006).

@@ -2,8 +2,9 @@
 // organização, nas posições salvas no painel. Usado no e-mail, no download e na prévia do painel.
 // CPF completo só aqui dentro (CLAUDE.md, regra 2). O texto é desenhado como texto (pdf-lib
 // codifica em hex): nada do nome é interpretado como comando de PDF.
-import { PDFDict, PDFDocument, PDFName, PDFRef, rgb, StandardFonts, type PDFFont } from 'pdf-lib';
+import { PDFDict, PDFDocument, PDFName, PDFRef, StandardFonts, type PDFFont } from 'pdf-lib';
 import { formatarCargaHoraria, formatarCpf } from './carga-horaria.ts';
+import { carregarMarca, COR, rgbDe } from './marca.ts';
 import { paraWinAnsi } from './winansi.ts';
 
 export { formatarCargaHoraria, formatarCpf };
@@ -40,7 +41,9 @@ const FONTES: Record<Fonte, StandardFonts> = {
   'times-negrito': StandardFonts.TimesRomanBold,
 };
 const TAMANHO_MINIMO = 6;
-const CINZA = rgb(0.35, 0.38, 0.45);
+// Modo Light (impressos) do Figma "IC-ML": texto em ink-100, rodapé em ink-300.
+const TINTA = rgbDe(COR.ink100);
+const TINTA_SUAVE = rgbDe(COR.ink300);
 
 /** Maior tamanho (até `tamanho`) em que o texto cabe na largura; nunca abaixo de 6 pt. */
 export function tamanhoQueCabe(
@@ -120,11 +123,12 @@ export async function gerarCertificado(
       y: height - campo.y - campo.tamanho * 0.8 - (campo.tamanho - tamanho) / 2,
       size: tamanho,
       font: f,
+      color: TINTA,
     });
   }
 
-  // Rodapé de autenticidade na 1ª página: código + onde conferir.
-  const rodape = await fonte('helvetica');
+  // Rodapé de autenticidade na 1ª página: código + onde conferir, em IBM Plex Mono (dado).
+  const { mono: rodape } = await carregarMarca(pdf, { logos: false });
   const linha = paraWinAnsi(
     `Código de validação: ${dados.codigo} · confira em ${dados.urlValidacao}`,
     new Set(rodape.getCharacterSet()),
@@ -137,7 +141,7 @@ export async function gerarCertificado(
     y: 14,
     size: tamanhoRodape,
     font: rodape,
-    color: CINZA,
+    color: TINTA_SUAVE,
   });
 
   pdf.setTitle('Certificado — IC-ML 2026');

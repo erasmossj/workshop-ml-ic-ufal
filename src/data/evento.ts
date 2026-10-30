@@ -23,6 +23,18 @@ export const evento = {
   },
   /** E-mail público do evento — a definir (não publicar a conta de testes). */
   contato: null as string | null,
+  /** Hero (Figma "Hero — site oficial"): linha de data/local e texto de apoio. */
+  hero: {
+    linha: ['02—04.DEZ.2026', 'Instituto de Computação', 'UFAL'],
+    texto:
+      'Três dias de palestras, apresentações de pesquisa local e um minicurso prático de ML no Google Colab.',
+    /** Números do rodapé do hero. "apresentações" a confirmar com a banca. */
+    numeros: [
+      { valor: '03', rotulo: 'dias' },
+      { valor: '04', rotulo: 'aulas de minicurso' },
+      { valor: '12', rotulo: 'apresentações' },
+    ],
+  },
 } as const;
 
 export type Atividade = {
@@ -123,6 +135,8 @@ export const janela = {
   inicio: '2026-10-30T00:00:00-03:00',
   fim: '2026-11-16T23:59:59-03:00',
   textoProrrogacao: 'pode ser prorrogada até 18/11',
+  /** Cabeçalho do formulário (Figma: "30.10 → 16.11"). */
+  textoCurto: '30.10 → 16.11',
 } as const;
 
 export const cronograma = [

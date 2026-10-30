@@ -1,235 +1,175 @@
 ---
+import Deteccao from '../components/Deteccao.astro';
+import FormInscricao from '../components/FormInscricao.astro';
+import Header from '../components/Header.astro';
+import ItemProgramacao from '../components/ItemProgramacao.astro';
+import LogoConjunto from '../components/LogoConjunto.astro';
+import Painel from '../components/Painel.astro';
+import Seta from '../components/Seta.astro';
 import Titulo from '../components/Titulo.astro';
 import { cronograma, dias, evento, faq, janela, minicurso, trabalhos } from '../data/evento';
 import Base from '../layouts/Base.astro';
 
-const icones = {
-  cal: 'M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z',
-  pin: 'M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21zM12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
-  doc: 'M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8l-5-5zM14 3v5h5',
-  check: 'M5 12.5l4.5 4.5L19 7.5',
-};
-
-const chips = [
-  { icone: icones.cal, rotulo: 'Quando', valor: '02 a 04/12/2026' },
-  { icone: icones.pin, rotulo: 'Onde', valor: 'IC · UFAL, Maceió' },
-  { icone: icones.doc, rotulo: 'Inscrições', valor: '30/10 a 16/11' },
-];
-
-const destaques = [
-  ['3 dias', 'de palestras, trabalhos e minicurso'],
-  ['Minicurso', '3 tardes no Google Colab'],
-  ['Trabalhos', 'apresentação oral ou pôster'],
-  ['Certificado', 'com carga horária'],
-];
-
 const palestras = [
   {
-    quando: 'Qua · 02/12 · 10h',
+    quando: 'Qua · 02.12 · 10h00',
     titulo: 'Palestra de abertura',
     quem: 'Pesquisador convidado — a confirmar',
   },
   {
-    quando: 'Sex · 04/12 · 11h',
+    quando: 'Sex · 04.12 · 11h00',
     titulo: 'ML e ciência de dados no mercado',
     quem: 'Convidado do setor — a confirmar',
   },
 ];
 
-const realizacao = [
-  'IEEE Ramo Estudantil UFAL',
-  'IEEE Computer Society UFAL',
-  'Instituto de Computação — UFAL',
-];
+const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
 ---
 
-<Base>
-  <!-- HERO -->
-  <section aria-labelledby="titulo-evento" class="relative overflow-hidden">
-    <div
-      class="pointer-events-none absolute -top-32 -left-24 size-96 rounded-full bg-ciano/20 blur-3xl"
-      aria-hidden="true"
-    ></div>
-    <div
-      class="pointer-events-none absolute -right-24 bottom-0 size-96 rounded-full bg-acao-2/25 blur-3xl"
-      aria-hidden="true"
-    ></div>
-    <div class="relative mx-auto flex max-w-5xl flex-col items-center px-5 py-20 text-center md:py-28">
-      <p class="rotulo rounded-full bg-ciano/15 px-4 py-2 text-ciano">
-        {evento.sigla} · 02—04 dez 2026
-      </p>
-      <h1
-        id="titulo-evento"
-        class="mt-6 font-display text-5xl leading-[1.05] font-extrabold tracking-tight md:text-7xl"
-      >
-        Workshop de
-        <br />
-        Machine Learning
-      </h1>
-      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-suave md:text-xl">{evento.resumo}</p>
-      <div class="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-        <a href="/inscricao" class="btn-primario">
-          Inscreva-se
-        </a>
-        <a href="#programacao" class="btn-secundario">
-          Ver programação
-        </a>
-      </div>
-      <ul class="mt-12 grid w-full gap-4 sm:grid-cols-3">
-        {chips.map((c) => (
-          <li class="vidro flex items-center gap-4 p-5 text-left">
-            <svg
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              class="shrink-0 text-ciano"
-              aria-hidden="true"
-            >
-              <path
-                d={c.icone}
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-            <span>
-              <span class="rotulo block text-suave">{c.rotulo}</span>
-              <span class="mt-1 block font-display font-bold">{c.valor}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </section>
+<Base semCabecalho>
+  <!-- HERO (Figma: Aplicações › Hero — site oficial 1280×720) -->
+  <div class="grid border-b border-line-100 lg:grid-cols-[1fr_26.25rem]">
+    <!-- O fundo acompanha a altura da coluna do formulário; o conteúdo fica fixo na rolagem. -->
+    <div class="border-line-100 bg-bg-100 lg:border-r">
+      <div class="flex flex-col justify-between gap-16 px-4 py-8 md:px-16 lg:sticky lg:top-0 lg:h-dvh lg:min-h-[45rem]">
+        <Header embutido />
 
-  <!-- DESTAQUES -->
-  <section aria-label="Destaques" class="mx-auto max-w-7xl px-5 md:px-10">
-    <ul class="vidro grid grid-cols-2 gap-6 p-6 md:grid-cols-4 md:p-8">
-      {destaques.map(([a, b]) => (
-        <li>
-          <p class="font-display text-2xl font-bold md:text-3xl">{a}</p>
-          <p class="mt-1 text-sm text-suave">{b}</p>
-        </li>
-      ))}
-    </ul>
-  </section>
+        <section aria-labelledby="titulo-evento" class="flex flex-col items-start">
+          <p class="rotulo whitespace-pre-wrap text-lime-ink">{evento.hero.linha.join('  ·  ')}</p>
+          <h1 id="titulo-evento" class="mt-6 display-hero text-ink-100">
+            <span class="block">Workshop de</span>
+            <span class="flex flex-wrap items-end gap-x-5.5">
+              <span>Machine</span>
+              <Deteccao classe="class: ML" confianca="0.98">
+                Learning
+              </Deteccao>
+            </span>
+          </h1>
+          <p class="mt-6 max-w-[29.375rem] body-l text-ink-200">{evento.hero.texto}</p>
+          <div class="mt-8 flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
+            <a href="#inscricao" class="btn-primario btn-lg">
+              Garantir inscrição
+              <Seta />
+            </a>
+            <a href="#programacao" class="btn-secundario btn-lg">
+              Ver programação
+            </a>
+          </div>
+        </section>
+
+        <div class="flex flex-wrap items-end justify-between gap-8 border-t border-line-100 pt-6">
+          <ul class="flex flex-wrap gap-x-12 gap-y-4" aria-label="O evento em números">
+            {evento.hero.numeros.map((n) => (
+              <li class="flex flex-col">
+                <span class="numeral-s text-ink-100">{n.valor}</span>
+                <span class="dado text-ink-300">{n.rotulo}</span>
+              </li>
+            ))}
+          </ul>
+          <LogoConjunto altura={44} />
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-line-100 lg:border-t-0">
+      <FormInscricao />
+    </div>
+  </div>
 
   <!-- SOBRE -->
-  <section id="sobre" aria-labelledby="sobre-t" class="mx-auto max-w-7xl px-5 py-20 md:px-10">
+  <section id="sobre" aria-labelledby="sobre-t" class={secao}>
     <Titulo rotulo="Sobre o evento" id="sobre-t">
       Pesquisa local, de portas abertas
     </Titulo>
-    <div class="grid gap-10 md:grid-cols-2">
-      <p class="text-lg leading-relaxed text-suave">{evento.objetivo}</p>
-      <dl class="grid gap-4">
+    <div class="grid gap-10 lg:grid-cols-[1fr_1.2fr]">
+      <p class="body-l text-ink-200">{evento.objetivo}</p>
+      <ul class="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
         {[
           ['Para quem', evento.publico],
           ['Formato', 'Manhãs com palestras e apresentações de trabalhos; tardes com o minicurso.'],
           ['Realização', evento.realizacao],
         ].map(([t, d]) => (
-          <div class="vidro relative p-5 pl-14.5">
-            <dt class="font-semibold">
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                class="absolute top-5.5 left-5 text-ciano"
-                aria-hidden="true"
-              >
-                <path
-                  d={icones.check}
-                  stroke="currentColor"
-                  stroke-width="2.2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              {t}
-            </dt>
-            <dd class="text-suave">{d}</dd>
-          </div>
+          <Painel as="li" rotulo={t}>
+            <p class="body-s text-ink-200">{d}</p>
+          </Painel>
         ))}
-      </dl>
+      </ul>
     </div>
   </section>
 
   <!-- PROGRAMAÇÃO -->
-  <section id="programacao" aria-labelledby="prog-t" class="mx-auto max-w-7xl px-5 py-20 md:px-10">
+  <section id="programacao" aria-labelledby="prog-t" class={secao}>
     <Titulo rotulo="Programação" id="prog-t">
       Três dias de atividades
     </Titulo>
-    <div class="grid gap-6 md:grid-cols-3">
-      {dias.map((d) => (
-        <article class="vidro p-6" aria-labelledby={`dia-${d.data}`}>
-          <p class="rotulo text-ciano">{d.rotulo}</p>
-          <h3 id={`dia-${d.data}`} class="mt-2 font-display text-2xl font-bold">
-            {d.semana}
+    <div class="grid gap-6">
+      {dias.map((d, i) => (
+        <Painel
+          as="article"
+          rotulo={`Dia ${String(i + 1).padStart(2, '0')}`}
+          meta={`${d.semana.replace('/', '.')}.2026`}
+          corpo="px-6 pb-2"
+          aria-labelledby={`dia-${d.data}`}
+        >
+          <h3 id={`dia-${d.data}`} class="sr-only">
+            {d.rotulo} — {d.semana}
           </h3>
-          <ol class="mt-5 divide-y divide-white/10 border-t border-white/20">
+          <ol class="-mt-px">
             {d.atividades.map((a) => (
-              <li class={`flex gap-4 py-2.5 ${a.tipo === 'pausa' ? 'text-suave' : ''}`}>
-                <span class="w-24 shrink-0 font-mono text-sm text-ciano">
-                  {a.inicio}–{a.fim}
-                </span>
-                <span class={a.tipo === 'minicurso' ? 'font-semibold' : ''}>{a.titulo}</span>
-              </li>
+              <ItemProgramacao atividade={a} />
             ))}
           </ol>
-        </article>
+        </Painel>
       ))}
     </div>
-    <p class="mt-6 text-sm text-suave">
+    <p class="mt-6 body-s text-ink-300">
       Programação preliminar — nomes de palestrantes e horários finais serão confirmados pela
       organização.
     </p>
   </section>
 
   <!-- MINICURSO -->
-  <section id="minicurso" aria-labelledby="mini-t" class="mx-auto max-w-7xl px-5 py-20 md:px-10">
+  <section id="minicurso" aria-labelledby="mini-t" class={secao}>
     <Titulo rotulo="Minicurso · 3 tardes" id="mini-t">
       {minicurso.titulo}
     </Titulo>
-    <div class="grid gap-10 md:grid-cols-[1fr_1.4fr]">
-      <div class="flex flex-col gap-6">
-        <p class="text-lg leading-relaxed text-suave">{minicurso.resumo}</p>
-        <div class="vidro p-5">
-          <p class="rotulo text-ciano">Vagas</p>
-          <p class="mt-1 font-semibold">
+    <div class="grid gap-10 lg:grid-cols-[1fr_1.4fr]">
+      <div class="flex flex-col items-start gap-6">
+        <p class="body-l text-ink-200">{minicurso.resumo}</p>
+        <Painel rotulo="Vagas" meta="Laboratório 1" class="w-full" cantos>
+          <p class="h3 text-ink-100">
             {minicurso.vagas === null
-              ? 'Limitadas pela capacidade do laboratório — número a definir.'
+              ? 'Limitadas pela capacidade do laboratório'
               : `${minicurso.vagas} vagas`}
           </p>
-          <p class="mt-1 text-sm text-suave">
+          <p class="body-s text-ink-200">
             Opcional: marque no formulário de inscrição. Quando as vagas acabam, a opção é bloqueada
             automaticamente.
           </p>
-        </div>
-        <a href="/inscricao" class="btn-primario self-start">
+        </Painel>
+        <a href="#inscricao" class="btn-secundario">
           Quero participar
+          <Seta />
         </a>
       </div>
       <ol class="grid gap-4 sm:grid-cols-2">
         {minicurso.blocos.map((b) => (
-          <li class="vidro p-6">
-            <span class="texto-acao font-display text-5xl font-extrabold">{b.n}</span>
-            <h3 class="mt-3 text-xl font-bold">{b.titulo}</h3>
-            <p class="mt-1 text-suave">{b.detalhe}</p>
-          </li>
+          <Painel as="li" rotulo={`Aula ${Number(b.n)}`} meta="Google Colab">
+            <h3 class="h3 text-ink-100">{b.titulo}</h3>
+            <p class="body-s text-ink-200">{b.detalhe}</p>
+          </Painel>
         ))}
       </ol>
     </div>
   </section>
 
   <!-- TRABALHOS -->
-  <section id="trabalhos" aria-labelledby="trab-t" class="mx-auto max-w-7xl px-5 py-20 md:px-10">
+  <section id="trabalhos" aria-labelledby="trab-t" class={secao}>
     <Titulo rotulo="Chamada de trabalhos" id="trab-t">
       Apresente sua pesquisa
     </Titulo>
-    <div class="grid gap-10 md:grid-cols-2">
-      <div class="grid gap-6">
+    <div class="grid gap-10 lg:grid-cols-2">
+      <div class="flex flex-col items-start gap-8">
         <dl class="grid gap-6">
           {[
             ['Formato', trabalhos.formato],
@@ -238,123 +178,124 @@ const realizacao = [
             ['Premiação', trabalhos.premiacao],
           ].map(([t, d]) => (
             <div>
-              <dt class="rotulo text-ciano">{t}</dt>
-              <dd class="mt-1 text-lg">{d}</dd>
+              <dt class="rotulo text-lime-ink">{t}</dt>
+              <dd class="mt-2 body-l text-ink-100">{d}</dd>
             </div>
           ))}
         </dl>
-        <a href="/inscricao" class="btn-primario self-start justify-self-start">
+        <a href="#inscricao" class="btn-secundario">
           Inscrever e enviar trabalho
+          <Seta />
         </a>
       </div>
-      <div class="vidro p-6">
-        <h3 class="rotulo text-ciano">Datas importantes</h3>
-        <ol class="mt-4 divide-y divide-white/10">
+      <Painel
+        as="section"
+        rotulo="Datas importantes"
+        corpo="px-6 pb-2"
+        aria-label="Datas importantes"
+      >
+        <ol class="-mt-px">
           {cronograma.map((c) => (
-            <li class="flex gap-5 py-3">
-              <span class="w-20 shrink-0 font-mono font-medium text-ciano">{c.data}</span>
-              <span>{c.item}</span>
+            <li class="grid grid-cols-[5.5rem_1fr] gap-4 border-t border-line-100 py-4 sm:grid-cols-[7rem_1fr]">
+              <span class="dado text-lime-ink">{c.data}</span>
+              <span class="text-ink-100">{c.item}</span>
             </li>
           ))}
         </ol>
-        <p class="mt-4 text-sm text-suave">Prazo das inscrições: {janela.textoProrrogacao}.</p>
-      </div>
+        <p class="border-t border-line-100 py-4 body-s text-ink-300">
+          Prazo das inscrições: {janela.textoProrrogacao}.
+        </p>
+      </Painel>
     </div>
   </section>
 
   <!-- PALESTRAS -->
-  <section aria-labelledby="pal-t" class="mx-auto max-w-7xl px-5 py-20 md:px-10">
+  <section aria-labelledby="pal-t" class={secao}>
     <Titulo rotulo="Palestras" id="pal-t">
       Quem vai falar
     </Titulo>
     <div class="grid gap-6 md:grid-cols-2">
       {palestras.map((p) => (
-        <article class="vidro flex items-center gap-5 p-6">
-          <div
-            class="size-20 shrink-0 rounded-full bg-linear-to-br from-ciano/40 to-acao-2/40"
-            aria-hidden="true"
-          />
-          <div>
-            <p class="rotulo text-ciano">{p.quando}</p>
-            <h3 class="mt-2 font-display text-xl font-bold">{p.titulo}</h3>
-            <p class="mt-1 text-suave">{p.quem}</p>
-          </div>
-        </article>
+        <Painel as="article" rotulo="Palestra" meta={p.quando}>
+          <h3 class="h3 text-ink-100">{p.titulo}</h3>
+          <p class="body-s text-ink-200">{p.quem}</p>
+        </Painel>
       ))}
     </div>
   </section>
 
   <!-- LOCAL + REALIZAÇÃO -->
-  <section
-    aria-labelledby="local-t"
-    class="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:grid-cols-2 md:px-10"
-  >
-    <div>
+  <section id="local" aria-labelledby="local-t" class:list={[secao, 'grid gap-16 lg:grid-cols-2']}>
+    <div class="flex flex-col items-start">
       <Titulo rotulo="Local" id="local-t">
         {evento.local.nome}
       </Titulo>
-      <p class="text-lg">{evento.local.detalhe}</p>
-      <p class="mt-2 text-suave">{evento.local.endereco}</p>
+      <p class="body-l text-ink-100">{evento.local.detalhe}</p>
+      <p class="mt-2 text-ink-200">{evento.local.endereco}</p>
       <a
         href={evento.local.mapa}
-        class="btn-secundario mt-6"
+        class="btn-secundario mt-8"
         target="_blank"
         rel="noopener noreferrer"
       >
         Abrir no mapa<span class="sr-only"> (abre em nova aba)</span>
+        <Seta />
       </a>
     </div>
     <div>
-      <div class="mb-10 md:mb-14">
-        <p class="rotulo text-ciano">Realização</p>
-        <h2 class="mt-3 font-display text-4xl leading-[1.1] font-bold md:text-5xl">
-          Quem organiza
-        </h2>
+      <div class="mb-10 md:mb-12">
+        <p class="rotulo text-lime-ink">Realização</p>
+        <h2 class="mt-4 display-m text-ink-100">Quem organiza</h2>
       </div>
-      <ul class="flex flex-wrap gap-4">
-        {realizacao.map((r) => (
-          <li class="rounded-2xl border border-dashed border-white/40 px-5 py-4 text-sm font-medium text-suave">
-            {r}
-            <span class="sr-only"> (logo a inserir)</span>
-          </li>
-        ))}
-      </ul>
+      <p class="body-l text-ink-200">{evento.realizacao}</p>
+      <LogoConjunto altura={64} class="mt-8 h-auto max-w-full" />
     </div>
   </section>
 
   <!-- FAQ -->
-  <section id="faq" aria-labelledby="faq-t" class="mx-auto max-w-4xl px-5 py-20 md:px-10">
-    <Titulo rotulo="Dúvidas" id="faq-t" centro>
+  <section id="faq" aria-labelledby="faq-t" class="mx-auto max-w-4xl px-4 py-20 md:px-16 md:py-24">
+    <Titulo rotulo="Dúvidas" id="faq-t">
       Perguntas frequentes
     </Titulo>
-    <div class="flex flex-col gap-3">
+    <div class="border-b border-line-100">
       {faq.map((f) => (
-        <details class="group vidro rounded-2xl px-6">
-          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-5 text-lg font-semibold [&::-webkit-details-marker]:hidden">
+        <details class="group border-t border-line-100">
+          <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-5 text-[1.0625rem] leading-6 font-semibold text-ink-100 [&::-webkit-details-marker]:hidden">
             {f.p}
             <span
-              class="grid size-8 shrink-0 place-items-center rounded-full bg-white/10 text-xl transition-transform group-open:rotate-45"
+              class="grid size-8 shrink-0 place-items-center rounded-1 border border-line-200 font-mono text-lime-ink transition-transform group-open:rotate-45"
               aria-hidden="true"
             >
               +
             </span>
           </summary>
-          <p class="pb-5 text-suave">{f.r}</p>
+          <p class="pb-5 text-ink-200">{f.r}</p>
         </details>
       ))}
     </div>
   </section>
 
   <!-- CTA -->
-  <section class="mx-auto max-w-7xl px-5 pb-20 md:px-10">
-    <div class="flex flex-col items-start gap-6 rounded-3xl bg-linear-to-r from-acao-1 to-acao-2 px-8 py-12 text-sobre-acao md:flex-row md:items-center md:justify-between md:px-14">
-      <p class="font-display text-3xl leading-tight font-extrabold md:text-5xl">
+  <section class="mx-auto max-w-7xl px-4 pb-24 md:px-16" aria-labelledby="cta-t">
+    <div class="relative flex flex-col items-start gap-8 overflow-hidden rounded-2 border border-line-100 bg-bg-100 px-6 py-12 md:flex-row md:items-center md:justify-between md:px-14">
+      <img
+        src="/marca/textura-diagonal-264.svg"
+        width="264"
+        height="264"
+        alt=""
+        aria-hidden="true"
+        class="pointer-events-none absolute -top-px -right-px hidden max-w-none select-none md:block"
+        loading="lazy"
+        decoding="async"
+      />
+      <h2 id="cta-t" class="relative display-l text-ink-100">
         Garanta sua vaga
         <br />
         no minicurso.
-      </p>
-      <a href="/inscricao" class="btn-escuro">
+      </h2>
+      <a href="#inscricao" class="btn-primario btn-lg relative">
         Fazer inscrição
+        <Seta />
       </a>
     </div>
   </section>

@@ -9,29 +9,38 @@ const supabaseLocal = /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(
   ? ` ${process.env.PUBLIC_SUPABASE_URL}`
   : '';
 
-// Protótipo da direção D (Gradiente moderno) — conteúdo em src/data/evento.ts.
+// Identidade visual final (Figma "IC-ML", WML-68) — conteúdo em src/data/evento.ts.
 export default defineConfig({
   // Fontes baixadas no build e servidas pelo próprio site (sem requisição a terceiros).
+  // Figma: Pixelify Sans (display, no lugar da PP Neue Bit), Doto (numerais),
+  // DM Sans (texto) e IBM Plex Mono (rótulos, botões e campos). Todas gratuitas (OFL).
   fonts: [
     {
       provider: fontProviders.fontsource(),
-      name: 'Sora',
-      cssVariable: '--font-sora',
-      weights: ['400', '600', '700', '800'],
+      name: 'Pixelify Sans',
+      cssVariable: '--font-pixelify',
+      weights: ['500', '600'],
+      fallbacks: ['ui-monospace', 'monospace'],
+    },
+    {
+      provider: fontProviders.fontsource(),
+      name: 'Doto',
+      cssVariable: '--font-doto',
+      weights: ['700', '800'],
+      fallbacks: ['ui-monospace', 'monospace'],
+    },
+    {
+      provider: fontProviders.fontsource(),
+      name: 'DM Sans',
+      cssVariable: '--font-dm-sans',
+      weights: ['400', '500', '600'],
       fallbacks: ['ui-sans-serif', 'system-ui', 'sans-serif'],
     },
     {
       provider: fontProviders.fontsource(),
-      name: 'Inter',
-      cssVariable: '--font-inter',
-      weights: ['100 900'],
-      fallbacks: ['ui-sans-serif', 'system-ui', 'sans-serif'],
-    },
-    {
-      provider: fontProviders.fontsource(),
-      name: 'JetBrains Mono',
-      cssVariable: '--font-jetbrains',
-      weights: ['400', '500'],
+      name: 'IBM Plex Mono',
+      cssVariable: '--font-plex-mono',
+      weights: ['400', '500', '600'],
       fallbacks: ['ui-monospace', 'monospace'],
     },
   ],

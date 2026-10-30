@@ -1,9 +1,11 @@
 // Comprovante de inscrição em PDF (WML-30), anexado ao e-mail de confirmação.
-// Usa as fontes padrão do PDF (Helvetica, WinAnsi): nada para embutir, arquivo pequeno.
+// Identidade final (WML-68): modo Light (impressos) do Figma "IC-ML" — DM Sans, IBM Plex Mono,
+// logo IC-ML no topo e logo conjunto IEEE × CS × IC no rodapé (obrigatório em toda aplicação).
 // CPF só mascarado (CLAUDE.md, regra 2). O QR carrega o token assinado (qr.ts), não dado pessoal.
-import { PDFDocument, PDFFont, PDFPage, rgb, StandardFonts } from 'pdf-lib';
+import { PDFDocument, PDFFont, PDFPage } from 'pdf-lib';
 import QRCode from 'qrcode';
 import { EVENTO } from './evento-gerado.ts';
+import { carregarMarca, COR, rgbDe } from './marca.ts';
 import { paraWinAnsi } from './winansi.ts';
 
 export { paraWinAnsi };
@@ -22,11 +24,13 @@ export type DadosComprovante = {
   emitidoEm: Date;
 };
 
-// Tokens de marca (src/styles/global.css): fundo-1, acao-2, texto suave.
-const AZUL = rgb(0x07 / 255, 0x1a / 255, 0x45 / 255);
-const LARANJA = rgb(0xe8 / 255, 0x77 / 255, 0x22 / 255);
-const CINZA = rgb(0.35, 0.38, 0.45);
-const BRANCO = rgb(1, 1, 1);
+const TINTA = rgbDe(COR.ink100);
+const TINTA_SUAVE = rgbDe(COR.ink300);
+const LIMA_TINTA = rgbDe(COR.limeInk);
+const LIMA = rgbDe(COR.lime500);
+const LINHA = rgbDe(COR.line100);
+const PAPEL = rgbDe(COR.bg200);
+const FUNDO = rgbDe(COR.bg000);
 
 const LARGURA = 595.28; // A4
 const ALTURA = 841.89;
@@ -52,7 +56,15 @@ function desenharQr(pagina: PDFPage, token: string, x: number, y: number, lado: 
   const qr = QRCode.create(token, { errorCorrectionLevel: 'M' });
   const n = qr.modules.size;
   const modulo = lado / (n + 8); // zona de silêncio de 4 módulos em cada lado
-  pagina.drawRectangle({ x, y, width: lado, height: lado, color: BRANCO });
+  pagina.drawRectangle({
+    x,
+    y,
+    width: lado,
+    height: lado,
+    color: PAPEL,
+    borderColor: LINHA,
+    borderWidth: 1,
+  });
   for (let linha = 0; linha < n; linha++) {
     for (let coluna = 0; coluna < n; coluna++) {
       if (!qr.modules.get(linha, coluna)) continue;
@@ -61,7 +73,7 @@ function desenharQr(pagina: PDFPage, token: string, x: number, y: number, lado: 
         y: y + lado - (linha + 5) * modulo,
         width: modulo,
         height: modulo,
-        color: AZUL,
+        color: TINTA,
       });
     }
   }
@@ -82,56 +94,63 @@ export async function gerarComprovante(d: DadosComprovante): Promise<Uint8Array>
   pdf.setCreationDate(d.emitidoEm);
 
   const pagina = pdf.addPage([LARGURA, ALTURA]);
-  const normal = await pdf.embedFont(StandardFonts.Helvetica);
-  const negrito = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const suportados = new Set(normal.getCharacterSet());
+  const m = await carregarMarca(pdf);
+  const suportados = new Set(m.texto.getCharacterSet());
   const t = (texto: string) => paraWinAnsi(texto, suportados);
+  const tm = (texto: string) => paraWinAnsi(texto, new Set(m.mono.getCharacterSet()));
 
-  // Faixa de topo
-  pagina.drawRectangle({ x: 0, y: ALTURA - 120, width: LARGURA, height: 120, color: AZUL });
-  pagina.drawRectangle({ x: 0, y: ALTURA - 126, width: LARGURA, height: 6, color: LARANJA });
-  pagina.drawText(t(EVENTO.sigla), {
-    x: MARGEM,
-    y: ALTURA - 62,
-    size: 28,
-    font: negrito,
-    color: BRANCO,
-  });
-  pagina.drawText(t(EVENTO.nome), {
-    x: MARGEM,
-    y: ALTURA - 90,
-    size: 13,
-    font: normal,
-    color: BRANCO,
+  // Topo: faixa off-white (bg-000) com o logo IC-ML e o rótulo de sistema; fio lima de corte seco.
+  pagina.drawRectangle({ x: 0, y: ALTURA - 110, width: LARGURA, height: 110, color: FUNDO });
+  pagina.drawRectangle({ x: 0, y: ALTURA - 113, width: LARGURA, height: 3, color: LIMA });
+  if (m.logoIcml) {
+    const altura = 30;
+    const largura = (m.logoIcml.width / m.logoIcml.height) * altura;
+    pagina.drawImage(m.logoIcml, { x: MARGEM, y: ALTURA - 70, width: largura, height: altura });
+  } else {
+    pagina.drawText(t(EVENTO.sigla), {
+      x: MARGEM,
+      y: ALTURA - 64,
+      size: 26,
+      font: m.textoForte,
+      color: TINTA,
+    });
+  }
+  const rotuloTopo = tm('COMPROVANTE DE INSCRIÇÃO');
+  pagina.drawText(rotuloTopo, {
+    x: LARGURA - MARGEM - m.monoMedio.widthOfTextAtSize(rotuloTopo, 8),
+    y: ALTURA - 60,
+    size: 8,
+    font: m.monoMedio,
+    color: TINTA_SUAVE,
   });
 
-  let y = ALTURA - 180;
+  let y = ALTURA - 170;
   pagina.drawText(t('Comprovante de inscrição'), {
     x: MARGEM,
     y,
-    size: 20,
-    font: negrito,
-    color: AZUL,
+    size: 22,
+    font: m.textoForte,
+    color: TINTA,
   });
   y -= 22;
-  pagina.drawText(t('Este documento confirma a inscrição abaixo no evento.'), {
+  pagina.drawText(t(`${EVENTO.nome} · ${EVENTO.datasTexto}`), {
     x: MARGEM,
     y,
     size: 11,
-    font: normal,
-    color: CINZA,
+    font: m.texto,
+    color: TINTA_SUAVE,
   });
 
   // QR à direita
   const ladoQr = 150;
   desenharQr(pagina, d.qr, LARGURA - MARGEM - ladoQr, y - 30 - ladoQr, ladoQr);
-  const legenda = t('Apresente no credenciamento');
+  const legenda = tm('APRESENTE NO CREDENCIAMENTO');
   pagina.drawText(legenda, {
-    x: LARGURA - MARGEM - ladoQr / 2 - normal.widthOfTextAtSize(legenda, 9) / 2,
+    x: LARGURA - MARGEM - ladoQr / 2 - m.monoMedio.widthOfTextAtSize(legenda, 7) / 2,
     y: y - 44 - ladoQr,
-    size: 9,
-    font: normal,
-    color: CINZA,
+    size: 7,
+    font: m.monoMedio,
+    color: TINTA_SUAVE,
   });
 
   const larguraCampos = LARGURA - 2 * MARGEM - ladoQr - 24;
@@ -147,29 +166,25 @@ export async function gerarComprovante(d: DadosComprovante): Promise<Uint8Array>
   y -= 40;
   for (const [rotulo, valor] of campos) {
     const destaque = rotulo === 'Número de inscrição';
-    pagina.drawText(t(rotulo.toUpperCase()), {
+    pagina.drawText(tm(rotulo.toUpperCase()), {
       x: MARGEM,
       y,
-      size: 8,
-      font: negrito,
-      color: LARANJA,
+      size: 7.5,
+      font: m.monoMedio,
+      color: LIMA_TINTA,
     });
-    // O número em destaque (16 pt) precisa de mais respiro abaixo do rótulo.
-    y -= destaque ? 21 : 15;
+    // O número em destaque (18 pt) precisa de mais respiro abaixo do rótulo.
+    y -= destaque ? 22 : 15;
+    const fonte = destaque ? m.monoMedio : m.texto;
+    const tamanho = destaque ? 18 : 12;
     for (const linha of quebrarLinhas(
-      t(valor),
-      destaque ? negrito : normal,
-      destaque ? 16 : 12,
+      destaque ? tm(valor) : t(valor),
+      fonte,
+      tamanho,
       larguraCampos,
     )) {
-      pagina.drawText(linha, {
-        x: MARGEM,
-        y,
-        size: destaque ? 16 : 12,
-        font: destaque ? negrito : normal,
-        color: AZUL,
-      });
-      y -= destaque ? 20 : 16;
+      pagina.drawText(linha, { x: MARGEM, y, size: tamanho, font: fonte, color: TINTA });
+      y -= destaque ? 22 : 16;
     }
     y -= 10;
   }
@@ -179,11 +194,17 @@ export async function gerarComprovante(d: DadosComprovante): Promise<Uint8Array>
   pagina.drawLine({
     start: { x: MARGEM, y },
     end: { x: LARGURA - MARGEM, y },
-    thickness: 0.5,
-    color: CINZA,
+    thickness: 1,
+    color: LINHA,
   });
   y -= 24;
-  pagina.drawText(t('QUANDO E ONDE'), { x: MARGEM, y, size: 8, font: negrito, color: LARANJA });
+  pagina.drawText(tm('QUANDO E ONDE'), {
+    x: MARGEM,
+    y,
+    size: 7.5,
+    font: m.monoMedio,
+    color: LIMA_TINTA,
+  });
   y -= 16;
   for (const linha of [
     EVENTO.datasTexto,
@@ -191,22 +212,33 @@ export async function gerarComprovante(d: DadosComprovante): Promise<Uint8Array>
     EVENTO.local.detalhe,
     EVENTO.local.endereco,
   ]) {
-    for (const parte of quebrarLinhas(t(linha), normal, 11, LARGURA - 2 * MARGEM)) {
-      pagina.drawText(parte, { x: MARGEM, y, size: 11, font: normal, color: AZUL });
+    for (const parte of quebrarLinhas(t(linha), m.texto, 11, LARGURA - 2 * MARGEM)) {
+      pagina.drawText(parte, { x: MARGEM, y, size: 11, font: m.texto, color: TINTA });
       y -= 15;
     }
   }
 
-  // Rodapé
+  // Rodapé: fio, logo conjunto (≥ 8 mm de altura) e emissão.
+  pagina.drawLine({
+    start: { x: MARGEM, y: 112 },
+    end: { x: LARGURA - MARGEM, y: 112 },
+    thickness: 1,
+    color: LINHA,
+  });
+  if (m.logoConjunto) {
+    const altura = 28;
+    const largura = (m.logoConjunto.width / m.logoConjunto.height) * altura;
+    pagina.drawImage(m.logoConjunto, { x: MARGEM, y: 66, width: largura, height: altura });
+  }
   const rodape = [
     `Emitido em ${formatoData.format(d.emitidoEm)} (horário de Maceió).`,
     `Realização: ${EVENTO.realizacao}.`,
   ];
-  let yRodape = 70;
+  let yRodape = 46;
   for (const linha of rodape) {
-    for (const parte of quebrarLinhas(t(linha), normal, 8, LARGURA - 2 * MARGEM)) {
-      pagina.drawText(parte, { x: MARGEM, y: yRodape, size: 8, font: normal, color: CINZA });
-      yRodape -= 11;
+    for (const parte of quebrarLinhas(tm(linha), m.mono, 7, LARGURA - 2 * MARGEM)) {
+      pagina.drawText(parte, { x: MARGEM, y: yRodape, size: 7, font: m.mono, color: TINTA_SUAVE });
+      yRodape -= 10;
     }
   }
 
