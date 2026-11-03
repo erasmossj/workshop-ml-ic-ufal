@@ -54,7 +54,7 @@ usado em teste de carga e pentest) e local (`supabase start`, Docker). Cada PR g
 1. **Formulário** (`/inscricao` e coluna do hero): nome, CPF, e-mail, instituição (opcional),
    vínculo (estudante/docente/outro; com "outro", o campo "Qual vínculo?" de até 40 caracteres é
    obrigatório — WML-72), dados do crachá (opcionais: curso e perfil LinkedIn ou Lattes), minicurso (opcional),
-   trabalho (opcional: título, autores, resumo, PDF, prêmio e, à parte, a autorização para o acervo
+   trabalho (opcional: título, autores, resumo e, à parte, a autorização para o acervo
    de edições passadas — caixa desmarcada, WML-73) e aceite da política de privacidade. O
    navegador já valida (CPF com dígito verificador, e-mail, tamanhos), mas o servidor valida de novo.
 2. **Turnstile** gera um token provando que não é robô.
@@ -67,13 +67,13 @@ usado em teste de carga e pentest) e local (`supabase start`, Docker). Cada PR g
       `vinculo_outro` (até 40 caracteres, espaços extras removidos) é obrigatório; com os demais, é
       descartado. Os valores antigos `graduacao`/`mestrado` (página em cache durante o deploy da
       WML-72) ainda são aceitos e gravados como `estudante`. O banco confere tudo de novo.
-   4. **PDF** (se houver trabalho): até 5 MB (senão 413) e assinatura `%PDF` no conteúdo, não só a
-      extensão (senão 422).
-   5. **Upload** do PDF para o bucket privado com nome gerado pelo servidor (UUID).
-   6. **`register_participant()`** no banco, numa transação única: confere a janela de inscrição,
+   4. **Trabalho** (se houver): só título, autores e resumo, mais a autorização opcional do acervo.
+      Arquivo ou campos de premiação enviados por fora do formulário são ignorados (sem PDF desde
+      03/11, WML-75).
+   5. **`register_participant()`** no banco, numa transação única: confere a janela de inscrição,
       valida e normaliza os dados, garante e-mail único entre as inscrições ativas e reserva a vaga do minicurso.
-   7. Se o banco recusar (e-mail repetido, vaga esgotada, fora da janela...), o PDF enviado é apagado
-      e o participante recebe a mensagem e o campo do erro.
+   6. Se o banco recusar (e-mail repetido, vaga esgotada, fora da janela...), o participante recebe
+      a mensagem e o campo do erro.
 4. **Resposta**: só o número de inscrição (`ICML26-0001`). Nenhum dado pessoal volta.
 5. **Confirmação** (`/confirmacao`): mostra o resumo com o que a pessoa digitou (guardado só na aba do
    navegador), CPF mascarado e botões de imprimir e adicionar à agenda (`.ics`).

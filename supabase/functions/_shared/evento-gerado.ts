@@ -38,7 +38,7 @@ export const EVENTO = {
       fim: '2026-12-04T20:20:00.000Z',
       local: 'Instituto de Computação — UFAL, Maceió',
       descricao:
-        '08:00 Apresentações de trabalhos\n10:30 Coffee break\n11:00 Palestra — Mercado de trabalho em ML · Hugo Souza\n12:00 Encerramento e premiação\n13:00 Almoço\n13:40 Minicurso — Dia 3: Clustering e Séries Temporais',
+        '08:00 Apresentações de trabalhos\n10:30 Coffee break\n11:00 Palestra — Mercado de trabalho em ML · Hugo Souza\n12:00 Encerramento\n13:00 Almoço\n13:40 Minicurso — Dia 3: Clustering e Séries Temporais',
     },
   ],
 } as const;

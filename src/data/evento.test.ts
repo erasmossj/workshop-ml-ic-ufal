@@ -84,11 +84,9 @@ describe('palestras', () => {
 });
 
 describe('submissão de trabalhos', () => {
-  it('aponta os modelos oficiais da SBC por HTTPS', () => {
-    const url = new URL(trabalhos.modelosSbc);
-    expect(url.protocol).toBe('https:');
-    expect(url.hostname).toBe('www.sbc.org.br');
-    expect(url.pathname.endsWith('.zip')).toBe(true);
+  it('pede só título, autores e resumo, sem artigo nem modelo da SBC (WML-75)', () => {
+    expect(trabalhos.formato).toMatch(/título, autores e um resumo/i);
+    expect(JSON.stringify(trabalhos)).not.toMatch(/SBC|premia|\.zip/i);
   });
 
   it('informa 13 vagas para apresentação, sem dizer que a banca escolhe', () => {

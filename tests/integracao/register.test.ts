@@ -66,7 +66,6 @@ const trabalho = (extra: Record<string, string | Blob> = {}) => ({
   titulo: 'Classificação de imagens com CNNs',
   autores: 'Participante Integração',
   resumo: 'Resumo sintético usado apenas nos testes de integração.',
-  pdf: PDF_VALIDO,
   ...extra,
 });
 
@@ -234,20 +233,24 @@ describe('Edge Function register', () => {
     expect(corpo).toMatchObject({ codigo: 'CPF_INVALIDO', campo: 'cpf' });
   });
 
-  it('salva o PDF do trabalho no bucket privado', async () => {
+  const trabalhoDe = (email: string) =>
+    rest(
+      `trabalhos?select=titulo,autores,resumo,premio,nivel,pdf_path,participantes!inner(email)&participantes.email=eq.${encodeURIComponent(email)}`,
+    ).then((r) => r.json());
+
+  it('grava o trabalho só com título, autores e resumo', async () => {
     const email = novoEmail();
     const { status } = await enviar(formulario({ email, ...trabalho() }));
     expect(status).toBe(201);
-    const [linha] = await rest(
-      `trabalhos?select=pdf_path,participantes!inner(email)&participantes.email=eq.${encodeURIComponent(email)}`,
-    ).then((r) => r.json());
-    expect(linha.pdf_path).toMatch(/^[0-9a-f-]{36}\.pdf$/);
-    const comChave = await fetch(`${API}/storage/v1/object/trabalhos/${linha.pdf_path}`, {
-      headers: comServico,
+    const [linha] = await trabalhoDe(email);
+    expect(linha).toMatchObject({
+      titulo: 'Classificação de imagens com CNNs',
+      autores: 'Participante Integração',
+      resumo: 'Resumo sintético usado apenas nos testes de integração.',
+      premio: false,
+      nivel: null,
+      pdf_path: null,
     });
-    expect(comChave.status).toBe(200);
-    const anonimo = await fetch(`${API}/storage/v1/object/public/trabalhos/${linha.pdf_path}`);
-    expect(anonimo.status).not.toBe(200);
   });
 
   // Acervo de edições passadas (WML-73): opt-in separado, desmarcado por padrão.
@@ -284,28 +287,23 @@ describe('Edge Function register', () => {
     expect(await acervoDe(email)).toBeUndefined();
   });
 
-  it('recusa arquivo renomeado para .pdf e não cria a inscrição', async () => {
+  it('ignora PDF e premiação enviados por fora do formulário', async () => {
     const email = novoEmail();
-    const falso = new Blob(['MZ isto não é um pdf'], { type: 'application/pdf' });
-    const { status, corpo } = await enviar(formulario({ email, ...trabalho({ pdf: falso }) }));
-    expect(status).toBe(422);
-    expect(corpo.campo).toBe('pdf');
-    const linhas = await rest(`participantes?select=id&email=eq.${encodeURIComponent(email)}`).then(
-      (r) => r.json(),
+    const antes = await contarObjetos();
+    const { status } = await enviar(
+      formulario({ email, ...trabalho({ pdf: PDF_VALIDO, premio: 'sim', nivel: 'mestrado' }) }),
     );
-    expect(linhas).toHaveLength(0);
+    expect(status).toBe(201);
+    const [linha] = await trabalhoDe(email);
+    expect(linha).toMatchObject({ premio: false, nivel: null, pdf_path: null });
+    expect(await contarObjetos()).toBe(antes);
   });
 
-  it('recusa PDF acima de 5 MB (413) sem gravar nada', async () => {
+  it('valida título, autores e resumo no servidor', async () => {
     const email = novoEmail();
-    const grande = new Blob(['%PDF-1.4\n', new Uint8Array(5 * 1024 * 1024)], {
-      type: 'application/pdf',
-    });
-    const antes = await contarObjetos();
-    const { status, corpo } = await enviar(formulario({ email, ...trabalho({ pdf: grande }) }));
-    expect(status).toBe(413);
-    expect(corpo.campo).toBe('pdf');
-    expect(await contarObjetos()).toBe(antes);
+    const { status, corpo } = await enviar(formulario({ email, ...trabalho({ resumo: 'curto' }) }));
+    expect(status).toBe(422);
+    expect(corpo).toMatchObject({ codigo: 'TRABALHO_INVALIDO', campo: 'titulo' });
     const linhas = await rest(`participantes?select=id&email=eq.${encodeURIComponent(email)}`).then(
       (r) => r.json(),
     );
@@ -330,7 +328,7 @@ describe('Edge Function register', () => {
     }
   });
 
-  it('minicurso esgotado: recusa e não deixa PDF órfão no bucket', async () => {
+  it('minicurso esgotado: recusa sem gravar nada no bucket', async () => {
     const [mc] = await rest('minicursos?slug=eq.ml-na-pratica&select=ocupadas').then((r) =>
       r.json(),
     );

@@ -1,13 +1,14 @@
 // Edge Function `register` (WML-26/27): única porta de escrita pública do sistema.
-// Ordem: limite por origem → Turnstile → consentimento → PDF (assinatura %PDF) → upload →
-// RPC register_participant (transação + vagas, ADR-003) → grava o caminho do PDF.
+// Ordem: limite por origem → Turnstile → consentimento → vínculo → minicurso → trabalho →
+// RPC register_participant (transação + vagas, ADR-003).
+// Trabalho = só título, autores e resumo: não há mais PDF nem premiação. Arquivo ou campos
+// "premio"/"nivel" enviados por fora do formulário são ignorados.
 // Regra LGPD: nada de CPF, nome ou e-mail em logs.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { erroSeguro } from '../_shared/erro-seguro.ts';
 import { criarVerificadorDeOrigem } from '../_shared/origens.ts';
 import { assinarInscricao } from '../_shared/qr.ts';
 
-const PDF_MAX_BYTES = 5 * 1024 * 1024;
 const MINICURSO_SLUG = 'ml-na-pratica';
 const JANELA_LIMITE_SEGUNDOS = 600;
 const LIMITE_MAX = Number(Deno.env.get('RATE_LIMIT_MAX') ?? '10');
@@ -49,7 +50,6 @@ const ERROS: Record<string, Resposta> = {
     erro: 'Este CPF já tem vaga no minicurso.',
     campo: 'minicurso',
   },
-  NIVEL_OBRIGATORIO: { status: 422, erro: 'Escolha a categoria para concorrer.', campo: 'nivel' },
   VINCULO_INVALIDO: {
     status: 422,
     erro: 'Escolha seu vínculo: estudante, docente ou outro.',
@@ -217,50 +217,21 @@ Deno.serve(async (req) => {
     minicursos = [data.id];
   }
 
-  // 5. Trabalho + PDF (validado pelo conteúdo, não pela extensão). A autorização do acervo só é
-  // lida aqui, com trabalho; sem trabalho, o campo é ignorado.
-  let trabalho: Record<string, unknown> | null = null;
-  let pdf: File | null = null;
-  if (texto('trabalho') === 'sim') {
-    trabalho = {
-      titulo: texto('titulo'),
-      autores: texto('autores'),
-      resumo: texto('resumo'),
-      premio: texto('premio') === 'sim',
-      nivel: texto('nivel') || null,
-      // Acervo de edições passadas (WML-73): opt-in separado; só "sim" autoriza.
-      acervo: texto('acervo') === 'sim',
-    };
-    const arquivo = form.get('pdf');
-    if (!(arquivo instanceof File) || arquivo.size === 0) {
-      return json(422, { erro: 'Anexe o PDF do trabalho.', campo: 'pdf' }, h);
-    }
-    if (arquivo.size > PDF_MAX_BYTES) {
-      return json(413, { erro: 'O PDF deve ter no máximo 5 MB.', campo: 'pdf' }, h);
-    }
-    const assinatura = new TextDecoder().decode(
-      new Uint8Array(await arquivo.slice(0, 5).arrayBuffer()),
-    );
-    if (assinatura !== '%PDF-') {
-      return json(422, { erro: 'Envie o trabalho em formato PDF.', campo: 'pdf' }, h);
-    }
-    pdf = arquivo;
-  }
+  // 5. Trabalho (opt-in): só título, autores e resumo; tamanhos o banco valida. A autorização do
+  // acervo (WML-73) só é lida aqui, com trabalho; sem trabalho, o campo é ignorado.
+  const trabalho =
+    texto('trabalho') === 'sim'
+      ? {
+          titulo: texto('titulo'),
+          autores: texto('autores'),
+          resumo: texto('resumo'),
+          premio: false,
+          // Acervo de edições passadas: opt-in separado; só "sim" autoriza.
+          acervo: texto('acervo') === 'sim',
+        }
+      : null;
 
-  // 6. Upload com caminho gerado no servidor; removido se a inscrição falhar.
-  let caminho: string | null = null;
-  if (pdf) {
-    caminho = `${crypto.randomUUID()}.pdf`;
-    const { error } = await admin.storage
-      .from('trabalhos')
-      .upload(caminho, pdf, { contentType: 'application/pdf', upsert: false });
-    if (error) {
-      console.error('upload do PDF falhou', causa(error));
-      return json(500, { erro: 'Não foi possível enviar o PDF. Tente novamente.' }, h);
-    }
-  }
-
-  // 7. Inscrição (transação única no banco).
+  // 6. Inscrição (transação única no banco).
   const { data, error } = await admin.rpc('register_participant', {
     p_nome: texto('nome'),
     p_cpf: texto('cpf'),
@@ -274,7 +245,6 @@ Deno.serve(async (req) => {
     p_perfil: texto('perfil') || null,
   });
   if (error) {
-    if (caminho) await admin.storage.from('trabalhos').remove([caminho]);
     const conhecido = ERROS[error.message];
     if (conhecido) {
       return json(
@@ -288,13 +258,6 @@ Deno.serve(async (req) => {
   }
 
   const inscricao = data[0] as { id_inscricao: string; numero_inscricao: string };
-  if (caminho) {
-    const { error: erroCaminho } = await admin
-      .from('trabalhos')
-      .update({ pdf_path: caminho })
-      .eq('participante_id', inscricao.id_inscricao);
-    if (erroCaminho) console.error('gravar pdf_path falhou', causa(erroCaminho));
-  }
 
   // Token do QR (o mesmo do comprovante): a tela de confirmação mostra o QR que o leitor aceita.
   // É a credencial da própria pessoa, sem dado pessoal; sem segredo configurado, vai só o número.

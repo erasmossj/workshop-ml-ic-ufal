@@ -160,23 +160,11 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
     <div class="grid gap-10 lg:grid-cols-2">
       <div class="flex flex-col items-start gap-8">
         <dl class="grid gap-6">
-          <div>
-            <dt class="rotulo text-lime-ink">Formato</dt>
-            <dd class="mt-2 body-l text-ink-100">
-              {trabalhos.formato}
-              <a
-                href={trabalhos.modelosSbc}
-                class="mt-2 flex min-h-6 w-fit items-center body-s text-ink-200 underline underline-offset-4 hover:text-lime-ink"
-              >
-                Baixar modelos da SBC (.zip)
-              </a>
-            </dd>
-          </div>
           {[
+            ['Formato', trabalhos.formato],
             ['Como enviar', trabalhos.campos],
             ['Apresentações', trabalhos.vagasTexto],
             ['Avaliação', trabalhos.avaliacao],
-            ['Premiação', trabalhos.premiacao],
           ].map(([t, d]) => (
             <div>
               <dt class="rotulo text-lime-ink">{t}</dt>

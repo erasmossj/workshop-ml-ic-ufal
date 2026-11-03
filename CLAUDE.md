@@ -7,7 +7,7 @@ Guia para agentes (Claude Code e similares) que trabalham neste repositório. Le
 Site de divulgação **e** inscrição do **IC-ML 2026 — Workshop de Machine Learning do IC (UFAL)**, realizado pelo IEEE Ramo Estudantil UFAL e IEEE Computer Society UFAL, no Instituto de Computação (IC/UFAL).
 
 - Evento: 02–04/12/2026 (qua–sex), no IC/UFAL. Inscrição padrão dá acesso a todas as palestras e apresentações; minicurso opcional (3 tardes) com vagas limitadas.
-- Inscrições e submissões (PDF): 30/10–16/11/2026 (prorrogável até 18/11), horário `America/Maceio`.
+- Inscrições e submissões (título, autores e resumo — sem PDF nem premiação desde 03/11): 30/10–16/11/2026 (prorrogável até 18/11), horário `America/Maceio`.
 - **Todo o conteúdo do site vem de `src/data/evento.ts`** — altere lá, não nos componentes.
 - Entrega do MVP: **26/10/2026**. Plano completo, calendário e fases de segurança: [`docs/PLANO.md`](docs/PLANO.md). Decisões: [`docs/adr/`](docs/adr/).
 - Público: participantes (sem conta/login) e organização (painel `/admin`).

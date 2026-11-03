@@ -128,17 +128,19 @@ O que acontece depois:
 
 - Até 31/01/2027 é só uma marcação. No primeiro expurgo depois disso (01/02/2027, 03:50), os
   trabalhos **aprovados e autorizados** vão para o acervo (sem CPF, e-mail ou nº de inscrição) e o
-  PDF deles **não** é apagado; os demais PDFs são apagados. O botão **Abrir PDF** some nos dois casos
+  PDF deles, se houver, **não** é apagado; os demais PDFs são apagados. Desde 03/11/2026 (WML-75)
+  não se envia mais PDF: esses trabalhos entram só com título, autores e resumo. O botão **Abrir PDF** some nos dois casos
   (o PDF do acervo só volta a aparecer na futura página de edições passadas).
 - Retirada depois disso: título, autores e resumo saem do acervo na hora; o PDF é apagado na rodada
   diária seguinte do expurgo.
-- Autorização que chega **depois** de o PDF ter sido apagado não tem como ser atendida (o painel
-  avisa: "O PDF deste trabalho já foi apagado…").
+- Autorização que chega **depois** de o PDF ter sido apagado é aceita, mas o arquivo não volta: o
+  trabalho entra no acervo só com título, autores e resumo na rodada diária seguinte (WML-75).
 - Depois de 31/12/2031 não há mais nº de inscrição: a retirada é pelo id do acervo, com
   `admin_retirar_do_acervo` (a página de edições passadas deve trazer esse botão).
 
 **Modelo de e-mail para quem já submeteu** — só envie depois que a organização aprovar a política
-(versão 2026-11-03). Um e-mail por pessoa (ou em cópia oculta), nunca com os endereços à vista.
+(versão 2026-11-03). Vale para quem se inscreveu antes da caixa do acervo existir (todos enviaram
+PDF, obrigatório até 03/11/2026). Um e-mail por pessoa (ou em cópia oculta), nunca com os endereços à vista.
 
 > **Assunto:** IC-ML 2026 — autorização para guardar seu trabalho no acervo (opcional)
 >

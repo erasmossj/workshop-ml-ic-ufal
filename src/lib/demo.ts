@@ -9,7 +9,7 @@ export type InscricaoDemo = {
   cpfMascarado: string;
   email: string;
   minicurso: boolean;
-  trabalho: { titulo: string; premio: boolean; nivel: string } | null;
+  trabalho: { titulo: string } | null;
   /** Token assinado do QR (vem da Edge Function `register`); ausente no protótipo. */
   qr?: string;
 };

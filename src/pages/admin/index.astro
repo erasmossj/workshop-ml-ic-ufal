@@ -362,7 +362,6 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
     formatarDataHora,
     gerarCsv,
     mensagemDeErro,
-    NIVEL_PREMIO,
     rotuloAcervo,
     rotuloVinculo,
     paginar,
@@ -582,15 +581,6 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         return td;
       }
       td.append(el('div', i.titulo_trabalho ?? '', 'font-medium'));
-      if (i.concorre_premio) {
-        td.append(
-          el(
-            'div',
-            `Concorre ao prêmio (${NIVEL_PREMIO[i.nivel ?? ''] ?? '—'})`,
-            'text-xs text-ink-200',
-          ),
-        );
-      }
       const sel = el('select', undefined, 'campo mt-2 py-1');
       sel.id = `status-${i.numero}`;
       const rotulo = el('label', `Status do trabalho de ${i.numero}`, 'sr-only');

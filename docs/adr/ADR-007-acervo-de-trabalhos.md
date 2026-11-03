@@ -24,6 +24,16 @@ Tirar a FK `trabalhos.participante_id → participantes` (ou trocar por `set nul
 
 - **LGPD:** o acervo é a **única** exceção ao prazo de 31/01/2027 para PDFs e só existe com consentimento. A política (versão 2026-11-03) descreve o dado, a finalidade, a base legal, a retenção sem data (`privacidade.retencaoAcervo`: "enquanto o acervo existir, ou até a retirada") e que título, autores, resumo e PDF ficarão públicos quando a página de edições passadas existir. Autores são dado pessoal consentido; CPF e e-mail nunca entram no acervo.
 - Testes: `supabase/tests/database/acervo.test.sql` (opt-in, padrão, RPCs só para organizadores, anon sem acesso, expurgo mantém só aprovado + autorizado, acervo sem dado pessoal, revogação antes e depois, sobrevivência ao expurgo final, vagas e vínculo); `src/data/retencao.test.ts` garante que o prazo dos PDFs não mudou e que a exceção do expurgo é só "aprovado + autorizado + não cancelado"; `src/data/privacidade.test.ts` cobre o texto.
-- Autorizar **depois** que o PDF foi apagado não recupera o arquivo (`TRABALHO_SEM_PDF`). Status trocado depois da transferência não muda o acervo; para tirar, use a revogação.
+- Autorizar **depois** que o PDF foi apagado não recupera o arquivo; desde a WML-75 o trabalho entra só com título, autores e resumo (antes era recusado com `TRABALHO_SEM_PDF`). Status trocado depois da transferência não muda o acervo; para tirar, use a revogação.
 - Sem custo novo: mesmo bucket, mesma Edge Function e mesmo `pg_cron`.
 - Pendências: a organização aprovar o texto da política (`aprovada: true`) e, se quiser incluir quem já submeteu, enviar o pedido de autorização; a página de edições passadas terá ADR/revisão de segurança próprios.
+
+## Atualização — 03/11/2026 (WML-75): acervo sem PDF
+
+Os stakeholders decidiram que o trabalho passa a ser só **título, autores e resumo**: sem artigo, sem PDF e sem premiação. O acervo continua, com estes ajustes (migration `20261103150000_acervo_sem_pdf.sql`):
+
+- `expurgar_dados()` transfere para o acervo todo trabalho aprovado + autorizado + não cancelado, **com ou sem PDF**; o PDF vai junto só quando existe (enviado até 03/11/2026).
+- `admin_definir_acervo()` não recusa mais trabalho sem PDF (`TRABALHO_SEM_PDF` saiu).
+- `disparar_expurgo()` também acorda quando há aprovado + autorizado sem PDF a transferir.
+- Formulário e política: a caixa do acervo cita "título, autores e resumo"; o PDF aparece na política só para quem enviou até 03/11/2026.
+- Bucket `trabalhos`, `pdf_path` e o expurgo de 31/01/2027 continuam para os PDFs já recebidos.

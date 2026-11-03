@@ -2,7 +2,7 @@
 -- (opt-in, revogável) ficam depois de 31/01/2027 — sem CPF, e-mail ou vínculo com a inscrição.
 -- Os demais PDFs continuam saindo no expurgo de 31/01/2027. CPFs e e-mails sintéticos.
 begin;
-select plan(84);
+select plan(85);
 
 -- O expurgo age sobre TODAS as inscrições: começa do zero (o rollback do fim desfaz).
 delete from public.participantes;
@@ -197,22 +197,27 @@ select is(public.expurgo_pdfs_pendentes('2027-02-02'), array['acervo-poster.pdf'
 select is(public.concluir_expurgo_pdfs(array['acervo-poster.pdf']), 1, 'PDF revogado apagado');
 select is(public.expurgo_pdfs_pendentes('2027-02-03'), '{}'::text[], 'fila de PDFs vazia');
 set local request.jwt.claims = '{"role":"authenticated","email":"org.acervo@exemplo.com"}';
-select throws_ok($$ select public.admin_definir_acervo(pg_temp.num('poster'), true) $$,
-  'P0001', 'TRABALHO_SEM_PDF', 'depois que o PDF foi apagado, não volta ao acervo');
-select throws_ok($$ select public.admin_definir_acervo(pg_temp.num('semaut'), true) $$,
-  'P0001', 'TRABALHO_SEM_PDF', 'autorização tardia sem PDF guardado é recusada');
+-- WML-75: o acervo aceita trabalho sem PDF; autorizar depois do expurgo leva título, autores e
+-- resumo (o arquivo apagado não volta).
+select lives_ok($$ select public.admin_definir_acervo(pg_temp.num('semaut'), true) $$,
+  'autorização tardia sem PDF guardado é aceita (WML-75)');
 select lives_ok($$ select public.admin_definir_acervo(pg_temp.num('oral'), true) $$,
   'autorizar de novo quem já está no acervo não muda nada');
 reset request.jwt.claims;
-select is((select count(*)::int from public.acervo_trabalhos), 3, 'acervo continua com 3');
+select is((select count(*)::int from public.acervo_trabalhos), 3, 'acervo continua com 3 até a próxima rodada');
+select is((public.expurgar_dados('2027-02-04') ->> 'acervo')::int, 1,
+  'a rodada seguinte leva o autorizado tardio, mesmo sem PDF');
+select is((select coalesce(pdf_path, 'sem PDF') from public.acervo_trabalhos where titulo = 'Trabalho sem autorizacao'),
+  'sem PDF', 'no acervo só com título, autores e resumo');
 
 -- dados pessoais (31/03/2027) e expurgo final (31/12/2031): o acervo sobrevive ------------------
 select is((public.expurgar_dados('2027-04-01') ->> 'dados_pessoais')::int, 11, 'CPF e e-mail saem de todos');
-select is((select count(*)::int from public.acervo_trabalhos), 3, 'expurgo de dados pessoais não mexe no acervo');
+select is((select count(*)::int from public.acervo_trabalhos), 4, 'expurgo de dados pessoais não mexe no acervo');
 select is((public.expurgar_dados('2032-01-01') ->> 'participantes')::int, 11, 'expurgo final apaga as inscrições');
 select is((select count(*)::int from public.trabalhos), 0, 'trabalhos apagados junto com as inscrições');
-select is((select count(*)::int from public.acervo_trabalhos), 3, 'acervo sobrevive ao expurgo final');
-select is((select count(*)::int from public.acervo_trabalhos where pdf_path is not null), 3, 'com os PDFs');
+select is((select count(*)::int from public.acervo_trabalhos), 4, 'acervo sobrevive ao expurgo final');
+select is((select count(*)::int from public.acervo_trabalhos where pdf_path is not null), 3,
+  'com os PDFs (o autorizado tardio ficou sem)');
 select is(public.expurgo_pdfs_pendentes('2032-01-02'), '{}'::text[], 'nenhum PDF do acervo a apagar');
 
 -- retirada depois do expurgo final (sem nº de inscrição): pelo id do acervo -----------------------
@@ -223,7 +228,7 @@ select lives_ok($$ select public.admin_retirar_do_acervo(
 select throws_ok($$ select public.admin_retirar_do_acervo(gen_random_uuid()) $$,
   'P0001', 'ACERVO_INEXISTENTE', 'id inexistente');
 reset request.jwt.claims;
-select is((select count(*)::int from public.acervo_trabalhos), 2, 'retirado do acervo');
+select is((select count(*)::int from public.acervo_trabalhos), 3, 'retirado do acervo');
 select is(public.expurgo_pdfs_pendentes('2032-01-02'), array['acervo-tarde.pdf'], 'PDF retirado vai para o expurgo');
 select is(public.concluir_expurgo_pdfs(array['acervo-tarde.pdf']), 1, 'e é apagado na rodada seguinte');
 select ok(not has_function_privilege('authenticated', 'public.expurgo_pdfs_pendentes(date)', 'execute'),

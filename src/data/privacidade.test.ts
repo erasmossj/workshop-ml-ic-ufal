@@ -53,7 +53,8 @@ describe('política de privacidade', () => {
 
     it('aparece nos dados coletados, só com autorização', () => {
       const item = privacidade.dados.find((d) => /acervo/.test(d.motivo));
-      expect(item?.dado).toMatch(/aprovado, se você autorizar/);
+      expect(item?.dado).toMatch(/^Título, autores e resumo do trabalho aprovado/);
+      expect(item?.dado).toMatch(/se você autorizar$/);
       expect(item?.motivo).toBe('acervo de edições passadas do IC-ML');
     });
 
@@ -64,9 +65,12 @@ describe('política de privacidade', () => {
       expect(privacidade.baseLegal).toMatch(/desmarcada/);
     });
 
-    it('avisa que título, autores, resumo e PDF ficarão públicos na página de edições passadas', () => {
+    it('avisa que título, autores e resumo (e o PDF, se houver) ficarão públicos nas edições passadas', () => {
       expect(privacidade.compartilhamento).toMatch(/edições passadas/);
-      expect(privacidade.compartilhamento).toMatch(/título, autores, resumo e PDF/);
+      expect(privacidade.compartilhamento).toMatch(
+        /título, autores e resumo dos trabalhos do acervo/,
+      );
+      expect(privacidade.compartilhamento).toMatch(/PDF, quando houver/);
     });
 
     it('a retirada do acervo é um direito separado da inscrição', () => {

@@ -61,7 +61,6 @@ Não repasse o link de acesso a quem não participa da validação.
 - **Navegador atualizado**: Chrome, Edge, Firefox ou Safari, no computador ou no celular.
 - **Seu e-mail**: o comprovante, o certificado e o link de acesso da organização chegam por ele.
 - **Um CPF fictício**: gere um em qualquer gerador de CPF na internet (busque "gerador de CPF").
-- **Um PDF de até 5 MB**, sem dados pessoais, se quiser testar o envio de trabalho.
 - **Um celular com câmera**, se for testar o credenciamento (organização).
 
 ### 2.3 Cuidados com os dados
@@ -108,24 +107,24 @@ Não repasse o link de acesso a quem não participa da validação.
 
 Endereço: `/`. O menu no topo leva às seções; o botão **Inscreva-se** abre o formulário.
 
-| Seção                | O que mostra                                                                           |
-| -------------------- | -------------------------------------------------------------------------------------- |
-| Abertura             | Nome do evento, datas (02 a 04 de dezembro de 2026) e local                            |
-| Sobre o evento       | Objetivo, público e quem realiza                                                       |
-| Programação          | Atividades dos 3 dias, com horários (horário de Maceió)                                |
-| Minicurso · 3 tardes | "Minicurso de Machine Learning na prática": 3 dias no Google Colab, 48 vagas           |
-| Chamada de trabalhos | Formato, modelos da SBC, 13 vagas para apresentação, avaliação, premiação e cronograma |
-| Palestras e Local    | Palestras (Prof. George Brandão e Hugo Souza), endereço e link para o mapa             |
-| Dúvidas              | Perguntas frequentes                                                                   |
-| Rodapé               | Link para a Política de Privacidade e e-mail do evento (ic-ml@ic.ufal.br)              |
+| Seção                | O que mostra                                                                 |
+| -------------------- | ---------------------------------------------------------------------------- |
+| Abertura             | Nome do evento, datas (02 a 04 de dezembro de 2026) e local                  |
+| Sobre o evento       | Objetivo, público e quem realiza                                             |
+| Programação          | Atividades dos 3 dias, com horários (horário de Maceió)                      |
+| Minicurso · 3 tardes | "Minicurso de Machine Learning na prática": 3 dias no Google Colab, 48 vagas |
+| Chamada de trabalhos | Formato, como enviar, prazo e 13 vagas para apresentação                     |
+| Palestras e Local    | Palestras (Prof. George Brandão e Hugo Souza), endereço e link para o mapa   |
+| Dúvidas              | Perguntas frequentes                                                         |
+| Rodapé               | Link para a Política de Privacidade e e-mail do evento (ic-ml@ic.ufal.br)    |
 
 **Programação** (credenciamento só no primeiro dia, das 08h00 às 09h00):
 
-| Dia         | Manhã                                                                                                        | Tarde                                            |
-| ----------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
-| Qua · 02/12 | Credenciamento, abertura formal e palestra de abertura (Prof. George Brandão)                                | Minicurso — Dia 1: Fundamentos                   |
-| Qui · 03/12 | Apresentações de trabalhos, com coffee break das 10h00 às 10h30                                              | Minicurso — Dia 2: Classificação e Regressão     |
-| Sex · 04/12 | Apresentações, coffee break, palestra sobre mercado de trabalho em ML (Hugo Souza), encerramento e premiação | Minicurso — Dia 3: Clustering e Séries Temporais |
+| Dia         | Manhã                                                                                             | Tarde                                            |
+| ----------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Qua · 02/12 | Credenciamento, abertura formal e palestra de abertura (Prof. George Brandão)                     | Minicurso — Dia 1: Fundamentos                   |
+| Qui · 03/12 | Apresentações de trabalhos, com coffee break das 10h00 às 10h30                                   | Minicurso — Dia 2: Classificação e Regressão     |
+| Sex · 04/12 | Apresentações, coffee break, palestra sobre mercado de trabalho em ML (Hugo Souza) e encerramento | Minicurso — Dia 3: Clustering e Séries Temporais |
 
 Os horários exatos ficam em `src/data/evento.ts` (fonte única do site).
 
@@ -162,27 +161,23 @@ LinkedIn ou Lattes. Trocar o vínculo de "Outro" para outra opção esconde e ap
 
 Marque **Quero submeter um trabalho** para abrir os campos:
 
-| Campo                                   | Obrigatório            | Regras                                                       |
-| --------------------------------------- | ---------------------- | ------------------------------------------------------------ |
-| Título do trabalho                      | Sim                    | Até 250 caracteres                                           |
-| Autores                                 | Sim                    | Nomes separados por vírgula                                  |
-| Resumo                                  | Sim                    | Até 1.500 caracteres (o contador mostra quantos faltam)      |
-| Arquivo PDF                             | Sim                    | Só PDF, até 5 MB                                             |
-| Quero concorrer à premiação             | Não                    | Melhor trabalho de graduação e de mestrado                   |
-| Categoria                               | Se concorrer ao prêmio | Graduação ou Mestrado                                        |
-| Autorizo manter meu trabalho… no acervo | Não (desmarcada)       | Só vale se o trabalho for aprovado; pode ser retirada depois |
+| Campo                                   | Obrigatório      | Regras                                                       |
+| --------------------------------------- | ---------------- | ------------------------------------------------------------ |
+| Título do trabalho                      | Sim              | Até 250 caracteres                                           |
+| Autores                                 | Sim              | Nomes separados por vírgula                                  |
+| Resumo                                  | Sim              | Até 1.500 caracteres (o contador mostra quantos faltam)      |
+| Autorizo manter meu trabalho… no acervo | Não (desmarcada) | Só vale se o trabalho for aprovado; pode ser retirada depois |
 
-O trabalho segue o modelo de short paper da SBC, com 4 ou 6 páginas (sem contar referências). Os
-modelos (LaTeX e Word) estão no link **Baixar modelos da SBC (.zip)**, no formulário e na seção
-Chamada de trabalhos. O evento tem 13 vagas para apresentação de trabalhos; isso não limita as
-inscrições nem as submissões. O envio só é aceito dentro do período de submissão.
+Não é preciso enviar artigo nem PDF, e não há premiação. O evento tem 13 vagas para apresentação
+de trabalhos; isso não limita as inscrições nem as submissões. O envio só é aceito dentro do período
+de submissão.
 
 **Acervo de edições passadas (opcional).** A última caixa do bloco — _Autorizo manter meu trabalho
-(título, autores, resumo e PDF) no acervo de edições passadas do IC-ML, se ele for aprovado_ — é uma
-autorização separada do aceite da política e vem desmarcada. Sem ela, o PDF é apagado em
-31/01/2027. Com ela, se o trabalho for aprovado (oral ou pôster), título, autores, resumo e PDF ficam
-guardados — sem CPF nem e-mail — e poderão aparecer numa futura página de edições passadas. A
-retirada pode ser pedida a qualquer momento pelo e-mail do evento.
+(título, autores e resumo) no acervo de edições passadas do IC-ML, se ele for aprovado_ — é uma
+autorização separada do aceite da política e vem desmarcada. Com ela, se o trabalho for aprovado
+(oral ou pôster), título, autores e resumo ficam guardados — sem CPF nem e-mail — e poderão aparecer
+numa futura página de edições passadas. A retirada pode ser pedida a qualquer momento pelo e-mail do
+evento.
 
 **Bloco 4 · Confirmar**
 
@@ -229,8 +224,9 @@ Endereço: `/privacidade` (link no rodapé e no formulário). Explica, em lingua
   passadas, um consentimento à parte, específico e revogável;
 - quem processa os dados (hospedagem, banco de dados, e-mail e anti-robô) e que eles não são
   vendidos nem cedidos;
-- até quando os dados ficam guardados: PDFs dos trabalhos até 31/01/2027 (exceto trabalho aprovado
-  com autorização para o acervo, que fica até a retirada, sem CPF nem e-mail); CPF, e-mail e
+- até quando os dados ficam guardados: PDFs enviados até 03/11/2026 (quando o envio de PDF deixou
+  de existir) até 31/01/2027, exceto trabalho aprovado com autorização para o acervo, que fica até a
+  retirada, sem CPF nem e-mail; CPF, e-mail e
   instituição até 31/03/2027; nome, número de inscrição e carga horária do certificado até
   31/12/2031, para permitir a validação;
 - como os dados são protegidos (CPF mascarado nas telas da organização, PDFs em área privada,
@@ -344,7 +340,7 @@ Cada linha mostra:
 | Participante          | Nome, e-mail e instituição. Canceladas aparecem esmaecidas, com "Cancelada" |
 | CPF                   | Sempre **mascarado** (ex.: `***.456.789-**`)                                |
 | Minicurso             | Sim ou Não                                                                  |
-| Trabalho              | Título, prêmio e categoria, status e **Abrir PDF**                          |
+| Trabalho              | Título, status e **Abrir PDF** (só de quem enviou até 03/11/2026)           |
 | E-mail de confirmação | Na fila, Enviando, Enviado ou Falhou, com o botão **Reenviar**              |
 | Ações                 | **Corrigir** e **Cancelar**                                                 |
 
@@ -393,8 +389,6 @@ A pessoa pode se inscrever de novo com o mesmo e-mail e recebe um número novo.
 3. Escolha o status na caixa da coluna Trabalho: **Pendente**, **Aprovado (pôster)**, **Aprovado
    (oral)** ou **Rejeitado**. A mudança é salva na hora.
 
-Inscrições que concorrem ao prêmio mostram "Concorre ao prêmio (graduação)" ou "(mestrado)".
-
 Cada trabalho mostra também **Autorizou acervo: sim** ou **não**. Quando o autor autorizar ou pedir
 a retirada por e-mail (por exemplo, quem se inscreveu antes da caixa existir), clique em **Registrar
 autorização do acervo** ou **Retirar do acervo** e confirme. Só trabalhos aprovados entram no acervo;
@@ -405,7 +399,7 @@ o passo a passo e o modelo de e-mail estão no Runbook (seção "Acervo de traba
 Clique em **Exportar CSV (lista filtrada)**. O arquivo traz só as inscrições do filtro atual e abre
 no Excel ou no Google Planilhas, com estas colunas: Nº de inscrição, Nome, E-mail, CPF (mascarado),
 Instituição, Vínculo, Curso, Perfil, Minicurso, Apresenta trabalho, Título do trabalho, Status do
-trabalho, Concorre ao prêmio, Autorizou acervo, Inscrita em, Situação, Dias presentes e Tardes no
+trabalho, Autorizou acervo, Inscrita em, Situação, Dias presentes e Tardes no
 minicurso.
 
 > **Atenção:** a planilha tem dados pessoais. Não compartilhe o arquivo fora da organização e
@@ -544,9 +538,9 @@ de inscrições, que já abre com aquele participante na prévia).
 - **CPF**: pode aparecer em mais de uma inscrição, mas só ocupa **uma** vaga no minicurso.
 - **Vagas do minicurso**: o sistema nunca passa do limite, nem quando muita gente se inscreve ao
   mesmo tempo. Vaga liberada por cancelamento volta na hora.
-- **Trabalho**: só PDF de verdade (o sistema confere o arquivo, não só a extensão), até 5 MB.
-- **Acervo**: só trabalho aprovado e com autorização do autor fica depois de 31/01/2027; sem CPF,
-  e-mail ou número de inscrição. Retirada a qualquer momento.
+- **Trabalho**: só título, autores e resumo, conferidos no servidor. Arquivos não são aceitos.
+- **Acervo**: só trabalho aprovado e com autorização do autor fica guardado depois do evento; sem
+  CPF, e-mail ou número de inscrição. Retirada a qualquer momento.
 - **CPF mascarado**: nas telas e planilhas da organização o CPF aparece sempre como
   `***.456.789-**`. Inteiro, só no certificado.
 - **Anti-robô e limite de tentativas**: formulários públicos passam pela verificação da Cloudflare
@@ -565,10 +559,7 @@ de inscrições, que já abre com aquele participante na prévia).
 | Informe um e-mail válido.                                                                          | Corrigir o e-mail                                    |
 | Este e-mail já tem inscrição. Se errou algum dado, fale com a organização.                         | Usar outro e-mail ou pedir correção à organização    |
 | Informe o título do trabalho. / Informe os autores. / Escreva o resumo.                            | Preencher o campo indicado                           |
-| Anexe o PDF do trabalho.                                                                           | Escolher o arquivo                                   |
-| Envie o trabalho em formato PDF.                                                                   | Enviar um arquivo PDF                                |
-| O PDF deve ter no máximo 5 MB.                                                                     | Reduzir o arquivo                                    |
-| Escolha a categoria para concorrer.                                                                | Escolher Graduação ou Mestrado                       |
+| Confira título, autores e resumo do trabalho.                                                      | Resumo com pelo menos 10 caracteres                  |
 | Escolha seu vínculo: estudante, docente ou outro.                                                  | Marcar uma das opções de vínculo                     |
 | Descreva seu vínculo em até 40 caracteres.                                                         | Preencher "Qual vínculo?" (ou escolher outra opção)  |
 | É preciso concordar para se inscrever.                                                             | Marcar o aceite da Política de Privacidade           |
@@ -656,9 +647,9 @@ modelo e liberar os certificados (4.13).
 - [ ] 3.1 — Página inicial legível no celular
 - [ ] 3.2 — Inscrição sem minicurso e sem trabalho
 - [ ] 3.2 — Inscrição com minicurso
-- [ ] 3.2 — Inscrição com trabalho em PDF e premiação
+- [ ] 3.2 — Inscrição com trabalho (título, autores e resumo)
 - [ ] 3.2 — Caixa do acervo desmarcada por padrão e só visível com trabalho
-- [ ] 3.2 — Mensagens de erro claras (nome, CPF, e-mail repetido, PDF inválido)
+- [ ] 3.2 — Mensagens de erro claras (nome, CPF, e-mail repetido, trabalho incompleto)
 - [ ] 3.3 — Tela de confirmação com número, QR Code e CPF mascarado
 - [ ] 3.3 — Comprovante salvo e convite de agenda
 - [ ] 3.4 — E-mail de confirmação recebido, com os anexos
