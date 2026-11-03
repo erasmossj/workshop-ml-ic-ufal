@@ -11,6 +11,9 @@ const PDF_MAX_BYTES = 5 * 1024 * 1024;
 const MINICURSO_SLUG = 'ml-na-pratica';
 const JANELA_LIMITE_SEGUNDOS = 600;
 const LIMITE_MAX = Number(Deno.env.get('RATE_LIMIT_MAX') ?? '10');
+// graduacao/mestrado: página antiga (WML-69) durante o deploy; o banco grava como estudante (WML-72).
+const VINCULOS = ['estudante', 'docente', 'outro', 'graduacao', 'mestrado'];
+const VINCULO_OUTRO_MAX = 40;
 const origemPermitida = criarVerificadorDeOrigem(Deno.env.get('ALLOWED_ORIGINS') ?? '');
 
 type Resposta = { status: number; erro: string; campo?: string };
@@ -49,8 +52,13 @@ const ERROS: Record<string, Resposta> = {
   NIVEL_OBRIGATORIO: { status: 422, erro: 'Escolha a categoria para concorrer.', campo: 'nivel' },
   VINCULO_INVALIDO: {
     status: 422,
-    erro: 'Escolha seu vínculo: graduação, mestrado ou outro.',
+    erro: 'Escolha seu vínculo: estudante, docente ou outro.',
     campo: 'vinculo',
+  },
+  VINCULO_OUTRO_INVALIDO: {
+    status: 422,
+    erro: `Descreva seu vínculo em até ${VINCULO_OUTRO_MAX} caracteres.`,
+    campo: 'vinculo_outro',
   },
   CURSO_INVALIDO: {
     status: 422,
@@ -181,9 +189,16 @@ Deno.serve(async (req) => {
     );
   }
 
-  // 3b. Vínculo (obrigatório para o crachá). Formato de curso e perfil: o banco valida.
-  if (!['graduacao', 'mestrado', 'outro'].includes(texto('vinculo'))) {
+  // 3b. Vínculo (obrigatório para o crachá). "Outro" exige o texto; nos demais, o texto é
+  // descartado. Formato de curso e perfil: o banco valida (e confere o vínculo de novo).
+  const vinculo = texto('vinculo');
+  if (!VINCULOS.includes(vinculo)) {
     const { status, erro, campo } = ERROS.VINCULO_INVALIDO;
+    return json(status, { erro, campo }, h);
+  }
+  const vinculoOutro = vinculo === 'outro' ? texto('vinculo_outro').replace(/\s+/g, ' ') : '';
+  if (vinculo === 'outro' && (!vinculoOutro || [...vinculoOutro].length > VINCULO_OUTRO_MAX)) {
+    const { status, erro, campo } = ERROS.VINCULO_OUTRO_INVALIDO;
     return json(status, { erro, campo }, h);
   }
 
@@ -202,7 +217,8 @@ Deno.serve(async (req) => {
     minicursos = [data.id];
   }
 
-  // 5. Trabalho + PDF (validado pelo conteúdo, não pela extensão).
+  // 5. Trabalho + PDF (validado pelo conteúdo, não pela extensão). A autorização do acervo só é
+  // lida aqui, com trabalho; sem trabalho, o campo é ignorado.
   let trabalho: Record<string, unknown> | null = null;
   let pdf: File | null = null;
   if (texto('trabalho') === 'sim') {
@@ -212,6 +228,8 @@ Deno.serve(async (req) => {
       resumo: texto('resumo'),
       premio: texto('premio') === 'sim',
       nivel: texto('nivel') || null,
+      // Acervo de edições passadas (WML-73): opt-in separado; só "sim" autoriza.
+      acervo: texto('acervo') === 'sim',
     };
     const arquivo = form.get('pdf');
     if (!(arquivo instanceof File) || arquivo.size === 0) {
@@ -250,7 +268,8 @@ Deno.serve(async (req) => {
     p_instituicao: texto('instituicao') || null,
     p_minicursos: minicursos,
     p_trabalho: trabalho,
-    p_vinculo: texto('vinculo'),
+    p_vinculo: vinculo,
+    p_vinculo_outro: vinculoOutro || null,
     p_curso: texto('curso') || null,
     p_perfil: texto('perfil') || null,
   });

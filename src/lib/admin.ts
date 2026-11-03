@@ -10,8 +10,10 @@ export type Inscricao = {
   email: string;
   cpf_mascarado: string;
   instituicao: string | null;
-  /** graduacao | mestrado | outro — null em inscrições anteriores à WML-69. */
+  /** estudante | docente | outro (WML-72) — null em inscrições anteriores à WML-69. */
   vinculo: string | null;
+  /** Texto livre do vínculo "Outro" (até 40 caracteres); null nos demais. */
+  vinculo_outro: string | null;
   curso: string | null;
   /** LinkedIn ou Lattes, já normalizado em https pelo banco (vira QR no crachá). */
   perfil_url: string | null;
@@ -29,6 +31,8 @@ export type Inscricao = {
   dias_presente: string[];
   /** Tardes do minicurso com presença (AAAA-MM-DD). */
   dias_minicurso: string[];
+  /** Autorizou o acervo de edições passadas (WML-73) — false sem trabalho. */
+  acervo: boolean;
 };
 
 export const STATUS_TRABALHO: Record<string, string> = {
@@ -66,6 +70,37 @@ function celula(valor: string): string {
 
 const simNao = (b: boolean) => (b ? 'Sim' : 'Não');
 
+// ---------------------------------------------------------------------------------------------
+// Acervo de edições passadas (WML-73 · ADR-007): só aprovados e com autorização expressa
+// ---------------------------------------------------------------------------------------------
+
+export function rotuloAcervo(acervo: boolean): string {
+  return `Autorizou acervo: ${acervo ? 'sim' : 'não'}`;
+}
+
+/** Botão do painel: registra a autorização recebida por e-mail ou a retira (revogação). */
+export function acaoAcervo(i: Pick<Inscricao, 'numero' | 'acervo'>): {
+  novo: boolean;
+  botao: string;
+  confirmacao: string;
+} {
+  return i.acervo
+    ? {
+        novo: false,
+        botao: 'Retirar do acervo',
+        confirmacao:
+          `Retirar o trabalho de ${i.numero} do acervo? Título, autores e resumo saem na hora; ` +
+          'o PDF é apagado na próxima rodada do expurgo (se já tiver passado de 31/01/2027).',
+      }
+    : {
+        novo: true,
+        botao: 'Registrar autorização do acervo',
+        confirmacao:
+          `Confirma que o autor de ${i.numero} autorizou por escrito (e-mail) manter o trabalho no ` +
+          'acervo de edições passadas? Só trabalhos aprovados entram no acervo.',
+      };
+}
+
 /** Resposta de public.admin_resumo_presencas() (só contagens). */
 export type ResumoPresencas = {
   dias: { dia: string; presentes: number }[];
@@ -91,13 +126,20 @@ export function formatarDias(dias: string[] | null | undefined): string {
   return (dias ?? []).map((d) => `${d.slice(8, 10)}/${d.slice(5, 7)}`).join(', ');
 }
 
-/** Byte order mark: faz o Excel abrir o CSV como UTF-8 (acentos certos). */
 export const VINCULO: Record<string, string> = {
-  graduacao: 'Graduação',
-  mestrado: 'Mestrado',
+  estudante: 'Estudante',
+  docente: 'Docente',
   outro: 'Outro',
 };
 
+/** "Estudante", "Docente", "Outro: <texto da pessoa>" — '' sem vínculo. */
+export function rotuloVinculo(vinculo: string | null, vinculoOutro: string | null): string {
+  if (!vinculo) return '';
+  const rotulo = VINCULO[vinculo] ?? vinculo;
+  return vinculo === 'outro' && vinculoOutro ? `${rotulo}: ${vinculoOutro}` : rotulo;
+}
+
+/** Byte order mark: faz o Excel abrir o CSV como UTF-8 (acentos certos). */
 export const BOM = String.fromCharCode(0xfeff);
 
 export function gerarCsv(lista: Inscricao[]): string {
@@ -115,6 +157,7 @@ export function gerarCsv(lista: Inscricao[]): string {
     'Título do trabalho',
     'Status do trabalho',
     'Concorre ao prêmio',
+    'Autorizou acervo',
     'Inscrita em',
     'Situação',
     'Dias presentes',
@@ -126,7 +169,7 @@ export function gerarCsv(lista: Inscricao[]): string {
     i.email,
     i.cpf_mascarado,
     i.instituicao ?? '',
-    i.vinculo ? (VINCULO[i.vinculo] ?? i.vinculo) : '',
+    rotuloVinculo(i.vinculo, i.vinculo_outro),
     i.curso ?? '',
     i.perfil_url ?? '',
     simNao(i.minicurso),
@@ -134,6 +177,7 @@ export function gerarCsv(lista: Inscricao[]): string {
     i.titulo_trabalho ?? '',
     i.status_trabalho ? (STATUS_TRABALHO[i.status_trabalho] ?? i.status_trabalho) : '',
     simNao(i.concorre_premio),
+    i.apresenta_trabalho ? simNao(i.acervo) : '',
     formatarDataHora(i.criada_em),
     i.cancelada ? 'Cancelada' : 'Ativa',
     formatarDias(i.dias_presente),
@@ -225,7 +269,9 @@ const ERROS: Record<string, string> = {
   CPF_INVALIDO: 'CPF inválido. Confira os números.',
   EMAIL_INVALIDO: 'E-mail inválido.',
   INSTITUICAO_INVALIDA: 'Instituição muito longa (máximo de 160 caracteres).',
-  VINCULO_INVALIDO: 'Escolha o vínculo: graduação, mestrado ou outro.',
+  VINCULO_INVALIDO: 'Escolha o vínculo: estudante, docente ou outro.',
+  VINCULO_OUTRO_INVALIDO:
+    'Descreva o vínculo "Outro" em até 40 caracteres (o texto só vale para "Outro").',
   CURSO_INVALIDO: 'Curso muito longo (máximo de 120 caracteres).',
   PERFIL_INVALIDO: 'Use um link do LinkedIn (linkedin.com/in/…) ou do Lattes (lattes.cnpq.br/…).',
   EMAIL_JA_INSCRITO: 'Já existe outra inscrição com este e-mail.',
@@ -237,6 +283,11 @@ const ERROS: Record<string, string> = {
   MODELO_INVALIDO: 'O modelo não foi encontrado. Envie o PDF de novo.',
   CAMPOS_INVALIDOS: 'Confira as posições: página, tamanho (6 a 72) e largura.',
   MODELO_INCOMPLETO: 'Salve o modelo e as posições antes de liberar os certificados.',
+  SEM_TRABALHO: 'Esta inscrição não submeteu trabalho.',
+  TRABALHO_SEM_PDF:
+    'O PDF deste trabalho já foi apagado no expurgo; não dá para incluí-lo no acervo.',
+  ACERVO_INVALIDO: 'Informe se o autor autorizou (sim ou não).',
+  ACERVO_INEXISTENTE: 'Trabalho não encontrado no acervo.',
 };
 
 export function mensagemDeErro(codigo: string | undefined): string {

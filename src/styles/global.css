@@ -371,8 +371,8 @@ body {
     background-position: -2.5px -3.5px;
   }
 
-  /* Tag — categoria. Mapeamento fixo: Palestra=Lime, Mini-curso e Mestrado=Blue,
-     Trabalhos=Outline, Graduação=Neutral, Organização=Solid. */
+  /* Tag — categoria. Mapeamento fixo: Palestra=Lime, Mini-curso e Docente=Blue,
+     Trabalhos=Outline, Estudante/Outro=Neutral, Organização=Solid (WML-72). */
   .tag {
     @apply inline-flex h-6 shrink-0 items-center gap-1.5 rounded-pill px-2.5 font-mono text-[0.6875rem] leading-4 font-medium tracking-[0.08em] whitespace-nowrap uppercase;
   }

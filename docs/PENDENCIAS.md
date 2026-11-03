@@ -27,6 +27,13 @@
 | 9   | Confirmar o **palestrante da abertura** (hoje "pesquisador convidado") e os demais nomes             | Organização          | antes de 26/11 | `dias` em `src/data/evento.ts`                 | Aberta |
 | 10  | Revisar os itens "a confirmar" do conteúdo (programação, FAQ, premiação)                             | Organização          | 26/10          | `src/data/evento.ts`                           | Aberta |
 
+## Acervo de trabalhos (WML-73 · ADR-007)
+
+| #   | Pendência                                                                                                                                   | Responsável | Prazo           | Onde resolver                                                                   | Status |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------------- | ------------------------------------------------------------------------------- | ------ |
+| 17  | **Aprovar a política versão 2026-11-03** (acervo de edições passadas, vínculo "outro") e marcar `aprovada: true`                            | Organização | antes do deploy | `/privacidade` · `privacidade` em `src/data/evento.ts`                          | Aberta |
+| 18  | Decidir se pede **autorização por e-mail** a quem submeteu antes da caixa existir (quem não responder fica fora do acervo); só depois do 17 | Organização | antes de 31/01  | [RUNBOOK → Acervo de trabalhos](RUNBOOK.md#acervo-de-trabalhos-wml-73) (modelo) | Aberta |
+
 ## Do responsável técnico (Erasmo)
 
 | #   | Pendência                                                                                               | Prazo       | Onde resolver                                                   | Status            |

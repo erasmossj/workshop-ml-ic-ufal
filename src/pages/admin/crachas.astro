@@ -316,7 +316,7 @@ const canto = 'absolute bg-lime-500';
 <script>
   import { createClient, type SupabaseClient } from '@supabase/supabase-js';
   import QRCode from 'qrcode';
-  import { mensagemDeErro, VINCULO, type Inscricao } from '../../lib/admin';
+  import { mensagemDeErro, rotuloVinculo, type Inscricao } from '../../lib/admin';
   import {
     idOrganizacao,
     linhaCurso,
@@ -373,6 +373,23 @@ const canto = 'absolute bg-lime-500';
     }
   }
 
+  /**
+   * Tag longa ("Participante · <texto do Outro>", até 55 caracteres): reduz a fonte até 10 px e,
+   * se ainda não couber na largura do crachá, quebra em mais de uma linha (nada é cortado).
+   */
+  function ajustarTag(cracha: HTMLElement) {
+    const tag = cracha.querySelector<HTMLElement>('[data-tag]')!;
+    const largura = tag.parentElement!.clientWidth;
+    let tamanho = 11;
+    while (tag.offsetWidth > largura && tamanho > 10) {
+      tamanho -= 0.5;
+      tag.style.fontSize = `${tamanho}px`;
+    }
+    if (tag.offsetWidth > largura) {
+      tag.classList.add('h-auto', 'max-w-full', 'py-1', 'whitespace-normal');
+    }
+  }
+
   /** QR do perfil (margem de 4 módulos). Sem perfil válido, o espaço fica vazio (Figma). */
   async function desenharQr(cracha: HTMLElement, perfil: string | null, escuro: boolean) {
     const link = linkDoQr(perfil);
@@ -397,7 +414,8 @@ const canto = 'absolute bg-lime-500';
     const aceso = cracha.querySelector(`[data-ponto="${pontoAceso(i.numero)}"]`)!;
     aceso.setAttribute('r', '17.125');
     aceso.setAttribute('class', 'fill-lime-500 stroke-lime-ink');
-    const tag = tagDoParticipante(i.vinculo);
+    // Texto do "Outro" é da pessoa: só por textContent.
+    const tag = tagDoParticipante(i.vinculo, i.vinculo_outro);
     const elTag = cracha.querySelector('[data-tag]')!;
     elTag.textContent = tag.texto;
     elTag.classList.replace('tag-neutra', tag.tom);
@@ -405,6 +423,7 @@ const canto = 'absolute bg-lime-500';
     cracha.querySelector('[data-curso]')!.textContent = linhaCurso(i.curso, i.instituicao);
     impressao.append(cracha);
     ajustarNome(cracha);
+    ajustarTag(cracha);
     await desenharQr(cracha, i.perfil_url, false);
   }
 
@@ -552,7 +571,7 @@ const canto = 'absolute bg-lime-500';
           meta.className = 'block font-mono text-xs text-ink-300';
           meta.textContent = [
             i.numero,
-            i.vinculo ? VINCULO[i.vinculo] : 'sem vínculo',
+            rotuloVinculo(i.vinculo, i.vinculo_outro) || 'sem vínculo',
             linkDoQr(i.perfil_url) ? 'com QR' : 'sem QR',
           ].join(' · ');
           rotulo.append(nome, meta);

@@ -207,9 +207,11 @@ export const faq = [
  * Política de privacidade (WML-38, LGPD). Controlador e prazos são PROPOSTA — a organização
  * confirma antes de 30/10 e marca `aprovada: true`. Mudou o texto? Atualize `versao`: o aceite de
  * cada participante fica em participantes.consentimento_em e vale a versão em vigor naquela data.
+ * 2026-11-03 (WML-73 · ADR-007): acervo de edições passadas, só para trabalho aprovado e com
+ * autorização separada. Quem aceitou a versão 2026-10-19 não entra no acervo sem autorizar.
  */
 export const privacidade = {
-  versao: '2026-10-19',
+  versao: '2026-11-03',
   /** false = a página mostra o aviso de minuta. */
   aprovada: false,
   controlador:
@@ -221,7 +223,7 @@ export const privacidade = {
     },
     { dado: 'Instituição (opcional)', motivo: 'conhecer o público do evento' },
     {
-      dado: 'Vínculo, curso (opcional) e perfil no LinkedIn ou Lattes (opcional)',
+      dado: "Vínculo (estudante, docente ou outro) e, se você escolher 'outro', uma descrição curta escrita por você (até 40 caracteres), além de curso e perfil no LinkedIn ou Lattes (opcionais)",
       motivo: 'montar o seu crachá; o perfil vira um QR Code impresso nele',
     },
     { dado: 'Inscrição no minicurso', motivo: 'controlar as vagas do laboratório' },
@@ -229,10 +231,17 @@ export const privacidade = {
       dado: 'Título, autores, resumo e PDF do trabalho, se você submeter',
       motivo: 'avaliação pela banca e montagem da programação',
     },
-    { dado: 'Data e hora em que você aceitou esta política', motivo: 'comprovar o consentimento' },
+    {
+      dado: 'Título, autores, resumo e PDF do trabalho aprovado, se você autorizar',
+      motivo: 'acervo de edições passadas do IC-ML',
+    },
+    {
+      dado: 'Data e hora em que você aceitou esta política e, se for o caso, autorizou o acervo',
+      motivo: 'comprovar o consentimento',
+    },
   ],
   baseLegal:
-    'Seu consentimento (art. 7º, I, da LGPD), dado ao marcar a caixa de aceite no formulário. Não pedimos nenhum dado além do necessário para o evento.',
+    'Seu consentimento (art. 7º, I, da LGPD), dado ao marcar a caixa de aceite no formulário. O acervo de edições passadas tem um consentimento à parte, específico e destacado (art. 8º, § 4º): uma caixa própria, desmarcada, que você só marca se quiser. Você pode revogá-lo a qualquer momento (art. 8º, § 5º), sem perder a inscrição. Não pedimos nenhum dado além do necessário para o evento.',
   operadores: [
     {
       nome: 'Supabase',
@@ -244,16 +253,33 @@ export const privacidade = {
     { nome: 'Brevo', papel: 'envia os e-mails se o Gmail falhar' },
   ],
   compartilhamento:
-    'Esses serviços só tratam os dados para executar a tarefa deles, e alguns ficam fora do Brasil (transferência internacional, art. 33 da LGPD). Não vendemos nem cedemos seus dados a ninguém. Nome e trabalho aprovado aparecem na programação do evento.',
+    'Esses serviços só tratam os dados para executar a tarefa deles, e alguns ficam fora do Brasil (transferência internacional, art. 33 da LGPD). Não vendemos nem cedemos seus dados a ninguém. Nome e trabalho aprovado aparecem na programação do evento. Quando a página de edições passadas do IC-ML existir, título, autores, resumo e PDF dos trabalhos do acervo ficarão públicos nela — nunca CPF ou e-mail.',
   retencao: [
-    { dados: 'PDFs dos trabalhos', ate: '2027-01-31' },
-    { dados: 'CPF, e-mail, instituição, curso e perfil (LinkedIn/Lattes)', ate: '2027-03-31' },
+    {
+      dados: 'PDFs dos trabalhos, se você não autorizou o acervo ou o trabalho não foi aprovado',
+      ate: '2027-01-31',
+    },
+    {
+      dados:
+        "CPF, e-mail, instituição, curso, perfil (LinkedIn/Lattes) e a descrição do vínculo 'outro'",
+      ate: '2027-03-31',
+    },
     {
       dados: 'Nome, nº de inscrição e carga horária do certificado',
       ate: '2031-12-31',
       motivo: 'para que qualquer pessoa possa validar a autenticidade do certificado',
     },
   ],
+  /**
+   * Acervo de edições passadas (WML-73): a única retenção sem data, e só com o consentimento
+   * separado. Sem `ate` de propósito — não há data inventada; vale até a retirada.
+   */
+  retencaoAcervo: {
+    dados: 'Título, autores, resumo e PDF do trabalho aprovado, se você autorizou o acervo',
+    prazo: 'enquanto o acervo de edições passadas existir, ou até você pedir a retirada',
+    detalhe:
+      'O acervo não guarda CPF, e-mail nem qualquer ligação com a sua inscrição. Se pedir a retirada, título, autores e resumo saem na hora e o PDF é apagado no prazo normal dos PDFs ou, se ele já tiver passado, em até 1 dia.',
+  },
   retencaoObs:
     'Cópias de segurança são criptografadas e apagadas automaticamente em até 14 dias. Se você cancelar a inscrição, seus dados são apagados no mesmo prazo acima, ou antes, se pedir.',
   seguranca: [
@@ -269,6 +295,7 @@ export const privacidade = {
     'Pedir a anonimização, o bloqueio ou a eliminação de dados desnecessários.',
     'Saber sobre o compartilhamento dos seus dados: com quem e para quê (veja a lista acima).',
     'Fazer a revogação do consentimento a qualquer momento. Antes do evento, isso cancela a inscrição e o certificado.',
+    'Retirar a autorização do acervo a qualquer momento, sem afetar a inscrição nem o certificado.',
     'Reclamar à Autoridade Nacional de Proteção de Dados (ANPD).',
   ],
 } as const;

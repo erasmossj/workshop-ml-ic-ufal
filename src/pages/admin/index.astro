@@ -321,10 +321,16 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         </label>
         <select id="c-vinculo" class="campo">
           <option value="">Não informado</option>
-          <option value="graduacao">Graduação</option>
-          <option value="mestrado">Mestrado</option>
+          <option value="estudante">Estudante</option>
+          <option value="docente">Docente</option>
           <option value="outro">Outro</option>
         </select>
+        <div id="c-outro-bloco" class="grid gap-3" hidden>
+          <label for="c-vinculo-outro" class="rotulo-campo">
+            Qual vínculo? (até 40 caracteres)
+          </label>
+          <input id="c-vinculo-outro" class="campo" maxlength="40" autocomplete="off" />
+        </div>
         <label for="c-curso" class="rotulo-campo">
           Curso (opcional)
         </label>
@@ -349,14 +355,16 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
 <script>
   import { createClient, type SupabaseClient } from '@supabase/supabase-js';
   import {
+    acaoAcervo,
     cartoesPresenca,
     deInputLocal,
     filtrar,
     formatarDataHora,
     gerarCsv,
     mensagemDeErro,
-    VINCULO,
     NIVEL_PREMIO,
+    rotuloAcervo,
+    rotuloVinculo,
     paginar,
     paraInputLocal,
     STATUS_EMAIL,
@@ -607,6 +615,28 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         }
       });
       td.append(rotulo, sel);
+      // Acervo de edições passadas (WML-73): autorização expressa do autor, registrada aqui quando
+      // chega por e-mail; só trabalhos aprovados entram (ADR-007).
+      const acervo = el('div', rotuloAcervo(i.acervo), 'mt-2 text-xs text-ink-200');
+      acervo.id = `acervo-${i.numero}`;
+      td.append(acervo);
+      if (!i.cancelada || i.acervo) {
+        const acao = acaoAcervo(i);
+        const b = botao(acao.botao, 'text-lime-ink block text-sm underline', async () => {
+          if (!confirm(acao.confirmacao)) return;
+          const r = await rpc('admin_definir_acervo', { p_numero: i.numero, p_acervo: acao.novo });
+          if (r.ok) {
+            avisar(
+              acao.novo
+                ? `Autorização do acervo registrada para ${i.numero}.`
+                : `Trabalho de ${i.numero} retirado do acervo.`,
+            );
+            await carregarLista();
+          }
+        });
+        b.setAttribute('aria-describedby', acervo.id);
+        td.append(b);
+      }
       if (i.pdf_path) {
         const caminho = i.pdf_path;
         td.append(
@@ -622,7 +652,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
 
       const pessoa = el('td', undefined, 'p-3');
       pessoa.append(el('div', i.nome, 'font-medium'), el('div', i.email, 'text-ink-200'));
-      const cracha = [i.vinculo ? (VINCULO[i.vinculo] ?? i.vinculo) : null, i.curso, i.instituicao]
+      const cracha = [rotuloVinculo(i.vinculo, i.vinculo_outro), i.curso, i.instituicao]
         .filter(Boolean)
         .join(' · ');
       if (cracha) pessoa.append(el('div', cracha, 'text-xs text-ink-200'));
@@ -694,6 +724,23 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
     let emCorrecao: Inscricao | null = null;
     const dialogo = $<HTMLDialogElement>('dialogo-corrigir');
 
+    // Campo "Qual vínculo?" só com Outro: obrigatório quando aparece, limpo quando some.
+    // Exceção: inscrição antiga (WML-69) com Outro e sem texto pode ser salva sem mexer no vínculo.
+    const outroBloco = $<HTMLDivElement>('c-outro-bloco');
+    const outroCampo = $<HTMLInputElement>('c-vinculo-outro');
+    const outroAntigoSemTexto = () => emCorrecao?.vinculo === 'outro' && !emCorrecao.vinculo_outro;
+    function mostrarOutro() {
+      const outro = valor('c-vinculo') === 'outro';
+      outroBloco.hidden = !outro;
+      outroCampo.required = outro && !outroAntigoSemTexto();
+      if (!outro) outroCampo.value = '';
+    }
+    /** Vínculo e texto como estavam? Então null/null: o banco mantém os dois. */
+    const vinculoIgual = (i: Inscricao) =>
+      valor('c-vinculo') === (i.vinculo ?? '') &&
+      valor('c-vinculo-outro').trim() === (i.vinculo_outro ?? '');
+    $<HTMLSelectElement>('c-vinculo').addEventListener('change', mostrarOutro);
+
     function abrirCorrecao(i: Inscricao) {
       emCorrecao = i;
       $('c-numero').textContent = i.numero;
@@ -702,6 +749,8 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
       $<HTMLInputElement>('c-cpf').value = '';
       $<HTMLInputElement>('c-inst').value = i.instituicao ?? '';
       $<HTMLSelectElement>('c-vinculo').value = i.vinculo ?? '';
+      outroCampo.value = i.vinculo_outro ?? '';
+      mostrarOutro();
       $<HTMLInputElement>('c-curso').value = i.curso ?? '';
       $<HTMLInputElement>('c-perfil').value = i.perfil_url ?? '';
       dialogo.showModal();
@@ -710,6 +759,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
     dialogo.addEventListener('close', async () => {
       if (dialogo.returnValue !== 'salvar' || !emCorrecao) return;
       const numero = emCorrecao.numero;
+      const manterVinculo = vinculoIgual(emCorrecao);
       const r = await rpc('admin_corrigir_inscricao', {
         p_numero: numero,
         p_nome: valor('c-nome'),
@@ -717,7 +767,9 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         p_cpf: valor('c-cpf'),
         p_instituicao: valor('c-inst'),
         // Vazio mantém o vínculo; '' em curso/perfil apaga (admin_corrigir_inscricao).
-        p_vinculo: valor('c-vinculo') || null,
+        p_vinculo: manterVinculo ? null : valor('c-vinculo') || null,
+        p_vinculo_outro:
+          !manterVinculo && valor('c-vinculo') === 'outro' ? valor('c-vinculo-outro') : null,
         p_curso: valor('c-curso'),
         p_perfil: valor('c-perfil'),
       });

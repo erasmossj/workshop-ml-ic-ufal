@@ -45,7 +45,7 @@ function formulario(campos: Record<string, string | Blob> = {}): FormData {
     cpf: '529.982.247-25',
     email: novoEmail(),
     consentimento: 'sim',
-    vinculo: 'graduacao',
+    vinculo: 'estudante',
     'cf-turnstile-response': 'XXXX.DUMMY.TOKEN.XXXX',
     ...campos,
   };
@@ -141,12 +141,66 @@ describe('Edge Function register', () => {
     expect(corpo.campo).toBe('vinculo');
   });
 
+  it('recusa vínculo fora de estudante/docente/outro', async () => {
+    const { status, corpo } = await enviar(formulario({ vinculo: 'doutorado' }));
+    expect(status).toBe(422);
+    expect(corpo.campo).toBe('vinculo');
+    expect(corpo.erro).toBe('Escolha seu vínculo: estudante, docente ou outro.');
+  });
+
+  const vinculoGravado = async (email: string) =>
+    (
+      await (
+        await rest(
+          `participantes?select=vinculo,vinculo_outro&email=eq.${encodeURIComponent(email)}`,
+        )
+      ).json()
+    )[0];
+
+  it('"Outro" grava o texto livre sem espaços extras', async () => {
+    const email = novoEmail();
+    const r = await enviar(
+      formulario({ email, vinculo: 'outro', vinculo_outro: '  Servidor   técnico ' }),
+    );
+    expect(r.status).toBe(201);
+    expect(await vinculoGravado(email)).toEqual({
+      vinculo: 'outro',
+      vinculo_outro: 'Servidor técnico',
+    });
+  });
+
+  it('"Outro" exige o texto (até 40 caracteres)', async () => {
+    for (const vinculo_outro of ['', '   ', 'x'.repeat(41)]) {
+      const { status, corpo } = await enviar(formulario({ vinculo: 'outro', vinculo_outro }));
+      expect(status, vinculo_outro).toBe(422);
+      expect(corpo.campo).toBe('vinculo_outro');
+    }
+    const semCampo = await enviar(formulario({ vinculo: 'outro' }));
+    expect(semCampo.status).toBe(422);
+    expect(semCampo.corpo.campo).toBe('vinculo_outro');
+  });
+
+  it('estudante/docente descartam o texto do "Outro"', async () => {
+    const email = novoEmail();
+    const r = await enviar(formulario({ email, vinculo: 'docente', vinculo_outro: 'Servidor' }));
+    expect(r.status).toBe(201);
+    expect(await vinculoGravado(email)).toEqual({ vinculo: 'docente', vinculo_outro: null });
+  });
+
+  it('aceita graduacao/mestrado da página antiga (deploy) como estudante', async () => {
+    for (const vinculo of ['graduacao', 'mestrado']) {
+      const email = novoEmail();
+      expect((await enviar(formulario({ email, vinculo }))).status, vinculo).toBe(201);
+      expect(await vinculoGravado(email)).toEqual({ vinculo: 'estudante', vinculo_outro: null });
+    }
+  });
+
   it('grava curso e o perfil normalizado (LinkedIn/Lattes)', async () => {
     const email = novoEmail();
     const r = await enviar(
       formulario({
         email,
-        vinculo: 'mestrado',
+        vinculo: 'docente',
         curso: 'Computação',
         perfil: 'lattes.cnpq.br/1234567890123456',
       }),
@@ -156,7 +210,7 @@ describe('Edge Function register', () => {
       await rest(`participantes?select=vinculo,curso,perfil_url&email=eq.${email}`)
     ).json();
     expect(gravado).toEqual({
-      vinculo: 'mestrado',
+      vinculo: 'docente',
       curso: 'Computação',
       perfil_url: 'https://lattes.cnpq.br/1234567890123456',
     });
@@ -194,6 +248,40 @@ describe('Edge Function register', () => {
     expect(comChave.status).toBe(200);
     const anonimo = await fetch(`${API}/storage/v1/object/public/trabalhos/${linha.pdf_path}`);
     expect(anonimo.status).not.toBe(200);
+  });
+
+  // Acervo de edições passadas (WML-73): opt-in separado, desmarcado por padrão.
+  const acervoDe = async (email: string) =>
+    (
+      await rest(
+        `trabalhos?select=acervo,acervo_em,participantes!inner(email)&participantes.email=eq.${encodeURIComponent(email)}`,
+      ).then((r) => r.json())
+    )[0] as { acervo: boolean; acervo_em: string | null } | undefined;
+
+  it('grava a autorização do acervo quando a pessoa marca a caixa', async () => {
+    const email = novoEmail();
+    expect((await enviar(formulario({ email, ...trabalho({ acervo: 'sim' }) }))).status).toBe(201);
+    const linha = await acervoDe(email);
+    expect(linha?.acervo).toBe(true);
+    expect(linha?.acervo_em).not.toBeNull();
+  });
+
+  it('sem a caixa marcada, o trabalho fica fora do acervo', async () => {
+    const email = novoEmail();
+    expect((await enviar(formulario({ email, ...trabalho() }))).status).toBe(201);
+    expect(await acervoDe(email)).toMatchObject({ acervo: false, acervo_em: null });
+  });
+
+  it('só "sim" conta como autorização', async () => {
+    const email = novoEmail();
+    expect((await enviar(formulario({ email, ...trabalho({ acervo: 'true' }) }))).status).toBe(201);
+    expect((await acervoDe(email))?.acervo).toBe(false);
+  });
+
+  it('acervo sem trabalho é ignorado (não cria trabalho)', async () => {
+    const email = novoEmail();
+    expect((await enviar(formulario({ email, acervo: 'sim' }))).status).toBe(201);
+    expect(await acervoDe(email)).toBeUndefined();
   });
 
   it('recusa arquivo renomeado para .pdf e não cria a inscrição', async () => {

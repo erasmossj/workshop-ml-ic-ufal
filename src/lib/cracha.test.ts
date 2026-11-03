@@ -54,21 +54,39 @@ describe('pontoAceso (grade de 8×4 com um ponto lima)', () => {
   });
 });
 
-describe('tagDoParticipante (mapeamento de Tag do Figma)', () => {
-  it('Graduação = Neutral, Mestrado = Blue', () => {
-    expect(tagDoParticipante('graduacao')).toEqual({
-      texto: 'Participante · Graduação',
+describe('tagDoParticipante (mapeamento de Tag do Figma, WML-72)', () => {
+  it('Estudante = Neutral, Docente = Blue', () => {
+    expect(tagDoParticipante('estudante', null)).toEqual({
+      texto: 'Participante · Estudante',
       tom: 'tag-neutra',
     });
-    expect(tagDoParticipante('mestrado')).toEqual({
-      texto: 'Participante · Mestrado',
+    expect(tagDoParticipante('docente', null)).toEqual({
+      texto: 'Participante · Docente',
       tom: 'tag-azul',
     });
   });
 
-  it('outro ou sem vínculo: só "Participante"', () => {
-    expect(tagDoParticipante('outro').texto).toBe('Participante');
-    expect(tagDoParticipante(null).texto).toBe('Participante');
+  it('Outro mostra o texto da pessoa em Neutral', () => {
+    expect(tagDoParticipante('outro', '  Servidor   técnico ')).toEqual({
+      texto: 'Participante · Servidor técnico',
+      tom: 'tag-neutra',
+    });
+  });
+
+  it('texto do Outro sai cru: a página o põe via textContent (nunca innerHTML)', () => {
+    expect(tagDoParticipante('outro', '<img src=x onerror=alert(1)>').texto).toBe(
+      'Participante · <img src=x onerror=alert(1)>',
+    );
+  });
+
+  it('texto só vale para Outro', () => {
+    expect(tagDoParticipante('docente', 'Servidor').texto).toBe('Participante · Docente');
+  });
+
+  it('sem vínculo, ou Outro antigo sem texto: só "Participante"', () => {
+    expect(tagDoParticipante(null, null)).toEqual({ texto: 'Participante', tom: 'tag-neutra' });
+    expect(tagDoParticipante('outro', null).texto).toBe('Participante');
+    expect(tagDoParticipante('outro', '   ').texto).toBe('Participante');
   });
 });
 

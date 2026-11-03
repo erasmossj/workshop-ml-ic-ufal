@@ -37,13 +37,43 @@ export function validarPdf(arquivo: ArquivoInfo, primeirosBytes: Uint8Array): st
   return null;
 }
 
-/** Vínculo com a instituição (Figma: Choice "Vínculo"; Tag do crachá). */
+/** Vínculo com a instituição (Figma: Choice "Vínculo"; Tag do crachá). WML-72. */
 export const VINCULOS = [
-  { valor: 'graduacao', rotulo: 'Graduação' },
-  { valor: 'mestrado', rotulo: 'Mestrado' },
+  { valor: 'estudante', rotulo: 'Estudante' },
+  { valor: 'docente', rotulo: 'Docente' },
   { valor: 'outro', rotulo: 'Outro' },
 ] as const;
 export type Vinculo = (typeof VINCULOS)[number]['valor'];
+
+/** Tamanho máximo do texto livre do vínculo "Outro" (mesmo limite do banco e da Edge Function). */
+export const VINCULO_OUTRO_MAX = 40;
+
+/** Texto do "Outro" como o servidor grava: sem espaços nas pontas nem repetidos. */
+export function normalizarVinculoOutro(texto: string): string {
+  return texto.replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Vínculo escolhido + texto do "Outro" → erro (campo e mensagem) ou null.
+ * Mesmas regras e mensagens da Edge Function `register`. Tamanho em caracteres (code points),
+ * como o char_length() do banco.
+ */
+export function validarVinculo(
+  vinculo: string,
+  outro: string,
+): { campo: 'vinculo' | 'vinculo_outro'; msg: string } | null {
+  if (!VINCULOS.some((v) => v.valor === vinculo)) {
+    return { campo: 'vinculo', msg: 'Escolha seu vínculo: estudante, docente ou outro.' };
+  }
+  if (vinculo !== 'outro') return null;
+  const texto = normalizarVinculoOutro(outro);
+  return texto && [...texto].length <= VINCULO_OUTRO_MAX
+    ? null
+    : {
+        campo: 'vinculo_outro',
+        msg: `Descreva seu vínculo em até ${VINCULO_OUTRO_MAX} caracteres.`,
+      };
+}
 
 export const CURSO_MAX = 120;
 

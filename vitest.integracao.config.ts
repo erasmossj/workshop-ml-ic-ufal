@@ -4,7 +4,8 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     include: ['tests/integracao/**/*.test.ts'],
-    testTimeout: 30_000,
+    // Os testes de e-mail esvaziam a fila em lotes de EMAIL_LOTE (3) até a mensagem chegar.
+    testTimeout: 90_000,
     fileParallelism: false,
   },
 });

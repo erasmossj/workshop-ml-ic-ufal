@@ -2,7 +2,7 @@
  * Crachás 100×140 mm (WML-70), conforme o Figma "IC-ML" › Aplicações › Crachás. Só lógica, sem DOM.
  * O crachá não leva CPF nem e-mail; o QR (quando há) aponta só para LinkedIn ou Lattes.
  */
-import { normalizarPerfil } from './validacao';
+import { normalizarPerfil, normalizarVinculoOutro } from './validacao';
 
 /** Grade de pontos do crachá do participante: 8 colunas × 4 linhas. */
 export const PONTOS = 32;
@@ -32,13 +32,21 @@ export function pontoAceso(numero: string): number {
   return (n * 13) % PONTOS;
 }
 
-/** Tag do crachá — mapeamento do Figma: Graduação = Neutral, Mestrado = Blue. */
-export function tagDoParticipante(vinculo: string | null): {
+/**
+ * Tag do crachá (WML-72): Estudante = Neutral, Docente = Blue, Outro = texto da pessoa em Neutral.
+ * O texto do "Outro" volta cru — a página o coloca com textContent, nunca innerHTML.
+ */
+export function tagDoParticipante(
+  vinculo: string | null,
+  vinculoOutro: string | null,
+): {
   texto: string;
   tom: 'tag-neutra' | 'tag-azul';
 } {
-  if (vinculo === 'mestrado') return { texto: 'Participante · Mestrado', tom: 'tag-azul' };
-  if (vinculo === 'graduacao') return { texto: 'Participante · Graduação', tom: 'tag-neutra' };
+  if (vinculo === 'docente') return { texto: 'Participante · Docente', tom: 'tag-azul' };
+  if (vinculo === 'estudante') return { texto: 'Participante · Estudante', tom: 'tag-neutra' };
+  const outro = vinculo === 'outro' ? normalizarVinculoOutro(vinculoOutro ?? '') : '';
+  if (outro) return { texto: `Participante · ${outro}`, tom: 'tag-neutra' };
   return { texto: 'Participante', tom: 'tag-neutra' };
 }
 

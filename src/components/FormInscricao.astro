@@ -4,8 +4,8 @@
  * Usado na coluna do hero (home) e em /inscricao. Faixa halftone de corte seco no topo,
  * cabeçalho de sistema, campos estilo terminal, Checkbox, Choice e FileDrop.
  */
-import { janela, minicurso, trabalhos } from '../data/evento';
-import { CURSO_MAX, RESUMO_MAX, VINCULOS } from '../lib/validacao';
+import { evento, janela, minicurso, privacidade, trabalhos } from '../data/evento';
+import { CURSO_MAX, RESUMO_MAX, VINCULO_OUTRO_MAX, VINCULOS } from '../lib/validacao';
 
 interface Props {
   /** h1 em /inscricao; h2 na home. */
@@ -18,6 +18,9 @@ const Titulo = nivel;
 const modoReal = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
 const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 const opcional = 'text-ink-300';
+// Prazo dos PDFs de quem não autoriza o acervo (o mesmo da política e do expurgo).
+const prazoPdf = privacidade.retencao.find((r) => /PDF/.test(r.dados))!.ate;
+const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
 ---
 
 <section id="inscricao" aria-labelledby="form-t" class="flex flex-col bg-bg-000">
@@ -137,6 +140,22 @@ const opcional = 'text-ink-300';
       </div>
 
       <div>
+        <label for="instituicao" class="rotulo-campo">
+          <span>Instituição</span>
+          <span class={opcional}>opcional</span>
+        </label>
+        <div class="terminal">
+          <input
+            id="instituicao"
+            name="instituicao"
+            class="campo"
+            autocomplete="organization"
+            placeholder="ex.: UFAL"
+          />
+        </div>
+      </div>
+
+      <div>
         <p id="vinculo-rotulo" class="rotulo-campo">
           <span>Vínculo</span>
           <span class="obrigatorio">obrigatório</span>
@@ -152,12 +171,40 @@ const opcional = 'text-ink-300';
         >
           {VINCULOS.map((v) => (
             <label>
-              <input type="radio" name="vinculo" value={v.valor} />
+              <input
+                type="radio"
+                name="vinculo"
+                value={v.valor}
+                aria-controls={v.valor === 'outro' ? 'vinculo-outro-bloco' : undefined}
+              />
               {v.rotulo}
             </label>
           ))}
         </div>
         <p id="vinculo-erro" class="erro-campo" aria-live="polite"></p>
+      </div>
+
+      <!-- Só com "Outro" (WML-72). `hidden` tira da tela, do leitor de tela e da ordem do teclado. -->
+      <div id="vinculo-outro-bloco" hidden>
+        <label for="vinculo_outro" class="rotulo-campo">
+          <span>Qual vínculo?</span>
+          <span class="obrigatorio">obrigatório</span>
+        </label>
+        <div class="terminal">
+          <input
+            id="vinculo_outro"
+            name="vinculo_outro"
+            class="campo"
+            maxlength={VINCULO_OUTRO_MAX}
+            autocomplete="off"
+            placeholder="ex.: servidor técnico"
+            aria-describedby="vinculo_outro-dica vinculo_outro-erro"
+          />
+        </div>
+        <p id="vinculo_outro-dica" class="ajuda">
+          Até {VINCULO_OUTRO_MAX} caracteres. Aparece no seu crachá.
+        </p>
+        <p id="vinculo_outro-erro" class="erro-campo" aria-live="polite"></p>
       </div>
 
       <fieldset class="flex flex-col gap-3.5 border-t border-line-100 pt-3.5">
@@ -177,21 +224,6 @@ const opcional = 'text-ink-300';
               class="campo"
               maxlength={CURSO_MAX}
               placeholder="ex.: Ciência da Computação"
-            />
-          </div>
-        </div>
-        <div>
-          <label for="instituicao" class="rotulo-campo">
-            <span>Instituição</span>
-            <span class={opcional}>opcional</span>
-          </label>
-          <div class="terminal">
-            <input
-              id="instituicao"
-              name="instituicao"
-              class="campo"
-              autocomplete="organization"
-              placeholder="ex.: UFAL"
             />
           </div>
         </div>
@@ -406,6 +438,28 @@ const opcional = 'text-ink-300';
           </div>
           <p id="nivel-erro" class="erro-campo" aria-live="polite"></p>
         </div>
+        <!-- Acervo (WML-73 · ADR-007): consentimento separado, opcional e desmarcado. -->
+        <div>
+          <label for="acervo" class="flex cursor-pointer items-start gap-3 font-medium body-s">
+            <input
+              id="acervo"
+              name="acervo"
+              type="checkbox"
+              value="sim"
+              class="caixa-selecao mt-0.5 shrink-0"
+              aria-describedby="acervo-dica"
+            />
+            <span>
+              Autorizo manter meu trabalho (título, autores, resumo e PDF) no acervo de edições
+              passadas do IC-ML, se ele for aprovado. Posso pedir a retirada a qualquer momento pelo
+              e-mail do evento.
+            </span>
+          </label>
+          <p id="acervo-dica" class="ajuda pl-7.5">
+            Opcional. Sem esta autorização, o PDF é apagado em {prazoPdfTexto}. O acervo não guarda
+            CPF nem e-mail. Retirada: {evento.contato}.
+          </p>
+        </div>
       </div>
 
       <div class="border-t border-line-100 pt-3.5">
@@ -427,7 +481,8 @@ const opcional = 'text-ink-300';
               Política de Privacidade
             </a>
             . Nome, CPF e e-mail serão usados para a inscrição e a emissão do certificado; vínculo,
-            curso, instituição e perfil, para o crachá — conforme a LGPD.
+            curso, instituição e perfil, para o crachá — conforme a LGPD. O trabalho só entra no
+            acervo de edições passadas com a autorização separada.
           </span>
         </label>
         <p id="consentimento-erro" class="erro-campo" aria-live="polite"></p>
@@ -474,6 +529,7 @@ const opcional = 'text-ink-300';
     normalizarEmail,
     normalizarPerfil,
     validarPdf,
+    validarVinculo,
   } from '../lib/validacao';
 
   const form = document.querySelector<HTMLFormElement>('#form-inscricao')!;
@@ -493,6 +549,20 @@ const opcional = 'text-ink-300';
   });
   resumo.addEventListener('input', () => {
     $('resumo-contador').textContent = `${resumo.value.length} / ${RESUMO_MAX} caracteres`;
+  });
+  // Vínculo "Outro" (WML-72): mostra "Qual vínculo?", obrigatório só enquanto visível.
+  const vinculoOutroBloco = $<HTMLDivElement>('vinculo-outro-bloco');
+  const vinculoOutro = $<HTMLInputElement>('vinculo_outro');
+  const vinculoEscolhido = () =>
+    form.querySelector<HTMLInputElement>('input[name=vinculo]:checked')?.value ?? '';
+  $('vinculo').addEventListener('change', () => {
+    const outro = vinculoEscolhido() === 'outro';
+    vinculoOutroBloco.hidden = !outro;
+    vinculoOutro.required = outro;
+    if (!outro) {
+      vinculoOutro.value = '';
+      marcar('vinculo_outro', null);
+    }
   });
   trabalho.addEventListener('change', () => {
     camposTrabalho.hidden = !trabalho.checked;
@@ -593,12 +663,9 @@ const opcional = 'text-ink-300';
           : null,
     );
     checar('cpf', cpfValido(v('cpf')) ? null : 'CPF inválido. Confira os números.');
-    checar(
-      'vinculo',
-      form.querySelector('input[name=vinculo]:checked')
-        ? null
-        : 'Escolha seu vínculo: graduação, mestrado ou outro.',
-    );
+    const erroVinculo = validarVinculo(vinculoEscolhido(), vinculoOutro.value);
+    checar('vinculo', erroVinculo?.campo === 'vinculo' ? erroVinculo.msg : null);
+    checar('vinculo_outro', erroVinculo?.campo === 'vinculo_outro' ? erroVinculo.msg : null);
     checar(
       'perfil',
       normalizarPerfil(v('perfil')) === null

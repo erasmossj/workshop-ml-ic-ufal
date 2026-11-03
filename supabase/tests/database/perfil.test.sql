@@ -17,7 +17,7 @@ select ok((select relrowsecurity from pg_class where oid = 'public.participantes
   'RLS continua ligado em participantes');
 select ok(not has_table_privilege('anon', 'public.participantes', 'select'), 'anon NÃO lê participantes');
 select ok(not has_function_privilege('anon',
-  'public.register_participant(text,text,text,text,smallint[],jsonb,text,text,text)', 'execute'),
+  'public.register_participant(text,text,text,text,smallint[],jsonb,text,text,text,text)', 'execute'),
   'anon NÃO chama a RPC de inscrição');
 
 -- normalização do perfil ---------------------------------------------------------
@@ -40,28 +40,28 @@ select throws_ok($$ select public.normalizar_perfil('https://lattes.cnpq.br/123'
 -- inscrição -----------------------------------------------------------------------
 create temp table insc as
   select 'ana' as quem, * from public.register_participant('Ana Perfil', '529.982.247-25',
-    'ana.perfil@exemplo.com', 'UFAL', '{}', null, 'graduacao', ' Ciência  da Computação ',
+    'ana.perfil@exemplo.com', 'UFAL', '{}', null, 'estudante', ' Ciência  da Computação ',
     'linkedin.com/in/ana-perfil')
   union all
   select 'bia', * from public.register_participant('Bia Perfil', '111.444.777-35',
-    'bia.perfil@exemplo.com', null, '{}', null, 'mestrado', null, null);
+    'bia.perfil@exemplo.com', null, '{}', null, 'docente', null, null);
 
 select results_eq(
   $$ select vinculo::text, curso, perfil_url from public.participantes where email = 'ana.perfil@exemplo.com' $$,
-  $$ values ('graduacao', 'Ciência da Computação', 'https://www.linkedin.com/in/ana-perfil') $$,
+  $$ values ('estudante', 'Ciência da Computação', 'https://www.linkedin.com/in/ana-perfil') $$,
   'grava vínculo, curso (sem espaços extras) e perfil canônico');
 select results_eq(
   $$ select vinculo::text, curso, perfil_url from public.participantes where email = 'bia.perfil@exemplo.com' $$,
-  $$ values ('mestrado', null::text, null::text) $$,
+  $$ values ('docente', null::text, null::text) $$,
   'curso e perfil são opcionais');
 select throws_ok($$ select * from public.register_participant('Caio Perfil', '123.456.789-09',
   'caio.perfil@exemplo.com', null, '{}', null, 'doutorado', null, null) $$,
   'P0001', 'VINCULO_INVALIDO', 'vínculo fora da lista é recusado');
 select throws_ok($$ select * from public.register_participant('Caio Perfil', '123.456.789-09',
-  'caio.perfil@exemplo.com', null, '{}', null, 'outro', repeat('x', 121), null) $$,
+  'caio.perfil@exemplo.com', null, '{}', null, 'docente', repeat('x', 121), null) $$,
   'P0001', 'CURSO_INVALIDO', 'curso com mais de 120 caracteres é recusado');
 select throws_ok($$ select * from public.register_participant('Caio Perfil', '123.456.789-09',
-  'caio.perfil@exemplo.com', null, '{}', null, 'outro', null, 'https://evil.com/in/caio') $$,
+  'caio.perfil@exemplo.com', null, '{}', null, 'docente', null, 'https://evil.com/in/caio') $$,
   'P0001', 'PERFIL_INVALIDO', 'perfil fora de LinkedIn/Lattes é recusado na inscrição');
 select throws_ok($$ insert into public.participantes (nome, cpf, email, perfil_url)
   values ('Dado Direto', '52998224725', 'direto@exemplo.com', 'https://evil.com') $$,
@@ -71,23 +71,23 @@ select throws_ok($$ insert into public.participantes (nome, cpf, email, perfil_u
 set local request.jwt.claims = '{"role":"authenticated","email":"org.perfil@exemplo.com"}';
 select results_eq(
   $$ select vinculo, curso, perfil_url from public.admin_listar_inscricoes() where nome = 'Ana Perfil' $$,
-  $$ values ('graduacao', 'Ciência da Computação', 'https://www.linkedin.com/in/ana-perfil') $$,
+  $$ values ('estudante', 'Ciência da Computação', 'https://www.linkedin.com/in/ana-perfil') $$,
   'a listagem do painel traz vínculo, curso e perfil');
 
 select lives_ok($$ select public.admin_corrigir_inscricao(
   (select numero_inscricao from insc where quem = 'bia'), 'Bia Perfil', 'bia.perfil@exemplo.com',
-  '111.444.777-35', null, 'outro', 'Engenharia', 'lattes.cnpq.br/1234567890123456') $$,
+  '111.444.777-35', null, 'estudante', 'Engenharia', 'lattes.cnpq.br/1234567890123456') $$,
   'organização corrige vínculo, curso e perfil');
 select results_eq(
   $$ select vinculo::text, curso, perfil_url from public.participantes where email = 'bia.perfil@exemplo.com' $$,
-  $$ values ('outro', 'Engenharia', 'https://lattes.cnpq.br/1234567890123456') $$,
+  $$ values ('estudante', 'Engenharia', 'https://lattes.cnpq.br/1234567890123456') $$,
   'correção grava os valores normalizados');
 select lives_ok($$ select public.admin_corrigir_inscricao(
   (select numero_inscricao from insc where quem = 'bia'), 'Bia Perfil', 'bia.perfil@exemplo.com',
   '111.444.777-35', null) $$, 'correção sem os campos novos continua funcionando');
 select results_eq(
   $$ select vinculo::text, curso from public.participantes where email = 'bia.perfil@exemplo.com' $$,
-  $$ values ('outro', 'Engenharia') $$,
+  $$ values ('estudante', 'Engenharia') $$,
   'parâmetro ausente mantém o valor atual');
 select lives_ok($$ select public.admin_corrigir_inscricao(
   (select numero_inscricao from insc where quem = 'bia'), 'Bia Perfil', 'bia.perfil@exemplo.com',

@@ -135,12 +135,19 @@ Endereço: `/inscricao`. Campos com `*` são obrigatórios. O formulário tem 4 
 
 **Bloco 1 · Dados para o certificado**
 
-| Campo         | Obrigatório | Regras                                                                            |
-| ------------- | ----------- | --------------------------------------------------------------------------------- |
-| Nome completo | Sim         | Nome e sobrenome, só letras. Sai exatamente assim no certificado.                 |
-| CPF           | Sim         | CPF válido. A pontuação é colocada sozinha enquanto você digita.                  |
-| E-mail        | Sim         | E-mail válido e sem outra inscrição ativa. Comprovante e certificado chegam nele. |
-| Instituição   | Não         | Até 160 caracteres. Ex.: "UFAL — Instituto de Computação".                        |
+| Campo           | Obrigatório | Regras                                                                            |
+| --------------- | ----------- | --------------------------------------------------------------------------------- |
+| Nome completo   | Sim         | Nome e sobrenome, só letras. Sai exatamente assim no certificado.                 |
+| CPF             | Sim         | CPF válido. A pontuação é colocada sozinha enquanto você digita.                  |
+| E-mail          | Sim         | E-mail válido e sem outra inscrição ativa. Comprovante e certificado chegam nele. |
+| Instituição     | Não         | Até 160 caracteres. Ex.: "UFAL — Instituto de Computação".                        |
+| Vínculo         | Sim         | Estudante, Docente ou Outro. Aparece no crachá.                                   |
+| Qual vínculo?   | Se "Outro"  | Só aparece com "Outro". Texto livre, até 40 caracteres. Ex.: "Servidor técnico".  |
+| Curso           | Não         | Até 120 caracteres. Aparece no crachá.                                            |
+| LinkedIn/Lattes | Não         | Só perfil do LinkedIn (linkedin.com/in/…) ou do Lattes. Vira QR no crachá.        |
+
+Os campos aparecem nesta ordem: Instituição → Vínculo → Qual vínculo? (só com "Outro") → Curso →
+LinkedIn ou Lattes. Trocar o vínculo de "Outro" para outra opção esconde e apaga o texto.
 
 **Bloco 2 · Minicurso (opcional)**
 
@@ -155,19 +162,27 @@ Endereço: `/inscricao`. Campos com `*` são obrigatórios. O formulário tem 4 
 
 Marque **Quero submeter um trabalho** para abrir os campos:
 
-| Campo                       | Obrigatório            | Regras                                                  |
-| --------------------------- | ---------------------- | ------------------------------------------------------- |
-| Título do trabalho          | Sim                    | Até 250 caracteres                                      |
-| Autores                     | Sim                    | Nomes separados por vírgula                             |
-| Resumo                      | Sim                    | Até 1.500 caracteres (o contador mostra quantos faltam) |
-| Arquivo PDF                 | Sim                    | Só PDF, até 5 MB                                        |
-| Quero concorrer à premiação | Não                    | Melhor trabalho de graduação e de mestrado              |
-| Categoria                   | Se concorrer ao prêmio | Graduação ou Mestrado                                   |
+| Campo                                   | Obrigatório            | Regras                                                       |
+| --------------------------------------- | ---------------------- | ------------------------------------------------------------ |
+| Título do trabalho                      | Sim                    | Até 250 caracteres                                           |
+| Autores                                 | Sim                    | Nomes separados por vírgula                                  |
+| Resumo                                  | Sim                    | Até 1.500 caracteres (o contador mostra quantos faltam)      |
+| Arquivo PDF                             | Sim                    | Só PDF, até 5 MB                                             |
+| Quero concorrer à premiação             | Não                    | Melhor trabalho de graduação e de mestrado                   |
+| Categoria                               | Se concorrer ao prêmio | Graduação ou Mestrado                                        |
+| Autorizo manter meu trabalho… no acervo | Não (desmarcada)       | Só vale se o trabalho for aprovado; pode ser retirada depois |
 
 O trabalho segue o modelo de short paper da SBC, com 4 ou 6 páginas (sem contar referências). Os
 modelos (LaTeX e Word) estão no link **Baixar modelos da SBC (.zip)**, no formulário e na seção
 Chamada de trabalhos. O evento tem 13 vagas para apresentação de trabalhos; isso não limita as
 inscrições nem as submissões. O envio só é aceito dentro do período de submissão.
+
+**Acervo de edições passadas (opcional).** A última caixa do bloco — _Autorizo manter meu trabalho
+(título, autores, resumo e PDF) no acervo de edições passadas do IC-ML, se ele for aprovado_ — é uma
+autorização separada do aceite da política e vem desmarcada. Sem ela, o PDF é apagado em
+31/01/2027. Com ela, se o trabalho for aprovado (oral ou pôster), título, autores, resumo e PDF ficam
+guardados — sem CPF nem e-mail — e poderão aparecer numa futura página de edições passadas. A
+retirada pode ser pedida a qualquer momento pelo e-mail do evento.
 
 **Bloco 4 · Confirmar**
 
@@ -210,10 +225,12 @@ na tela de confirmação.
 Endereço: `/privacidade` (link no rodapé e no formulário). Explica, em linguagem simples:
 
 - quais dados são pedidos (nome, CPF, e-mail, vínculo, curso, instituição, perfil LinkedIn/Lattes, minicurso, trabalho) e para quê;
-- a base legal (o seu consentimento, dado ao marcar a caixa de aceite);
+- a base legal (o seu consentimento, dado ao marcar a caixa de aceite) e, para o acervo de edições
+  passadas, um consentimento à parte, específico e revogável;
 - quem processa os dados (hospedagem, banco de dados, e-mail e anti-robô) e que eles não são
   vendidos nem cedidos;
-- até quando os dados ficam guardados: PDFs dos trabalhos até 31/01/2027; CPF, e-mail e
+- até quando os dados ficam guardados: PDFs dos trabalhos até 31/01/2027 (exceto trabalho aprovado
+  com autorização para o acervo, que fica até a retirada, sem CPF nem e-mail); CPF, e-mail e
   instituição até 31/03/2027; nome, número de inscrição e carga horária do certificado até
   31/12/2031, para permitir a validação;
 - como os dados são protegidos (CPF mascarado nas telas da organização, PDFs em área privada,
@@ -345,8 +362,11 @@ use **Anterior** e **Próxima**.
 ### 4.6 Corrigir uma inscrição
 
 1. Na linha da inscrição, clique em **Corrigir**.
-2. Ajuste nome, e-mail ou instituição. **Por segurança, o CPF precisa ser digitado completo de
-   novo**, mesmo que não mude.
+2. Ajuste nome, e-mail, instituição, vínculo, curso ou perfil. **Por segurança, o CPF precisa ser
+   digitado completo de novo**, mesmo que não mude. Ao escolher o vínculo **Outro**, aparece o campo
+   **Qual vínculo?** (até 40 caracteres), obrigatório; ao trocar para Estudante ou Docente, o texto
+   é apagado. Inscrições antigas com "Outro" e sem texto podem ser corrigidas sem preencher o campo,
+   desde que o vínculo não mude.
 3. Clique em **Salvar correção** (ou **Voltar** para desistir).
 4. Se o e-mail mudou, clique em **Reenviar** para mandar a confirmação ao novo endereço.
 
@@ -375,12 +395,18 @@ A pessoa pode se inscrever de novo com o mesmo e-mail e recebe um número novo.
 
 Inscrições que concorrem ao prêmio mostram "Concorre ao prêmio (graduação)" ou "(mestrado)".
 
+Cada trabalho mostra também **Autorizou acervo: sim** ou **não**. Quando o autor autorizar ou pedir
+a retirada por e-mail (por exemplo, quem se inscreveu antes da caixa existir), clique em **Registrar
+autorização do acervo** ou **Retirar do acervo** e confirme. Só trabalhos aprovados entram no acervo;
+o passo a passo e o modelo de e-mail estão no Runbook (seção "Acervo de trabalhos").
+
 ### 4.10 Exportar a planilha
 
 Clique em **Exportar CSV (lista filtrada)**. O arquivo traz só as inscrições do filtro atual e abre
 no Excel ou no Google Planilhas, com estas colunas: Nº de inscrição, Nome, E-mail, CPF (mascarado),
-Instituição, Minicurso, Apresenta trabalho, Título do trabalho, Status do trabalho, Concorre ao
-prêmio, Inscrita em, Situação, Dias presentes e Tardes no minicurso.
+Instituição, Vínculo, Curso, Perfil, Minicurso, Apresenta trabalho, Título do trabalho, Status do
+trabalho, Concorre ao prêmio, Autorizou acervo, Inscrita em, Situação, Dias presentes e Tardes no
+minicurso.
 
 > **Atenção:** a planilha tem dados pessoais. Não compartilhe o arquivo fora da organização e
 > apague-o quando não precisar mais.
@@ -496,8 +522,10 @@ No painel, em **Crachás**, clique em **Abrir crachás** (ou no botão **Crachá
 de inscrições, que já abre com aquele participante na prévia).
 
 - **Participantes:** busque pelo nome ou número, marque quem quiser e clique em **Gerar crachás
-  selecionados** (ou em **Gerar** numa linha). Cada crachá traz o nome, o vínculo (graduação,
-  mestrado ou outro), o curso e a instituição e, se a pessoa informou, o QR do LinkedIn ou do Lattes.
+  selecionados** (ou em **Gerar** numa linha). Cada crachá traz o nome, o vínculo
+  ("Participante · Estudante", "Participante · Docente" em azul, ou "Participante · " seguido do
+  texto que a pessoa escreveu em "Outro"; sem vínculo, só "Participante"), o curso e a instituição
+  e, se a pessoa informou, o QR do LinkedIn ou do Lattes.
   Sem perfil, o espaço do QR fica vazio. O crachá não mostra CPF nem e-mail.
 - **Organização:** digite nome, função e (opcional) LinkedIn ou Lattes e clique em **Adicionar
   crachá da organização**. Esses dados não são gravados: valem só para a impressão.
@@ -517,6 +545,8 @@ de inscrições, que já abre com aquele participante na prévia).
 - **Vagas do minicurso**: o sistema nunca passa do limite, nem quando muita gente se inscreve ao
   mesmo tempo. Vaga liberada por cancelamento volta na hora.
 - **Trabalho**: só PDF de verdade (o sistema confere o arquivo, não só a extensão), até 5 MB.
+- **Acervo**: só trabalho aprovado e com autorização do autor fica depois de 31/01/2027; sem CPF,
+  e-mail ou número de inscrição. Retirada a qualquer momento.
 - **CPF mascarado**: nas telas e planilhas da organização o CPF aparece sempre como
   `***.456.789-**`. Inteiro, só no certificado.
 - **Anti-robô e limite de tentativas**: formulários públicos passam pela verificação da Cloudflare
@@ -539,6 +569,8 @@ de inscrições, que já abre com aquele participante na prévia).
 | Envie o trabalho em formato PDF.                                                                   | Enviar um arquivo PDF                                |
 | O PDF deve ter no máximo 5 MB.                                                                     | Reduzir o arquivo                                    |
 | Escolha a categoria para concorrer.                                                                | Escolher Graduação ou Mestrado                       |
+| Escolha seu vínculo: estudante, docente ou outro.                                                  | Marcar uma das opções de vínculo                     |
+| Descreva seu vínculo em até 40 caracteres.                                                         | Preencher "Qual vínculo?" (ou escolher outra opção)  |
 | É preciso concordar para se inscrever.                                                             | Marcar o aceite da Política de Privacidade           |
 | As vagas do minicurso acabaram. Desmarque o minicurso para concluir a inscrição.                   | Desmarcar o minicurso                                |
 | As inscrições no minicurso ainda não abriram. Desmarque o minicurso para continuar.                | Desmarcar o minicurso ou aguardar                    |
@@ -560,18 +592,20 @@ de inscrições, que já abre com aquele participante na prévia).
 
 **Painel da organização**
 
-| Mensagem                                                                     | O que fazer                              |
-| ---------------------------------------------------------------------------- | ---------------------------------------- |
-| Este e-mail não tem acesso ao painel. Fale com a coordenação do evento.      | Pedir inclusão na lista de organizadores |
-| Já existe outra inscrição com este e-mail.                                   | Usar outro e-mail na correção            |
-| Este CPF já ocupa uma vaga no minicurso em outra inscrição.                  | Conferir as inscrições da pessoa         |
-| Não é possível deixar menos vagas do que as já ocupadas.                     | Informar um número maior                 |
-| Confira as datas: o início precisa ser antes do fim.                         | Corrigir as janelas                      |
-| Confira a carga horária (até 24 horas) e o título da atividade.              | Corrigir a linha da carga horária        |
-| Confira as posições: página, tamanho (6 a 72) e largura.                     | Corrigir os números da caixa             |
-| Não foi possível abrir este PDF. Ele está protegido por senha ou corrompido? | Gerar o modelo de novo, sem senha        |
-| Salve o modelo e as posições antes de liberar os certificados.               | Fazer o passo 2 dos certificados         |
-| Nenhum certificado novo: todos com presença já tinham o seu.                 | Nada: não há ninguém novo para liberar   |
+| Mensagem                                                                         | O que fazer                                |
+| -------------------------------------------------------------------------------- | ------------------------------------------ |
+| Este e-mail não tem acesso ao painel. Fale com a coordenação do evento.          | Pedir inclusão na lista de organizadores   |
+| Já existe outra inscrição com este e-mail.                                       | Usar outro e-mail na correção              |
+| Este CPF já ocupa uma vaga no minicurso em outra inscrição.                      | Conferir as inscrições da pessoa           |
+| Não é possível deixar menos vagas do que as já ocupadas.                         | Informar um número maior                   |
+| Confira as datas: o início precisa ser antes do fim.                             | Corrigir as janelas                        |
+| Confira a carga horária (até 24 horas) e o título da atividade.                  | Corrigir a linha da carga horária          |
+| Confira as posições: página, tamanho (6 a 72) e largura.                         | Corrigir os números da caixa               |
+| Não foi possível abrir este PDF. Ele está protegido por senha ou corrompido?     | Gerar o modelo de novo, sem senha          |
+| Salve o modelo e as posições antes de liberar os certificados.                   | Fazer o passo 2 dos certificados           |
+| Nenhum certificado novo: todos com presença já tinham o seu.                     | Nada: não há ninguém novo para liberar     |
+| Esta inscrição não submeteu trabalho.                                            | Conferir o número da inscrição             |
+| O PDF deste trabalho já foi apagado no expurgo; não dá para incluí-lo no acervo. | Responder ao autor que não é mais possível |
 
 ## 7. Solução de problemas
 
@@ -595,21 +629,22 @@ de inscrições, que já abre com aquele participante na prévia).
 
 ## 8. Glossário
 
-| Termo                     | Significado                                                         |
-| ------------------------- | ------------------------------------------------------------------- |
-| Ambiente de teste         | Cópia do sistema, separada do site oficial, usada para testar       |
-| Número de inscrição       | Identificador da inscrição, no formato `ICML26-0000`                |
-| Comprovante               | PDF com os dados da inscrição e o QR Code, enviado por e-mail       |
-| QR Code                   | Código lido no credenciamento para registrar a presença             |
-| Credenciamento            | Registro de presença no evento, feito pela organização              |
-| CPF mascarado             | CPF com parte dos números escondida (`***.456.789-**`)              |
-| Janela                    | Período em que inscrições ou submissões são aceitas                 |
-| Teto de e-mails           | Máximo de e-mails enviados por dia                                  |
-| Fila de e-mails           | Lista de e-mails aguardando envio                                   |
-| Carga horária             | Horas que cada presença vale no certificado                         |
-| Liberação de certificados | Emissão dos certificados de quem tem presença, com envio por e-mail |
-| Código de validação       | Código no rodapé do certificado que prova a autenticidade           |
-| Link de acesso            | Link enviado por e-mail para a organização entrar, sem senha        |
+| Termo                      | Significado                                                                |
+| -------------------------- | -------------------------------------------------------------------------- |
+| Ambiente de teste          | Cópia do sistema, separada do site oficial, usada para testar              |
+| Número de inscrição        | Identificador da inscrição, no formato `ICML26-0000`                       |
+| Comprovante                | PDF com os dados da inscrição e o QR Code, enviado por e-mail              |
+| QR Code                    | Código lido no credenciamento para registrar a presença                    |
+| Credenciamento             | Registro de presença no evento, feito pela organização                     |
+| CPF mascarado              | CPF com parte dos números escondida (`***.456.789-**`)                     |
+| Janela                     | Período em que inscrições ou submissões são aceitas                        |
+| Teto de e-mails            | Máximo de e-mails enviados por dia                                         |
+| Fila de e-mails            | Lista de e-mails aguardando envio                                          |
+| Carga horária              | Horas que cada presença vale no certificado                                |
+| Liberação de certificados  | Emissão dos certificados de quem tem presença, com envio por e-mail        |
+| Código de validação        | Código no rodapé do certificado que prova a autenticidade                  |
+| Link de acesso             | Link enviado por e-mail para a organização entrar, sem senha               |
+| Acervo de edições passadas | Trabalhos aprovados guardados com autorização do autor, sem CPF nem e-mail |
 
 ## 9. Roteiro de validação
 
@@ -622,6 +657,7 @@ modelo e liberar os certificados (4.13).
 - [ ] 3.2 — Inscrição sem minicurso e sem trabalho
 - [ ] 3.2 — Inscrição com minicurso
 - [ ] 3.2 — Inscrição com trabalho em PDF e premiação
+- [ ] 3.2 — Caixa do acervo desmarcada por padrão e só visível com trabalho
 - [ ] 3.2 — Mensagens de erro claras (nome, CPF, e-mail repetido, PDF inválido)
 - [ ] 3.3 — Tela de confirmação com número, QR Code e CPF mascarado
 - [ ] 3.3 — Comprovante salvo e convite de agenda
@@ -632,6 +668,7 @@ modelo e liberar os certificados (4.13).
 - [ ] 4.5 — Busca, filtros e paginação
 - [ ] 4.6 a 4.8 — Correção, reenvio de e-mail e cancelamento
 - [ ] 4.9 — Mudança de status de um trabalho e abertura do PDF
+- [ ] 4.9 — Registrar e retirar a autorização do acervo
 - [ ] 4.10 — Planilha exportada com CPF mascarado
 - [ ] 4.11 — Vagas do minicurso respeitadas (inscrição recusada sem vaga)
 - [ ] 4.12 — Presença registrada pelo QR Code e pela busca manual

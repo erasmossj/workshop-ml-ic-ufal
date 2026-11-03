@@ -13,9 +13,15 @@ configuração nova). Prazos em `config_evento`, iguais aos de `privacidade.rete
 
 | A partir de | O que é apagado                                                                                                         | Como                                                          |
 | ----------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| 01/02/2027  | PDFs dos trabalhos                                                                                                      | API do Storage (o arquivo de fato), depois o caminho no banco |
+| 01/02/2027  | PDFs dos trabalhos (exceto aprovado + autorizado, que vai para o acervo — ADR-007)                                      | API do Storage (o arquivo de fato), depois o caminho no banco |
 | 01/04/2027  | CPF, e-mail e instituição; CPF das vagas do minicurso; fila de e-mail; limites por IP; e-mail do operador nas presenças | Banco (`expurgar_dados`)                                      |
 | 01/01/2032  | Inscrições restantes (nome, nº, presenças, emissão do certificado) — a validação pública por código deixa de responder  | Banco (`expurgar_dados`)                                      |
+
+**Acervo (WML-73, [ADR-007](../adr/ADR-007-acervo-de-trabalhos.md)):** na mesma rodada de
+01/02/2027, `expurgar_dados` copia os trabalhos aprovados e autorizados para `acervo_trabalhos`
+(título, autores, resumo, status, edição e PDF — sem CPF, e-mail ou vínculo com a inscrição). Eles
+sobrevivem aos expurgos de 2027 e 2031. PDF retirado do acervo entra na fila `pdfs_a_apagar` e sai
+na rodada diária seguinte.
 
 Depois de 01/04/2027 o download do certificado deixa de existir (não há mais e-mail para conferir);
 a validação por código continua até 31/12/2031, sem CPF.
