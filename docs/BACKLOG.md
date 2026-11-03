@@ -72,6 +72,7 @@
 | 5.1 | Fila `email_outbox` + `pg_cron` + teto diário + retries + fallback | 21/10 | F3   |
 | 5.2 | Comprovante PDF com nº de inscrição e QR assinado (HMAC)           | 21/10 | F3   |
 | 5.3 | Template de e-mail + anexo `.ics` (3 eventos) + link Google Agenda | 22/10 | F3   |
+| 5.4 | E-mail de confirmação e comprovante na identidade IC-ML — WML-74   | —     | —    |
 
 ## E6 — Admin e exportação
 
