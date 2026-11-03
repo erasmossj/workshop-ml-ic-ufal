@@ -4,12 +4,6 @@
 > participante em issue, PR, chat ou commit. Como o sistema funciona por dentro:
 > [`FUNCIONAMENTO.md`](FUNCIONAMENTO.md).
 
-## ⚠️ Pendências de configuração
-
-| Pendência                   | Desde      | Situação                                                                                                                                                                                                |
-| --------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Política de privacidade** | 19/10/2026 | Controlador e prazos de retenção são proposta. A organização revisa `privacidade` em `src/data/evento.ts` e marca `aprovada: true` **antes de 30/10**. Ver [Retenção](#retenção-e-expurgo-lgpd-wml-38). |
-
 ## Publicar uma versão (deploy)
 
 A Vercel publica o site **sozinha** a cada merge na `main`. O Supabase (banco e Edge Functions)
