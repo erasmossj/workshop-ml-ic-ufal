@@ -21,8 +21,8 @@ export const evento = {
       'Campus A. C. Simões · Av. Lourival Melo Mota, s/n · Tabuleiro do Martins · Maceió/AL',
     mapa: 'https://www.google.com/maps/search/?api=1&query=Instituto+de+Computa%C3%A7%C3%A3o+UFAL+Macei%C3%B3',
   },
-  /** E-mail público do evento — a definir (não publicar a conta de testes). */
-  contato: null as string | null,
+  /** E-mail público do evento (rodapé, FAQ e política de privacidade). */
+  contato: 'ic-ml@ic.ufal.br',
   /** Crachá da organização (Figma: faixa lima "ORGANIZAÇÃO · STAFF · 02—04.12"). */
   cracha: { faixa: 'Staff · 02—04.12' },
   /** Hero (Figma "Hero — site oficial"): linha de data/local e texto de apoio. */
@@ -30,11 +30,11 @@ export const evento = {
     linha: ['02—04.DEZ.2026', 'Instituto de Computação', 'UFAL'],
     texto:
       'Três dias de palestras, apresentações de pesquisa local e um minicurso prático de ML no Google Colab.',
-    /** Números do rodapé do hero. "apresentações" a confirmar com a banca. */
+    /** Números do rodapé do hero (13 = vagas para apresentação de trabalhos). */
     numeros: [
       { valor: '03', rotulo: 'dias' },
-      { valor: '04', rotulo: 'aulas de minicurso' },
-      { valor: '12', rotulo: 'apresentações' },
+      { valor: '03', rotulo: 'tardes de minicurso' },
+      { valor: '13', rotulo: 'apresentações' },
     ],
   },
 } as const;
@@ -46,7 +46,10 @@ export type Atividade = {
   tipo: 'pausa' | 'palestra' | 'trabalhos' | 'minicurso' | 'cerimonia';
 };
 
-/** 02/12 é quarta-feira (o relatório marcava "terça" por engano). */
+/**
+ * Programação conforme o documento atualizado da organização (WML-71). 02/12 é quarta-feira.
+ * O credenciamento é só no Dia 1; o check-in de presença por dia não depende dele.
+ */
 export const dias: { rotulo: string; data: string; semana: string; atividades: Atividade[] }[] = [
   {
     rotulo: 'Dia 1',
@@ -58,11 +61,16 @@ export const dias: { rotulo: string; data: string; semana: string; atividades: A
       {
         inicio: '10:00',
         fim: '12:00',
-        titulo: 'Palestra de abertura — pesquisador convidado',
+        titulo: 'Palestra de abertura — Prof. George Brandão',
         tipo: 'palestra',
       },
       { inicio: '12:00', fim: '13:30', titulo: 'Almoço', tipo: 'pausa' },
-      { inicio: '13:30', fim: '17:10', titulo: 'Minicurso — aula 1', tipo: 'minicurso' },
+      {
+        inicio: '13:30',
+        fim: '17:10',
+        titulo: 'Minicurso — Dia 1: Fundamentos',
+        tipo: 'minicurso',
+      },
     ],
   },
   {
@@ -70,15 +78,16 @@ export const dias: { rotulo: string; data: string; semana: string; atividades: A
     data: '2026-12-03',
     semana: 'Qui · 03/12',
     atividades: [
-      { inicio: '08:00', fim: '08:30', titulo: 'Credenciamento', tipo: 'pausa' },
-      {
-        inicio: '08:30',
-        fim: '12:30',
-        titulo: 'Apresentações de trabalhos (coffee break às 10h)',
-        tipo: 'trabalhos',
-      },
+      { inicio: '08:00', fim: '10:00', titulo: 'Apresentações de trabalhos', tipo: 'trabalhos' },
+      { inicio: '10:00', fim: '10:30', titulo: 'Coffee break', tipo: 'pausa' },
+      { inicio: '10:30', fim: '12:30', titulo: 'Apresentações de trabalhos', tipo: 'trabalhos' },
       { inicio: '12:30', fim: '13:30', titulo: 'Almoço', tipo: 'pausa' },
-      { inicio: '13:30', fim: '17:10', titulo: 'Minicurso — aula 2', tipo: 'minicurso' },
+      {
+        inicio: '13:30',
+        fim: '17:10',
+        titulo: 'Minicurso — Dia 2: Classificação e Regressão',
+        tipo: 'minicurso',
+      },
     ],
   },
   {
@@ -86,40 +95,60 @@ export const dias: { rotulo: string; data: string; semana: string; atividades: A
     data: '2026-12-04',
     semana: 'Sex · 04/12',
     atividades: [
-      { inicio: '08:00', fim: '08:30', titulo: 'Credenciamento', tipo: 'pausa' },
-      { inicio: '08:30', fim: '10:30', titulo: 'Apresentações de trabalhos', tipo: 'trabalhos' },
+      { inicio: '08:00', fim: '10:30', titulo: 'Apresentações de trabalhos', tipo: 'trabalhos' },
       { inicio: '10:30', fim: '11:00', titulo: 'Coffee break', tipo: 'pausa' },
       {
         inicio: '11:00',
         fim: '12:00',
-        titulo: 'Palestra — ML e ciência de dados no mercado',
+        titulo: 'Palestra — Mercado de trabalho em ML · Hugo Souza',
         tipo: 'palestra',
       },
       { inicio: '12:00', fim: '13:00', titulo: 'Encerramento e premiação', tipo: 'cerimonia' },
       { inicio: '13:00', fim: '13:40', titulo: 'Almoço', tipo: 'pausa' },
-      { inicio: '13:40', fim: '17:20', titulo: 'Minicurso — aula 3', tipo: 'minicurso' },
+      {
+        inicio: '13:40',
+        fim: '17:20',
+        titulo: 'Minicurso — Dia 3: Clustering e Séries Temporais',
+        tipo: 'minicurso',
+      },
     ],
   },
 ];
 
+/** Seção "Quem vai falar" da home — mesmos horários das palestras em `dias` (conferido por teste). */
+export const palestras = [
+  {
+    dia: 'Qua · 02/12',
+    inicio: '10:00',
+    titulo: 'Palestra de abertura',
+    quem: 'Prof. George Brandão',
+  },
+  {
+    dia: 'Sex · 04/12',
+    inicio: '11:00',
+    titulo: 'Mercado de trabalho em ML',
+    quem: 'Hugo Souza',
+  },
+] as const;
+
 export const minicurso = {
   titulo: 'Minicurso de Machine Learning na prática',
   resumo:
-    'Três tardes de mão na massa no Google Colab — sem instalar nada. Quatro blocos, cada um com um instrutor; pré-processamento entra conforme a necessidade prática.',
-  blocos: [
+    'Três tardes de mão na massa no Google Colab — sem instalar nada. O pré-processamento de dados entra ao longo das aulas, conforme a necessidade prática.',
+  /** Uma tarde por dia; os títulos aparecem também em `dias` (conferido por teste). */
+  dias: [
+    { titulo: 'Fundamentos', detalhe: 'Python, Pandas e análise exploratória de dados' },
     {
-      n: '01',
-      titulo: 'Fundamentos',
-      detalhe: 'Python, Pandas, análise exploratória de dados e Colab',
+      titulo: 'Classificação e Regressão',
+      detalhe: 'Aprendizado supervisionado: prever categorias e valores',
     },
-    { n: '02', titulo: 'Classificação', detalhe: 'Aprendizado supervisionado' },
-    { n: '03', titulo: 'Regressão e clustering', detalhe: 'Supervisionado e não supervisionado' },
-    { n: '04', titulo: 'Séries temporais', detalhe: 'Predição de séries temporais' },
+    {
+      titulo: 'Clustering e Séries Temporais',
+      detalhe: 'Agrupamento não supervisionado e predição de séries temporais',
+    },
   ],
-  /** null = número de vagas ainda não definido pela organização. */
-  vagas: null as number | null,
-  /** Somente para a demonstração do protótipo. */
-  vagasRestantesDemo: 18,
+  /** Capacidade total do Laboratório 1. */
+  vagas: 48,
 } as const;
 
 export const trabalhos = {
@@ -130,6 +159,11 @@ export const trabalhos = {
     'A banca indica: aprovado para apresentação oral, aprovado para pôster ou não aprovado.',
   premiacao:
     'Melhor trabalho de graduação e melhor trabalho de mestrado. Marque na inscrição se quer concorrer. Prêmio: certificado e brinde.',
+  /** Modelos oficiais da SBC (LaTeX e Word). */
+  modelosSbc: 'https://www.sbc.org.br/wp-content/uploads/2024/07/modelosparapublicaodeartigos.zip',
+  /** Vagas para apresentação no evento. Não limita inscrições nem submissões. */
+  vagasApresentacao: 13,
+  vagasTexto: 'O evento tem 13 vagas para apresentação de trabalhos.',
 } as const;
 
 /** Janela de inscrição e submissão (horário de Maceió). */
@@ -165,7 +199,7 @@ export const faq = [
   },
   {
     p: 'Errei meus dados. E agora?',
-    r: 'Escreva para o e-mail do evento — a correção é feita pela organização.',
+    r: `Escreva para ${evento.contato} — a correção é feita pela organização.`,
   },
 ] as const;
 
@@ -173,9 +207,11 @@ export const faq = [
  * Política de privacidade (WML-38, LGPD). Controlador e prazos são PROPOSTA — a organização
  * confirma antes de 30/10 e marca `aprovada: true`. Mudou o texto? Atualize `versao`: o aceite de
  * cada participante fica em participantes.consentimento_em e vale a versão em vigor naquela data.
+ * 2026-11-03 (WML-73 · ADR-007): acervo de edições passadas, só para trabalho aprovado e com
+ * autorização separada. Quem aceitou a versão 2026-10-19 não entra no acervo sem autorizar.
  */
 export const privacidade = {
-  versao: '2026-10-19',
+  versao: '2026-11-03',
   /** false = a página mostra o aviso de minuta. */
   aprovada: false,
   controlador:
@@ -187,7 +223,7 @@ export const privacidade = {
     },
     { dado: 'Instituição (opcional)', motivo: 'conhecer o público do evento' },
     {
-      dado: 'Vínculo, curso (opcional) e perfil no LinkedIn ou Lattes (opcional)',
+      dado: "Vínculo (estudante, docente ou outro) e, se você escolher 'outro', uma descrição curta escrita por você (até 40 caracteres), além de curso e perfil no LinkedIn ou Lattes (opcionais)",
       motivo: 'montar o seu crachá; o perfil vira um QR Code impresso nele',
     },
     { dado: 'Inscrição no minicurso', motivo: 'controlar as vagas do laboratório' },
@@ -195,10 +231,17 @@ export const privacidade = {
       dado: 'Título, autores, resumo e PDF do trabalho, se você submeter',
       motivo: 'avaliação pela banca e montagem da programação',
     },
-    { dado: 'Data e hora em que você aceitou esta política', motivo: 'comprovar o consentimento' },
+    {
+      dado: 'Título, autores, resumo e PDF do trabalho aprovado, se você autorizar',
+      motivo: 'acervo de edições passadas do IC-ML',
+    },
+    {
+      dado: 'Data e hora em que você aceitou esta política e, se for o caso, autorizou o acervo',
+      motivo: 'comprovar o consentimento',
+    },
   ],
   baseLegal:
-    'Seu consentimento (art. 7º, I, da LGPD), dado ao marcar a caixa de aceite no formulário. Não pedimos nenhum dado além do necessário para o evento.',
+    'Seu consentimento (art. 7º, I, da LGPD), dado ao marcar a caixa de aceite no formulário. O acervo de edições passadas tem um consentimento à parte, específico e destacado (art. 8º, § 4º): uma caixa própria, desmarcada, que você só marca se quiser. Você pode revogá-lo a qualquer momento (art. 8º, § 5º), sem perder a inscrição. Não pedimos nenhum dado além do necessário para o evento.',
   operadores: [
     {
       nome: 'Supabase',
@@ -210,16 +253,33 @@ export const privacidade = {
     { nome: 'Brevo', papel: 'envia os e-mails se o Gmail falhar' },
   ],
   compartilhamento:
-    'Esses serviços só tratam os dados para executar a tarefa deles, e alguns ficam fora do Brasil (transferência internacional, art. 33 da LGPD). Não vendemos nem cedemos seus dados a ninguém. Nome e trabalho aprovado aparecem na programação do evento.',
+    'Esses serviços só tratam os dados para executar a tarefa deles, e alguns ficam fora do Brasil (transferência internacional, art. 33 da LGPD). Não vendemos nem cedemos seus dados a ninguém. Nome e trabalho aprovado aparecem na programação do evento. Quando a página de edições passadas do IC-ML existir, título, autores, resumo e PDF dos trabalhos do acervo ficarão públicos nela — nunca CPF ou e-mail.',
   retencao: [
-    { dados: 'PDFs dos trabalhos', ate: '2027-01-31' },
-    { dados: 'CPF, e-mail, instituição, curso e perfil (LinkedIn/Lattes)', ate: '2027-03-31' },
+    {
+      dados: 'PDFs dos trabalhos, se você não autorizou o acervo ou o trabalho não foi aprovado',
+      ate: '2027-01-31',
+    },
+    {
+      dados:
+        "CPF, e-mail, instituição, curso, perfil (LinkedIn/Lattes) e a descrição do vínculo 'outro'",
+      ate: '2027-03-31',
+    },
     {
       dados: 'Nome, nº de inscrição e carga horária do certificado',
       ate: '2031-12-31',
       motivo: 'para que qualquer pessoa possa validar a autenticidade do certificado',
     },
   ],
+  /**
+   * Acervo de edições passadas (WML-73): a única retenção sem data, e só com o consentimento
+   * separado. Sem `ate` de propósito — não há data inventada; vale até a retirada.
+   */
+  retencaoAcervo: {
+    dados: 'Título, autores, resumo e PDF do trabalho aprovado, se você autorizou o acervo',
+    prazo: 'enquanto o acervo de edições passadas existir, ou até você pedir a retirada',
+    detalhe:
+      'O acervo não guarda CPF, e-mail nem qualquer ligação com a sua inscrição. Se pedir a retirada, título, autores e resumo saem na hora e o PDF é apagado no prazo normal dos PDFs ou, se ele já tiver passado, em até 1 dia.',
+  },
   retencaoObs:
     'Cópias de segurança são criptografadas e apagadas automaticamente em até 14 dias. Se você cancelar a inscrição, seus dados são apagados no mesmo prazo acima, ou antes, se pedir.',
   seguranca: [
@@ -235,6 +295,7 @@ export const privacidade = {
     'Pedir a anonimização, o bloqueio ou a eliminação de dados desnecessários.',
     'Saber sobre o compartilhamento dos seus dados: com quem e para quê (veja a lista acima).',
     'Fazer a revogação do consentimento a qualquer momento. Antes do evento, isso cancela a inscrição e o certificado.',
+    'Retirar a autorização do acervo a qualquer momento, sem afetar a inscrição nem o certificado.',
     'Reclamar à Autoridade Nacional de Proteção de Dados (ANPD).',
   ],
 } as const;

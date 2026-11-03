@@ -39,6 +39,6 @@ describe('Edge Function expurgo', () => {
   it('antes dos prazos não apaga nada', async () => {
     const r = await fetch(FUNCAO, { method: 'POST', headers: { 'x-cron-secret': SEGREDO! } });
     expect(r.status).toBe(200);
-    expect(await r.json()).toEqual({ pdfs: 0, dados_pessoais: 0, participantes: 0 });
+    expect(await r.json()).toEqual({ pdfs: 0, dados_pessoais: 0, participantes: 0, acervo: 0 });
   });
 });

@@ -10,6 +10,9 @@ import {
   mensagemDeErro,
   paginar,
   paraInputLocal,
+  acaoAcervo,
+  rotuloAcervo,
+  rotuloVinculo,
   type Inscricao,
 } from './admin';
 
@@ -19,7 +22,8 @@ const base: Inscricao = {
   email: 'ana@exemplo.com',
   cpf_mascarado: '***.982.247-**',
   instituicao: 'UFAL',
-  vinculo: 'graduacao',
+  vinculo: 'estudante',
+  vinculo_outro: null,
   curso: 'Ciência da Computação',
   perfil_url: 'https://www.linkedin.com/in/ana-sintetica',
   minicurso: true,
@@ -34,6 +38,7 @@ const base: Inscricao = {
   email_status: 'enviado',
   dias_presente: ['2026-12-02', '2026-12-04'],
   dias_minicurso: ['2026-12-02'],
+  acervo: false,
 };
 const lista: Inscricao[] = [
   base,
@@ -77,16 +82,16 @@ describe('gerarCsv', () => {
     expect(linhas[0]).toBe(
       'Nº de inscrição;Nome;E-mail;CPF (mascarado);Instituição;Vínculo;Curso;' +
         'Perfil (LinkedIn/Lattes);Minicurso;Apresenta trabalho;' +
-        'Título do trabalho;Status do trabalho;Concorre ao prêmio;Inscrita em;Situação;' +
-        'Dias presentes;Tardes no minicurso',
+        'Título do trabalho;Status do trabalho;Concorre ao prêmio;Autorizou acervo;Inscrita em;' +
+        'Situação;Dias presentes;Tardes no minicurso',
     );
   });
 
   it('traz uma linha por inscrição com data de Maceió e rótulos legíveis', () => {
     expect(linhas[1]).toBe(
-      'ICML26-0001;Ana Sintética;ana@exemplo.com;***.982.247-**;UFAL;Graduação;' +
+      'ICML26-0001;Ana Sintética;ana@exemplo.com;***.982.247-**;UFAL;Estudante;' +
         'Ciência da Computação;https://www.linkedin.com/in/ana-sintetica;Sim;Sim;Redes neurais;' +
-        'Pendente;Não;30/10/2026 10:05;Ativa;02/12, 04/12;02/12',
+        'Pendente;Não;Não;30/10/2026 10:05;Ativa;02/12, 04/12;02/12',
     );
   });
 
@@ -110,9 +115,27 @@ describe('gerarCsv', () => {
     expect(gerarCsv([{ ...base, curso: '@SOMA(1)' }])).toContain(";'@SOMA(1);");
   });
 
+  it('vínculo "Outro" mostra o texto livre da pessoa', () => {
+    const csv2 = gerarCsv([{ ...base, vinculo: 'outro', vinculo_outro: 'Servidor técnico' }]);
+    expect(csv2).toContain(';UFAL;Outro: Servidor técnico;Ciência da Computação;');
+  });
+
+  it('texto do "Outro" passa pelo escape de aspas e separador', () => {
+    const csv2 = gerarCsv([{ ...base, vinculo: 'outro', vinculo_outro: 'A; "B"' }]);
+    expect(csv2).toContain(';UFAL;"Outro: A; ""B""";');
+  });
+
   it('inscrição antiga sem vínculo, curso e perfil vira células vazias', () => {
     const antiga = gerarCsv([{ ...base, vinculo: null, curso: null, perfil_url: null }]);
     expect(antiga.split(String.fromCharCode(13, 10))[1]).toContain(';UFAL;;;;Sim;');
+  });
+
+  it('autorização do acervo: Sim, Não, ou vazio sem trabalho', () => {
+    expect(gerarCsv([{ ...base, acervo: true }])).toContain(';Pendente;Não;Sim;30/10/2026');
+    const sem = gerarCsv([
+      { ...base, apresenta_trabalho: false, titulo_trabalho: null, status_trabalho: null },
+    ]);
+    expect(sem).toContain(';Sim;Não;;;Não;;30/10/2026');
   });
 
   it('nunca tem CPF completo', () => {
@@ -158,11 +181,49 @@ describe('datas (America/Maceio, UTC−3, sem horário de verão)', () => {
   });
 });
 
+describe('rotuloVinculo', () => {
+  it('Estudante, Docente e Outro com o texto da pessoa', () => {
+    expect(rotuloVinculo('estudante', null)).toBe('Estudante');
+    expect(rotuloVinculo('docente', null)).toBe('Docente');
+    expect(rotuloVinculo('outro', 'Servidor técnico')).toBe('Outro: Servidor técnico');
+  });
+  it('Outro antigo sem texto, sem vínculo e valor desconhecido', () => {
+    expect(rotuloVinculo('outro', null)).toBe('Outro');
+    expect(rotuloVinculo(null, null)).toBe('');
+    expect(rotuloVinculo('xyz', null)).toBe('xyz');
+  });
+});
+
+describe('acervo de edições passadas (WML-73)', () => {
+  it('rótulo do trabalho no painel', () => {
+    expect(rotuloAcervo(true)).toBe('Autorizou acervo: sim');
+    expect(rotuloAcervo(false)).toBe('Autorizou acervo: não');
+  });
+  it('ação inverte a autorização e pede confirmação explicando o efeito', () => {
+    const marcar = acaoAcervo({ ...base, acervo: false });
+    expect(marcar.novo).toBe(true);
+    expect(marcar.botao).toBe('Registrar autorização do acervo');
+    expect(marcar.confirmacao).toMatch(/ICML26-0001/);
+    expect(marcar.confirmacao).toMatch(/por escrito/);
+    const retirar = acaoAcervo({ ...base, acervo: true });
+    expect(retirar.novo).toBe(false);
+    expect(retirar.botao).toBe('Retirar do acervo');
+    expect(retirar.confirmacao).toMatch(/PDF/);
+  });
+});
+
 describe('mensagemDeErro', () => {
   it('traduz os códigos do banco', () => {
     expect(mensagemDeErro('NAO_AUTORIZADO')).toMatch(/não tem acesso/);
     expect(mensagemDeErro('VAGAS_ABAIXO_DAS_OCUPADAS')).toMatch(/ocupadas/);
     expect(mensagemDeErro('EMAIL_JA_INSCRITO')).toMatch(/e-mail/);
+    expect(mensagemDeErro('VINCULO_INVALIDO')).toBe(
+      'Escolha o vínculo: estudante, docente ou outro.',
+    );
+    expect(mensagemDeErro('VINCULO_OUTRO_INVALIDO')).toMatch(/40 caracteres/);
+    expect(mensagemDeErro('SEM_TRABALHO')).toMatch(/não submeteu trabalho/);
+    expect(mensagemDeErro('TRABALHO_SEM_PDF')).toMatch(/PDF/);
+    expect(mensagemDeErro('ACERVO_INEXISTENTE')).toMatch(/acervo/);
   });
   it('tem mensagem genérica para o resto', () => {
     expect(mensagemDeErro('XYZ')).toBe('Não foi possível concluir. Tente de novo.');

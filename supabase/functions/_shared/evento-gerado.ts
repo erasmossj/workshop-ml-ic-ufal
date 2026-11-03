@@ -20,7 +20,7 @@ export const EVENTO = {
       fim: '2026-12-02T20:10:00.000Z',
       local: 'Instituto de Computação — UFAL, Maceió',
       descricao:
-        '08:00 Credenciamento\n09:00 Abertura formal\n10:00 Palestra de abertura — pesquisador convidado\n12:00 Almoço\n13:30 Minicurso — aula 1',
+        '08:00 Credenciamento\n09:00 Abertura formal\n10:00 Palestra de abertura — Prof. George Brandão\n12:00 Almoço\n13:30 Minicurso — Dia 1: Fundamentos',
     },
     {
       uid: 'icml2026-2026-12-03@workshop-ml-ic-ufal',
@@ -29,7 +29,7 @@ export const EVENTO = {
       fim: '2026-12-03T20:10:00.000Z',
       local: 'Instituto de Computação — UFAL, Maceió',
       descricao:
-        '08:00 Credenciamento\n08:30 Apresentações de trabalhos (coffee break às 10h)\n12:30 Almoço\n13:30 Minicurso — aula 2',
+        '08:00 Apresentações de trabalhos\n10:00 Coffee break\n10:30 Apresentações de trabalhos\n12:30 Almoço\n13:30 Minicurso — Dia 2: Classificação e Regressão',
     },
     {
       uid: 'icml2026-2026-12-04@workshop-ml-ic-ufal',
@@ -38,7 +38,7 @@ export const EVENTO = {
       fim: '2026-12-04T20:20:00.000Z',
       local: 'Instituto de Computação — UFAL, Maceió',
       descricao:
-        '08:00 Credenciamento\n08:30 Apresentações de trabalhos\n10:30 Coffee break\n11:00 Palestra — ML e ciência de dados no mercado\n12:00 Encerramento e premiação\n13:00 Almoço\n13:40 Minicurso — aula 3',
+        '08:00 Apresentações de trabalhos\n10:30 Coffee break\n11:00 Palestra — Mercado de trabalho em ML · Hugo Souza\n12:00 Encerramento e premiação\n13:00 Almoço\n13:40 Minicurso — Dia 3: Clustering e Séries Temporais',
     },
   ],
 } as const;

@@ -7,21 +7,17 @@ import LogoConjunto from '../components/LogoConjunto.astro';
 import Painel from '../components/Painel.astro';
 import Seta from '../components/Seta.astro';
 import Titulo from '../components/Titulo.astro';
-import { cronograma, dias, evento, faq, janela, minicurso, trabalhos } from '../data/evento';
+import {
+  cronograma,
+  dias,
+  evento,
+  faq,
+  janela,
+  minicurso,
+  palestras,
+  trabalhos,
+} from '../data/evento';
 import Base from '../layouts/Base.astro';
-
-const palestras = [
-  {
-    quando: 'Qua · 02.12 · 10h00',
-    titulo: 'Palestra de abertura',
-    quem: 'Pesquisador convidado — a confirmar',
-  },
-  {
-    quando: 'Sex · 04.12 · 11h00',
-    titulo: 'ML e ciência de dados no mercado',
-    quem: 'Convidado do setor — a confirmar',
-  },
-];
 
 const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
 ---
@@ -122,10 +118,7 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
         </Painel>
       ))}
     </div>
-    <p class="mt-6 body-s text-ink-300">
-      Programação preliminar — nomes de palestrantes e horários finais serão confirmados pela
-      organização.
-    </p>
+    <p class="mt-6 body-s text-ink-300">Programação sujeita a ajustes pela organização.</p>
   </section>
 
   <!-- MINICURSO -->
@@ -137,11 +130,7 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
       <div class="flex flex-col items-start gap-6">
         <p class="body-l text-ink-200">{minicurso.resumo}</p>
         <Painel rotulo="Vagas" meta="Laboratório 1" class="w-full" cantos>
-          <p class="h3 text-ink-100">
-            {minicurso.vagas === null
-              ? 'Limitadas pela capacidade do laboratório'
-              : `${minicurso.vagas} vagas`}
-          </p>
+          <p class="h3 text-ink-100">{minicurso.vagas} vagas</p>
           <p class="body-s text-ink-200">
             Opcional: marque no formulário de inscrição. Quando as vagas acabam, a opção é bloqueada
             automaticamente.
@@ -152,11 +141,11 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
           <Seta />
         </a>
       </div>
-      <ol class="grid gap-4 sm:grid-cols-2">
-        {minicurso.blocos.map((b) => (
-          <Painel as="li" rotulo={`Aula ${Number(b.n)}`} meta="Google Colab">
-            <h3 class="h3 text-ink-100">{b.titulo}</h3>
-            <p class="body-s text-ink-200">{b.detalhe}</p>
+      <ol class="grid gap-4">
+        {minicurso.dias.map((m, i) => (
+          <Painel as="li" rotulo={`Dia ${i + 1}`} meta={dias[i].semana.replace('/', '.')}>
+            <h3 class="h3 text-ink-100">{m.titulo}</h3>
+            <p class="body-s text-ink-200">{m.detalhe}</p>
           </Painel>
         ))}
       </ol>
@@ -171,9 +160,21 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
     <div class="grid gap-10 lg:grid-cols-2">
       <div class="flex flex-col items-start gap-8">
         <dl class="grid gap-6">
+          <div>
+            <dt class="rotulo text-lime-ink">Formato</dt>
+            <dd class="mt-2 body-l text-ink-100">
+              {trabalhos.formato}
+              <a
+                href={trabalhos.modelosSbc}
+                class="mt-2 flex min-h-6 w-fit items-center body-s text-ink-200 underline underline-offset-4 hover:text-lime-ink"
+              >
+                Baixar modelos da SBC (.zip)
+              </a>
+            </dd>
+          </div>
           {[
-            ['Formato', trabalhos.formato],
             ['Como enviar', trabalhos.campos],
+            ['Apresentações', trabalhos.vagasTexto],
             ['Avaliação', trabalhos.avaliacao],
             ['Premiação', trabalhos.premiacao],
           ].map(([t, d]) => (
@@ -216,7 +217,11 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
     </Titulo>
     <div class="grid gap-6 md:grid-cols-2">
       {palestras.map((p) => (
-        <Painel as="article" rotulo="Palestra" meta={p.quando}>
+        <Painel
+          as="article"
+          rotulo="Palestra"
+          meta={`${p.dia.replace('/', '.')} · ${p.inicio.replace(':', 'h')}`}
+        >
           <h3 class="h3 text-ink-100">{p.titulo}</h3>
           <p class="body-s text-ink-200">{p.quem}</p>
         </Painel>

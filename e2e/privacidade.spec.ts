@@ -23,6 +23,11 @@ test('mostra as seções da política com prazos e serviços', async ({ page }) 
   for (const r of privacidade.retencao) {
     await expect(page.getByText(emMaceio(r.ate)).first()).toBeVisible();
   }
+  // Acervo de edições passadas (WML-73): retenção sem data, até a retirada, sem CPF nem e-mail.
+  const acervo = page.locator('#retencao-acervo');
+  await expect(acervo).toContainText(privacidade.retencaoAcervo.prazo);
+  await expect(acervo).toContainText('não guarda CPF, e-mail');
+  await expect(page.getByText(/art\. 8º, § 4º/)).toBeVisible();
   for (const o of privacidade.operadores) {
     await expect(page.getByText(o.nome, { exact: true })).toBeVisible();
   }

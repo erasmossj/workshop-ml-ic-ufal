@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
       async expurgarDados() {
         const { data, error } = await admin.rpc('expurgar_dados');
         if (error) throw new Error(`expurgar_dados ${error.code ?? ''}`);
-        return data as { dados_pessoais: number; participantes: number };
+        return data as { dados_pessoais: number; participantes: number; acervo: number };
       },
     });
     console.log('expurgo', JSON.stringify(resumo));

@@ -2,12 +2,15 @@ import { describe, expect, it } from 'vitest';
 import {
   PDF_MAX_BYTES,
   VINCULOS,
+  VINCULO_OUTRO_MAX,
   dentroDaJanela,
   emailValido,
   nomeCompletoValido,
   normalizarEmail,
   normalizarPerfil,
+  normalizarVinculoOutro,
   validarPdf,
+  validarVinculo,
 } from './validacao';
 
 const PDF_MAGICO = new TextEncoder().encode('%PDF-1.7\n');
@@ -115,7 +118,51 @@ describe('normalizarPerfil (LinkedIn ou Lattes para o QR do crachá)', () => {
 });
 
 describe('VINCULOS', () => {
-  it('são as opções do Choice do Figma', () => {
-    expect(VINCULOS.map((v) => v.valor)).toEqual(['graduacao', 'mestrado', 'outro']);
+  it('são Estudante, Docente e Outro (WML-72)', () => {
+    expect(VINCULOS.map((v) => v.valor)).toEqual(['estudante', 'docente', 'outro']);
+    expect(VINCULOS.map((v) => v.rotulo)).toEqual(['Estudante', 'Docente', 'Outro']);
+  });
+});
+
+describe('normalizarVinculoOutro', () => {
+  it('tira espaços das pontas e repetidos, como o banco', () => {
+    expect(normalizarVinculoOutro('  Servidor   técnico ')).toBe('Servidor técnico');
+    expect(normalizarVinculoOutro('   ')).toBe('');
+  });
+});
+
+describe('validarVinculo (espelho da Edge Function e do banco)', () => {
+  it('exige escolher o vínculo', () => {
+    expect(validarVinculo('', '')).toEqual({
+      campo: 'vinculo',
+      msg: 'Escolha seu vínculo: estudante, docente ou outro.',
+    });
+    expect(validarVinculo('doutorado', '')?.campo).toBe('vinculo');
+  });
+
+  it('estudante e docente não precisam de texto', () => {
+    expect(validarVinculo('estudante', '')).toBeNull();
+    expect(validarVinculo('docente', 'qualquer coisa')).toBeNull();
+  });
+
+  it('"Outro" exige texto de até 40 caracteres', () => {
+    const erro = {
+      campo: 'vinculo_outro',
+      msg: `Descreva seu vínculo em até ${VINCULO_OUTRO_MAX} caracteres.`,
+    };
+    expect(VINCULO_OUTRO_MAX).toBe(40);
+    expect(validarVinculo('outro', '')).toEqual(erro);
+    expect(validarVinculo('outro', '    ')).toEqual(erro);
+    expect(validarVinculo('outro', 'x'.repeat(41))).toEqual(erro);
+    expect(validarVinculo('outro', 'x'.repeat(40))).toBeNull();
+    // espaços extras não contam: o servidor normaliza antes de medir
+    expect(validarVinculo('outro', `  ${'x'.repeat(40)}  `)).toBeNull();
+    expect(validarVinculo('outro', 'Servidor técnico')).toBeNull();
+  });
+
+  it('conta caracteres como o banco (acento e emoji valem 1)', () => {
+    expect(validarVinculo('outro', 'ç'.repeat(40))).toBeNull();
+    expect(validarVinculo('outro', '🎓'.repeat(40))).toBeNull();
+    expect(validarVinculo('outro', '🎓'.repeat(41))?.campo).toBe('vinculo_outro');
   });
 });

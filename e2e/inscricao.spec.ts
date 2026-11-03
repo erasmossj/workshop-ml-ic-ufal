@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 // Dados sintéticos — nunca use CPF real em testes.
@@ -53,7 +54,7 @@ test('inscrição completa chega à confirmação com CPF mascarado', async ({ p
   await page.locator('#cpf').fill(CPF_TESTE);
   await expect(page.locator('#cpf')).toHaveValue('529.982.247-25');
   await page.locator('#email').fill('participante@exemplo.com');
-  await page.locator('#vinculo').getByText('Mestrado').click();
+  await page.locator('#vinculo').getByText('Docente').click();
   await page.locator('#curso').fill('Ciência da Computação');
   await page.locator('#perfil').fill('linkedin.com/in/participante-exemplo');
   await page.locator('#minicurso').check();
@@ -101,8 +102,100 @@ test('vínculo é obrigatório e perfil só aceita LinkedIn ou Lattes', async ({
   await expect(page.locator('#vinculo')).toHaveAttribute('aria-invalid', 'true');
   await expect(page.locator('#perfil-erro')).toContainText('LinkedIn');
   await page.locator('#perfil').fill('lattes.cnpq.br/1234567890123456');
-  await page.locator('#vinculo').getByText('Graduação').click();
+  await page.locator('#vinculo').getByText('Estudante').click();
   await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
   await expect(page.locator('#perfil-erro')).toBeEmpty();
   await expect(page.locator('#vinculo-erro')).toBeEmpty();
+});
+
+test('ordem: instituição, vínculo, curso e perfil', async ({ page }) => {
+  await page.goto('/inscricao');
+  const ordem = await page
+    .locator('#instituicao, #vinculo, #curso, #perfil')
+    .evaluateAll((els) => els.map((e) => e.id));
+  expect(ordem).toEqual(['instituicao', 'vinculo', 'curso', 'perfil']);
+});
+
+test('"Outro" pede o vínculo em texto livre (até 40 caracteres)', async ({ page }) => {
+  await page.goto('/inscricao');
+  const qual = page.locator('#vinculo_outro');
+  // Oculto: fora da tela, do leitor de tela e da ordem do teclado.
+  await expect(qual).toBeHidden();
+
+  await page.locator('#vinculo').getByText('Outro').click();
+  await expect(page.getByLabel(/^Qual vínculo\?/)).toBeVisible();
+  await expect(qual).toHaveAttribute('required', '');
+  await expect(qual).toHaveAttribute('maxlength', '40');
+  await expect(qual).toHaveAttribute('aria-describedby', /vinculo_outro-erro/);
+
+  await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
+  await expect(page.locator('#vinculo_outro-erro')).toContainText('40 caracteres');
+  await expect(qual).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#vinculo-erro')).toBeEmpty();
+
+  await qual.fill('Servidor técnico');
+  await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
+  await expect(page.locator('#vinculo_outro-erro')).toBeEmpty();
+
+  // Trocar de opção esconde e limpa o campo.
+  await page.locator('#vinculo').getByText('Estudante').click();
+  await expect(qual).toBeHidden();
+  await page.locator('#vinculo').getByText('Outro').click();
+  await expect(qual).toHaveValue('');
+});
+
+test('acervo de edições passadas: caixa opcional, desmarcada, só com trabalho (WML-73)', async ({
+  page,
+}) => {
+  await page.goto('/inscricao');
+  const acervo = page.getByLabel(/Autorizo manter meu trabalho/);
+  await expect(acervo).toBeHidden();
+  await page.getByLabel(/Vou submeter trabalho/).check();
+  await expect(acervo).toBeVisible();
+  await expect(acervo).not.toBeChecked();
+  await expect(acervo).toHaveAttribute('name', 'acervo');
+  await expect(acervo).toHaveAttribute('value', 'sim');
+  await expect(acervo).not.toHaveAttribute('required');
+  await expect(page.locator('#acervo-dica')).toContainText('31/01/2027');
+  // Vem depois de premiação e categoria, dentro do bloco do trabalho.
+  const ordem = await page
+    .locator('#campos-trabalho')
+    .locator('#premio, #nivel, #acervo')
+    .evaluateAll((els) => els.map((e) => e.id));
+  expect(ordem).toEqual(['premio', 'nivel', 'acervo']);
+  // Teclado: foco e espaço marcam a caixa.
+  await acervo.focus();
+  await page.keyboard.press('Space');
+  await expect(acervo).toBeChecked();
+  // O opt-in não substitui o aceite da política: sem ele, o envio continua bloqueado.
+  await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
+  await expect(page.locator('#consentimento-erro')).not.toBeEmpty();
+  const r = await new AxeBuilder({ page })
+    .include('#campos-trabalho')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  expect(r.violations.map((v) => `${v.id}: ${v.nodes[0]?.target.join(' ')}`)).toEqual([]);
+});
+
+test('acervo cabe em 360 px sem rolagem horizontal', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto('/inscricao');
+  await page.getByLabel(/Vou submeter trabalho/).check();
+  await expect(page.getByLabel(/Autorizo manter meu trabalho/)).toBeVisible();
+  const [rolagem, largura] = await page.evaluate(() => [
+    document.documentElement.scrollWidth,
+    window.innerWidth,
+  ]);
+  expect(rolagem).toBeLessThanOrEqual(largura);
+});
+
+test('campo "Qual vínculo?" com erro continua acessível (WCAG 2.2 AA)', async ({ page }) => {
+  await page.goto('/inscricao');
+  await page.locator('#vinculo').getByText('Outro').click();
+  await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
+  await expect(page.locator('#vinculo_outro-erro')).not.toBeEmpty();
+  const r = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  expect(r.violations.map((v) => `${v.id}: ${v.nodes[0]?.target.join(' ')}`)).toEqual([]);
 });

@@ -42,7 +42,7 @@ const disparar = (segredo?: string) =>
     headers: segredo ? { 'x-cron-secret': segredo } : {},
   });
 
-async function esperar<T>(buscar: () => Promise<T | undefined>, ms = 20_000): Promise<T> {
+async function esperar<T>(buscar: () => Promise<T | undefined>, ms = 60_000): Promise<T> {
   const fim = Date.now() + ms;
   while (Date.now() < fim) {
     const v = await buscar();
@@ -91,7 +91,10 @@ describe('Edge Function send-emails', () => {
     expect(resposta.status).toBe(200);
     expect(await resposta.json()).toMatchObject({ falhas: 0 });
 
+    // A fila sai em lotes (EMAIL_LOTE) e pode ter e-mails de outros testes na frente:
+    // processa um lote por tentativa até este chegar.
     const mensagem = await esperar(async () => {
+      await disparar(SEGREDO);
       const busca = await fetch(
         `${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:${email}`)}`,
       );

@@ -30,6 +30,57 @@ describe('política de privacidade', () => {
     }
   });
 
+  it('o PDF que fica até 31/01/2027 é o de quem NÃO autorizou o acervo ou não foi aprovado', () => {
+    const pdf = privacidade.retencao.find((r) => /PDF/.test(r.dados));
+    expect(pdf?.dados).toMatch(/não autorizou o acervo/);
+    expect(pdf?.dados).toMatch(/não foi aprovado/);
+  });
+
+  // Acervo de edições passadas (WML-73 · ADR-007): a ÚNICA exceção à minimização, e só com
+  // consentimento específico, destacado e revogável.
+  describe('acervo de edições passadas', () => {
+    it('é a única retenção sem data, e não vale para CPF', () => {
+      expect('ate' in privacidade.retencaoAcervo).toBe(false);
+      expect(privacidade.retencaoAcervo.dados).toMatch(/aprovado/);
+      expect(privacidade.retencaoAcervo.dados).toMatch(/se você autorizou/);
+      expect(privacidade.retencaoAcervo.dados).not.toMatch(/CPF|e-mail/);
+      expect(privacidade.retencaoAcervo.prazo).toMatch(/retirada/);
+    });
+
+    it('diz que o acervo não guarda CPF nem e-mail', () => {
+      expect(privacidade.retencaoAcervo.detalhe).toMatch(/não guarda CPF, e-mail/);
+    });
+
+    it('aparece nos dados coletados, só com autorização', () => {
+      const item = privacidade.dados.find((d) => /acervo/.test(d.motivo));
+      expect(item?.dado).toMatch(/aprovado, se você autorizar/);
+      expect(item?.motivo).toBe('acervo de edições passadas do IC-ML');
+    });
+
+    it('tem base legal própria: consentimento específico e destacado, revogável', () => {
+      expect(privacidade.baseLegal).toMatch(/art\. 7º, I/);
+      expect(privacidade.baseLegal).toMatch(/art\. 8º, § 4º/);
+      expect(privacidade.baseLegal).toMatch(/art\. 8º, § 5º/);
+      expect(privacidade.baseLegal).toMatch(/desmarcada/);
+    });
+
+    it('avisa que título, autores, resumo e PDF ficarão públicos na página de edições passadas', () => {
+      expect(privacidade.compartilhamento).toMatch(/edições passadas/);
+      expect(privacidade.compartilhamento).toMatch(/título, autores, resumo e PDF/);
+    });
+
+    it('a retirada do acervo é um direito separado da inscrição', () => {
+      expect(privacidade.direitos.join(' ')).toMatch(/autorização do acervo/);
+    });
+  });
+
+  it('descreve o vínculo "outro" com texto livre de até 40 caracteres', () => {
+    const vinculo = privacidade.dados.find((d) => /Vínculo/.test(d.dado));
+    expect(vinculo?.dado).toMatch(/estudante, docente ou outro/);
+    expect(vinculo?.dado).toMatch(/até 40 caracteres/);
+    expect(vinculo?.motivo).toMatch(/crachá/);
+  });
+
   it('declara cada serviço externo que trata dados pessoais', () => {
     const nomes = privacidade.operadores.map((o) => o.nome).join(' | ');
     for (const servico of ['Supabase', 'Vercel', 'Cloudflare', 'Google', 'Brevo']) {

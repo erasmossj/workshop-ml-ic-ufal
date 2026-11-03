@@ -25,7 +25,13 @@ import LogoConjunto from './LogoConjunto.astro';
         >
           Política de privacidade
         </a>
-        <span>{evento.contato ?? 'Contato: a definir'}</span>
+        <a
+          href={`mailto:${evento.contato}`}
+          class="inline-flex min-h-6 items-center text-ink-200 underline underline-offset-4 hover:text-lime-ink"
+        >
+          <span class="sr-only">E-mail do evento: </span>
+          {evento.contato}
+        </a>
       </p>
     </div>
   </div>
