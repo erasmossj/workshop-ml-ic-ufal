@@ -135,12 +135,19 @@ Endereço: `/inscricao`. Campos com `*` são obrigatórios. O formulário tem 4 
 
 **Bloco 1 · Dados para o certificado**
 
-| Campo         | Obrigatório | Regras                                                                            |
-| ------------- | ----------- | --------------------------------------------------------------------------------- |
-| Nome completo | Sim         | Nome e sobrenome, só letras. Sai exatamente assim no certificado.                 |
-| CPF           | Sim         | CPF válido. A pontuação é colocada sozinha enquanto você digita.                  |
-| E-mail        | Sim         | E-mail válido e sem outra inscrição ativa. Comprovante e certificado chegam nele. |
-| Instituição   | Não         | Até 160 caracteres. Ex.: "UFAL — Instituto de Computação".                        |
+| Campo           | Obrigatório | Regras                                                                            |
+| --------------- | ----------- | --------------------------------------------------------------------------------- |
+| Nome completo   | Sim         | Nome e sobrenome, só letras. Sai exatamente assim no certificado.                 |
+| CPF             | Sim         | CPF válido. A pontuação é colocada sozinha enquanto você digita.                  |
+| E-mail          | Sim         | E-mail válido e sem outra inscrição ativa. Comprovante e certificado chegam nele. |
+| Instituição     | Não         | Até 160 caracteres. Ex.: "UFAL — Instituto de Computação".                        |
+| Vínculo         | Sim         | Estudante, Docente ou Outro. Aparece no crachá.                                   |
+| Qual vínculo?   | Se "Outro"  | Só aparece com "Outro". Texto livre, até 40 caracteres. Ex.: "Servidor técnico".  |
+| Curso           | Não         | Até 120 caracteres. Aparece no crachá.                                            |
+| LinkedIn/Lattes | Não         | Só perfil do LinkedIn (linkedin.com/in/…) ou do Lattes. Vira QR no crachá.        |
+
+Os campos aparecem nesta ordem: Instituição → Vínculo → Qual vínculo? (só com "Outro") → Curso →
+LinkedIn ou Lattes. Trocar o vínculo de "Outro" para outra opção esconde e apaga o texto.
 
 **Bloco 2 · Minicurso (opcional)**
 
@@ -345,8 +352,11 @@ use **Anterior** e **Próxima**.
 ### 4.6 Corrigir uma inscrição
 
 1. Na linha da inscrição, clique em **Corrigir**.
-2. Ajuste nome, e-mail ou instituição. **Por segurança, o CPF precisa ser digitado completo de
-   novo**, mesmo que não mude.
+2. Ajuste nome, e-mail, instituição, vínculo, curso ou perfil. **Por segurança, o CPF precisa ser
+   digitado completo de novo**, mesmo que não mude. Ao escolher o vínculo **Outro**, aparece o campo
+   **Qual vínculo?** (até 40 caracteres), obrigatório; ao trocar para Estudante ou Docente, o texto
+   é apagado. Inscrições antigas com "Outro" e sem texto podem ser corrigidas sem preencher o campo,
+   desde que o vínculo não mude.
 3. Clique em **Salvar correção** (ou **Voltar** para desistir).
 4. Se o e-mail mudou, clique em **Reenviar** para mandar a confirmação ao novo endereço.
 
@@ -496,8 +506,10 @@ No painel, em **Crachás**, clique em **Abrir crachás** (ou no botão **Crachá
 de inscrições, que já abre com aquele participante na prévia).
 
 - **Participantes:** busque pelo nome ou número, marque quem quiser e clique em **Gerar crachás
-  selecionados** (ou em **Gerar** numa linha). Cada crachá traz o nome, o vínculo (graduação,
-  mestrado ou outro), o curso e a instituição e, se a pessoa informou, o QR do LinkedIn ou do Lattes.
+  selecionados** (ou em **Gerar** numa linha). Cada crachá traz o nome, o vínculo
+  ("Participante · Estudante", "Participante · Docente" em azul, ou "Participante · " seguido do
+  texto que a pessoa escreveu em "Outro"; sem vínculo, só "Participante"), o curso e a instituição
+  e, se a pessoa informou, o QR do LinkedIn ou do Lattes.
   Sem perfil, o espaço do QR fica vazio. O crachá não mostra CPF nem e-mail.
 - **Organização:** digite nome, função e (opcional) LinkedIn ou Lattes e clique em **Adicionar
   crachá da organização**. Esses dados não são gravados: valem só para a impressão.
@@ -539,6 +551,8 @@ de inscrições, que já abre com aquele participante na prévia).
 | Envie o trabalho em formato PDF.                                                                   | Enviar um arquivo PDF                                |
 | O PDF deve ter no máximo 5 MB.                                                                     | Reduzir o arquivo                                    |
 | Escolha a categoria para concorrer.                                                                | Escolher Graduação ou Mestrado                       |
+| Escolha seu vínculo: estudante, docente ou outro.                                                  | Marcar uma das opções de vínculo                     |
+| Descreva seu vínculo em até 40 caracteres.                                                         | Preencher "Qual vínculo?" (ou escolher outra opção)  |
 | É preciso concordar para se inscrever.                                                             | Marcar o aceite da Política de Privacidade           |
 | As vagas do minicurso acabaram. Desmarque o minicurso para concluir a inscrição.                   | Desmarcar o minicurso                                |
 | As inscrições no minicurso ainda não abriram. Desmarque o minicurso para continuar.                | Desmarcar o minicurso ou aguardar                    |

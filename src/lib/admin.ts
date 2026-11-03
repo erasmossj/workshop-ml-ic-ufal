@@ -10,8 +10,10 @@ export type Inscricao = {
   email: string;
   cpf_mascarado: string;
   instituicao: string | null;
-  /** graduacao | mestrado | outro — null em inscrições anteriores à WML-69. */
+  /** estudante | docente | outro (WML-72) — null em inscrições anteriores à WML-69. */
   vinculo: string | null;
+  /** Texto livre do vínculo "Outro" (até 40 caracteres); null nos demais. */
+  vinculo_outro: string | null;
   curso: string | null;
   /** LinkedIn ou Lattes, já normalizado em https pelo banco (vira QR no crachá). */
   perfil_url: string | null;
@@ -91,13 +93,20 @@ export function formatarDias(dias: string[] | null | undefined): string {
   return (dias ?? []).map((d) => `${d.slice(8, 10)}/${d.slice(5, 7)}`).join(', ');
 }
 
-/** Byte order mark: faz o Excel abrir o CSV como UTF-8 (acentos certos). */
 export const VINCULO: Record<string, string> = {
-  graduacao: 'Graduação',
-  mestrado: 'Mestrado',
+  estudante: 'Estudante',
+  docente: 'Docente',
   outro: 'Outro',
 };
 
+/** "Estudante", "Docente", "Outro: <texto da pessoa>" — '' sem vínculo. */
+export function rotuloVinculo(vinculo: string | null, vinculoOutro: string | null): string {
+  if (!vinculo) return '';
+  const rotulo = VINCULO[vinculo] ?? vinculo;
+  return vinculo === 'outro' && vinculoOutro ? `${rotulo}: ${vinculoOutro}` : rotulo;
+}
+
+/** Byte order mark: faz o Excel abrir o CSV como UTF-8 (acentos certos). */
 export const BOM = String.fromCharCode(0xfeff);
 
 export function gerarCsv(lista: Inscricao[]): string {
@@ -126,7 +135,7 @@ export function gerarCsv(lista: Inscricao[]): string {
     i.email,
     i.cpf_mascarado,
     i.instituicao ?? '',
-    i.vinculo ? (VINCULO[i.vinculo] ?? i.vinculo) : '',
+    rotuloVinculo(i.vinculo, i.vinculo_outro),
     i.curso ?? '',
     i.perfil_url ?? '',
     simNao(i.minicurso),
@@ -225,7 +234,9 @@ const ERROS: Record<string, string> = {
   CPF_INVALIDO: 'CPF inválido. Confira os números.',
   EMAIL_INVALIDO: 'E-mail inválido.',
   INSTITUICAO_INVALIDA: 'Instituição muito longa (máximo de 160 caracteres).',
-  VINCULO_INVALIDO: 'Escolha o vínculo: graduação, mestrado ou outro.',
+  VINCULO_INVALIDO: 'Escolha o vínculo: estudante, docente ou outro.',
+  VINCULO_OUTRO_INVALIDO:
+    'Descreva o vínculo "Outro" em até 40 caracteres (o texto só vale para "Outro").',
   CURSO_INVALIDO: 'Curso muito longo (máximo de 120 caracteres).',
   PERFIL_INVALIDO: 'Use um link do LinkedIn (linkedin.com/in/…) ou do Lattes (lattes.cnpq.br/…).',
   EMAIL_JA_INSCRITO: 'Já existe outra inscrição com este e-mail.',

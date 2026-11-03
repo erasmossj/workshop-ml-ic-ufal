@@ -63,6 +63,7 @@
 | 4.4 | Upload do PDF do trabalho: URL assinada, validação `%PDF`/5 MB, janela 25/10–16/11 | 21/10 | F3   |
 | 4.5 | Teste de concorrência: N requisições para a última vaga → 1 sucesso                | 20/10 | F3   |
 | 4.6 | Vínculo, curso e perfil LinkedIn/Lattes na inscrição (para o crachá) — WML-69      | —     | —    |
+| 4.7 | Vínculo Estudante/Docente/Outro com campo livre "Qual vínculo?" — WML-72           | 03/11 | —    |
 
 ## E5 — E-mail e comprovante
 

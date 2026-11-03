@@ -51,8 +51,9 @@ usado em teste de carga e pentest) e local (`supabase start`, Docker). Cada PR g
 
 ## 1. Inscrição, passo a passo
 
-1. **Formulário** (`/inscricao` e coluna do hero): nome, CPF, e-mail, vínculo (graduação/mestrado/outro),
-   dados do crachá (opcionais: curso, instituição e perfil LinkedIn ou Lattes), minicurso (opcional),
+1. **Formulário** (`/inscricao` e coluna do hero): nome, CPF, e-mail, instituição (opcional),
+   vínculo (estudante/docente/outro; com "outro", o campo "Qual vínculo?" de até 40 caracteres é
+   obrigatório — WML-72), dados do crachá (opcionais: curso e perfil LinkedIn ou Lattes), minicurso (opcional),
    trabalho (opcional: título, autores, resumo, PDF, prêmio) e aceite da política de privacidade. O
    navegador já valida (CPF com dígito verificador, e-mail, tamanhos), mas o servidor valida de novo.
 2. **Turnstile** gera um token provando que não é robô.
@@ -61,6 +62,10 @@ usado em teste de carga e pentest) e local (`supabase start`, Docker). Cada PR g
       (padrão 10 em 10 minutos) → 429.
    2. **Turnstile** validado com a Cloudflare → sem token válido, 403.
    3. **Consentimento** obrigatório → sem aceite, 422.
+      **Vínculo** obrigatório (`estudante`, `docente` ou `outro`) → senão, 422. Com `outro`, o texto
+      `vinculo_outro` (até 40 caracteres, espaços extras removidos) é obrigatório; com os demais, é
+      descartado. Os valores antigos `graduacao`/`mestrado` (página em cache durante o deploy da
+      WML-72) ainda são aceitos e gravados como `estudante`. O banco confere tudo de novo.
    4. **PDF** (se houver trabalho): até 5 MB (senão 413) e assinatura `%PDF` no conteúdo, não só a
       extensão (senão 422).
    5. **Upload** do PDF para o bucket privado com nome gerado pelo servidor (UUID).

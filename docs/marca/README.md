@@ -38,7 +38,7 @@ Arquivo Figma: **[IC-ML](https://www.figma.com/design/LmEPNS2a8dmobLs1sjCfV3/IC-
 - Área de proteção do IC-ML: uma coluna de pontos do símbolo (≈ ⅛ da altura do lockup). Tamanho mínimo: lockup 24 px / 12 mm; símbolo 20 px / 8 mm.
 - Não: recolorir o wordmark em lima, aplicar glow ou gradiente, girar, trocar o pixel por fonte, aplicar sobre textura, fundir com o logo do IEEE.
 - Button Primary uma vez por tela; rótulo com verbo, até 3 palavras. BoundingBox uma por composição.
-- Tag: Palestra = Lima; Minicurso e Mestrado = Azul; Trabalhos = Contorno; Graduação = Neutra; Organização = Sólida.
+- Tag: Palestra = Lima; Minicurso e Docente = Azul; Trabalhos = Contorno; Estudante e Outro (texto livre) = Neutra; Organização = Sólida (WML-72: vínculo Estudante/Docente/Outro substitui Graduação/Mestrado no crachá; a categoria do prêmio continua Graduação/Mestrado).
 
 ### Pendências
 

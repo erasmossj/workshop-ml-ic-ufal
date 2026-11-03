@@ -5,7 +5,7 @@
  * cabeçalho de sistema, campos estilo terminal, Checkbox, Choice e FileDrop.
  */
 import { janela, minicurso, trabalhos } from '../data/evento';
-import { CURSO_MAX, RESUMO_MAX, VINCULOS } from '../lib/validacao';
+import { CURSO_MAX, RESUMO_MAX, VINCULO_OUTRO_MAX, VINCULOS } from '../lib/validacao';
 
 interface Props {
   /** h1 em /inscricao; h2 na home. */
@@ -137,6 +137,22 @@ const opcional = 'text-ink-300';
       </div>
 
       <div>
+        <label for="instituicao" class="rotulo-campo">
+          <span>Instituição</span>
+          <span class={opcional}>opcional</span>
+        </label>
+        <div class="terminal">
+          <input
+            id="instituicao"
+            name="instituicao"
+            class="campo"
+            autocomplete="organization"
+            placeholder="ex.: UFAL"
+          />
+        </div>
+      </div>
+
+      <div>
         <p id="vinculo-rotulo" class="rotulo-campo">
           <span>Vínculo</span>
           <span class="obrigatorio">obrigatório</span>
@@ -152,12 +168,40 @@ const opcional = 'text-ink-300';
         >
           {VINCULOS.map((v) => (
             <label>
-              <input type="radio" name="vinculo" value={v.valor} />
+              <input
+                type="radio"
+                name="vinculo"
+                value={v.valor}
+                aria-controls={v.valor === 'outro' ? 'vinculo-outro-bloco' : undefined}
+              />
               {v.rotulo}
             </label>
           ))}
         </div>
         <p id="vinculo-erro" class="erro-campo" aria-live="polite"></p>
+      </div>
+
+      <!-- Só com "Outro" (WML-72). `hidden` tira da tela, do leitor de tela e da ordem do teclado. -->
+      <div id="vinculo-outro-bloco" hidden>
+        <label for="vinculo_outro" class="rotulo-campo">
+          <span>Qual vínculo?</span>
+          <span class="obrigatorio">obrigatório</span>
+        </label>
+        <div class="terminal">
+          <input
+            id="vinculo_outro"
+            name="vinculo_outro"
+            class="campo"
+            maxlength={VINCULO_OUTRO_MAX}
+            autocomplete="off"
+            placeholder="ex.: servidor técnico"
+            aria-describedby="vinculo_outro-dica vinculo_outro-erro"
+          />
+        </div>
+        <p id="vinculo_outro-dica" class="ajuda">
+          Até {VINCULO_OUTRO_MAX} caracteres. Aparece no seu crachá.
+        </p>
+        <p id="vinculo_outro-erro" class="erro-campo" aria-live="polite"></p>
       </div>
 
       <fieldset class="flex flex-col gap-3.5 border-t border-line-100 pt-3.5">
@@ -177,21 +221,6 @@ const opcional = 'text-ink-300';
               class="campo"
               maxlength={CURSO_MAX}
               placeholder="ex.: Ciência da Computação"
-            />
-          </div>
-        </div>
-        <div>
-          <label for="instituicao" class="rotulo-campo">
-            <span>Instituição</span>
-            <span class={opcional}>opcional</span>
-          </label>
-          <div class="terminal">
-            <input
-              id="instituicao"
-              name="instituicao"
-              class="campo"
-              autocomplete="organization"
-              placeholder="ex.: UFAL"
             />
           </div>
         </div>
@@ -474,6 +503,7 @@ const opcional = 'text-ink-300';
     normalizarEmail,
     normalizarPerfil,
     validarPdf,
+    validarVinculo,
   } from '../lib/validacao';
 
   const form = document.querySelector<HTMLFormElement>('#form-inscricao')!;
@@ -493,6 +523,20 @@ const opcional = 'text-ink-300';
   });
   resumo.addEventListener('input', () => {
     $('resumo-contador').textContent = `${resumo.value.length} / ${RESUMO_MAX} caracteres`;
+  });
+  // Vínculo "Outro" (WML-72): mostra "Qual vínculo?", obrigatório só enquanto visível.
+  const vinculoOutroBloco = $<HTMLDivElement>('vinculo-outro-bloco');
+  const vinculoOutro = $<HTMLInputElement>('vinculo_outro');
+  const vinculoEscolhido = () =>
+    form.querySelector<HTMLInputElement>('input[name=vinculo]:checked')?.value ?? '';
+  $('vinculo').addEventListener('change', () => {
+    const outro = vinculoEscolhido() === 'outro';
+    vinculoOutroBloco.hidden = !outro;
+    vinculoOutro.required = outro;
+    if (!outro) {
+      vinculoOutro.value = '';
+      marcar('vinculo_outro', null);
+    }
   });
   trabalho.addEventListener('change', () => {
     camposTrabalho.hidden = !trabalho.checked;
@@ -593,12 +637,9 @@ const opcional = 'text-ink-300';
           : null,
     );
     checar('cpf', cpfValido(v('cpf')) ? null : 'CPF inválido. Confira os números.');
-    checar(
-      'vinculo',
-      form.querySelector('input[name=vinculo]:checked')
-        ? null
-        : 'Escolha seu vínculo: graduação, mestrado ou outro.',
-    );
+    const erroVinculo = validarVinculo(vinculoEscolhido(), vinculoOutro.value);
+    checar('vinculo', erroVinculo?.campo === 'vinculo' ? erroVinculo.msg : null);
+    checar('vinculo_outro', erroVinculo?.campo === 'vinculo_outro' ? erroVinculo.msg : null);
     checar(
       'perfil',
       normalizarPerfil(v('perfil')) === null
