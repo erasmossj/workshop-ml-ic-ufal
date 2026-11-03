@@ -2,9 +2,9 @@
 /**
  * Formulário de inscrição (Figma: Hero — site oficial › Coluna de inscrição).
  * Usado na coluna do hero (home) e em /inscricao. Faixa halftone de corte seco no topo,
- * cabeçalho de sistema, campos estilo terminal, Checkbox, Choice e FileDrop.
+ * cabeçalho de sistema, campos estilo terminal, Checkbox e Choice.
  */
-import { evento, janela, minicurso, privacidade, trabalhos } from '../data/evento';
+import { evento, janela, minicurso, trabalhos } from '../data/evento';
 import { CURSO_MAX, RESUMO_MAX, VINCULO_OUTRO_MAX, VINCULOS } from '../lib/validacao';
 
 interface Props {
@@ -18,9 +18,6 @@ const Titulo = nivel;
 const modoReal = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
 const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 const opcional = 'text-ink-300';
-// Prazo dos PDFs de quem não autoriza o acervo (o mesmo da política e do expurgo).
-const prazoPdf = privacidade.retencao.find((r) => /PDF/.test(r.dados))!.ate;
-const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
 ---
 
 <section id="inscricao" aria-labelledby="form-t" class="flex flex-col bg-bg-000">
@@ -279,7 +276,7 @@ const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
             aria-controls="campos-trabalho"
             aria-expanded="false"
           />
-          Vou submeter trabalho — short paper SBC
+          Vou submeter trabalho
         </label>
       </div>
 
@@ -288,18 +285,10 @@ const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
         class="flex flex-col gap-3.5 border-l-2 border-line-100 pl-4"
         hidden
       >
-        <div class="ajuda mt-0 flex flex-col gap-1">
-          <p>
-            {trabalhos.formato} Submissões de 30/10 a 16/11 ({janela.textoProrrogacao}).{' '}
-            {trabalhos.vagasTexto}
-          </p>
-          <a
-            href={trabalhos.modelosSbc}
-            class="flex min-h-6 w-fit items-center text-ink-200 underline underline-offset-4 hover:text-lime-ink"
-          >
-            Baixar modelos da SBC (.zip)
-          </a>
-        </div>
+        <p class="ajuda mt-0">
+          {trabalhos.formato} Submissões de 30/10 a 16/11 ({janela.textoProrrogacao}).{' '}
+          {trabalhos.vagasTexto}
+        </p>
         <div>
           <label for="titulo" class="rotulo-campo">
             <span>Título do trabalho</span>
@@ -351,93 +340,6 @@ const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
           </p>
           <p id="resumo-erro" class="erro-campo" aria-live="polite"></p>
         </div>
-
-        <!-- FileDrop (Figma): Empty tracejado; Active ao arrastar; Filled com o nome do arquivo. -->
-        <div>
-          <label for="pdf" class="rotulo-campo">
-            <span>Arquivo PDF</span>
-            <span class="obrigatorio">obrigatório</span>
-          </label>
-          <div
-            id="pdf-zona"
-            data-estado="vazio"
-            class="group relative mt-1.5 flex items-center gap-4 rounded-1 border border-dashed border-line-200 bg-bg-300 p-4 transition has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-focus-ring has-aria-invalid:border-danger data-[estado=ativo]:border-solid data-[estado=ativo]:border-lime-ink data-[estado=ativo]:bg-lime-900"
-          >
-            <svg
-              width="40"
-              height="48"
-              viewBox="0 0 40 48"
-              fill="none"
-              aria-hidden="true"
-              class="shrink-0 text-line-200"
-            >
-              <path d="M1 1H27L39 13V47H1V1Z" stroke="currentColor" stroke-width="1.5"></path>
-              <path d="M27 1V13H39" stroke="currentColor" stroke-width="1.5"></path>
-              <path d="M28 30H6V41H28V30Z" class="fill-lime-500"></path>
-            </svg>
-            <div class="min-w-0 flex-1 text-[0.8125rem] leading-5">
-              <p id="pdf-titulo" class="font-mono font-medium break-words text-ink-100">
-                Arraste o PDF ou clique para enviar
-              </p>
-              <p
-                id="pdf-dica"
-                class="text-ink-300 group-data-[estado=ativo]:text-lime-ink group-data-[estado=cheio]:text-lime-ink"
-              >
-                Short paper SBC · 4 a 6 páginas · PDF até 5 MB
-              </p>
-            </div>
-            <input
-              id="pdf"
-              name="pdf"
-              type="file"
-              accept="application/pdf,.pdf"
-              class="absolute inset-0 size-full cursor-pointer opacity-0"
-              aria-describedby="pdf-dica pdf-erro"
-            />
-          </div>
-          <p id="pdf-erro" class="erro-campo" aria-live="polite"></p>
-        </div>
-
-        <div>
-          <label for="premio" class="flex cursor-pointer items-center gap-3 font-medium body-s">
-            <input
-              id="premio"
-              name="premio"
-              type="checkbox"
-              value="sim"
-              class="caixa-selecao"
-              aria-describedby="premio-dica"
-            />
-            Quero concorrer à premiação
-          </label>
-          <p id="premio-dica" class="ajuda pl-7.5">
-            Melhor trabalho de graduação e de mestrado.
-          </p>
-        </div>
-        <div>
-          <p id="nivel-rotulo" class="rotulo-campo">
-            Categoria
-          </p>
-          <!-- Choice (Figma): escolha única segmentada. -->
-          <div
-            id="nivel"
-            role="radiogroup"
-            aria-labelledby="nivel-rotulo"
-            aria-describedby="nivel-erro"
-            tabindex="-1"
-            class="escolha mt-1.5 aria-invalid:border-danger"
-          >
-            <label>
-              <input type="radio" name="nivel" value="graduacao" />
-              Graduação
-            </label>
-            <label>
-              <input type="radio" name="nivel" value="mestrado" />
-              Mestrado
-            </label>
-          </div>
-          <p id="nivel-erro" class="erro-campo" aria-live="polite"></p>
-        </div>
         <!-- Acervo (WML-73 · ADR-007): consentimento separado, opcional e desmarcado. -->
         <div>
           <label for="acervo" class="flex cursor-pointer items-start gap-3 font-medium body-s">
@@ -450,14 +352,14 @@ const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
               aria-describedby="acervo-dica"
             />
             <span>
-              Autorizo manter meu trabalho (título, autores, resumo e PDF) no acervo de edições
-              passadas do IC-ML, se ele for aprovado. Posso pedir a retirada a qualquer momento pelo
-              e-mail do evento.
+              Autorizo manter meu trabalho (título, autores e resumo) no acervo de edições passadas
+              do IC-ML, se ele for aprovado. Posso pedir a retirada a qualquer momento pelo e-mail
+              do evento.
             </span>
           </label>
           <p id="acervo-dica" class="ajuda pl-7.5">
-            Opcional. Sem esta autorização, o PDF é apagado em {prazoPdfTexto}. O acervo não guarda
-            CPF nem e-mail. Retirada: {evento.contato}.
+            Opcional. Sem esta autorização, o trabalho não entra no acervo. O acervo não guarda CPF
+            nem e-mail. Retirada: {evento.contato}.
           </p>
         </div>
       </div>
@@ -528,7 +430,6 @@ const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
     nomeCompletoValido,
     normalizarEmail,
     normalizarPerfil,
-    validarPdf,
     validarVinculo,
   } from '../lib/validacao';
 
@@ -539,10 +440,6 @@ const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
   const camposTrabalho = $<HTMLDivElement>('campos-trabalho');
   const resumo = $<HTMLTextAreaElement>('resumo');
   const resumoErros = $<HTMLDivElement>('resumo-erros');
-  const pdf = $<HTMLInputElement>('pdf');
-  const pdfZona = $<HTMLDivElement>('pdf-zona');
-  const pdfTitulo = $<HTMLParagraphElement>('pdf-titulo');
-  const PDF_TITULO_VAZIO = pdfTitulo.textContent?.trim() ?? '';
 
   cpf.addEventListener('input', () => {
     cpf.value = formatarCpf(cpf.value);
@@ -568,17 +465,6 @@ const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
     camposTrabalho.hidden = !trabalho.checked;
     trabalho.setAttribute('aria-expanded', String(trabalho.checked));
   });
-
-  // FileDrop: o input cobre a área toda, então soltar o arquivo já o seleciona.
-  const estadoPdf = () => {
-    const arquivo = pdf.files?.[0];
-    pdfZona.dataset.estado = arquivo ? 'cheio' : 'vazio';
-    pdfTitulo.textContent = arquivo ? arquivo.name : PDF_TITULO_VAZIO;
-  };
-  pdf.addEventListener('dragenter', () => (pdfZona.dataset.estado = 'ativo'));
-  pdf.addEventListener('dragleave', estadoPdf);
-  pdf.addEventListener('drop', () => setTimeout(estadoPdf));
-  pdf.addEventListener('change', estadoPdf);
 
   // Backend real (Edge Function) quando configurado; senão, demonstração local.
   const API: string | undefined = import.meta.env.PUBLIC_SUPABASE_URL;
@@ -638,10 +524,7 @@ const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
     }
   }
 
-  const nivelEscolhido = () =>
-    form.querySelector<HTMLInputElement>('input[name=nivel]:checked')?.value ?? '';
-
-  async function validar(): Promise<{ id: string; msg: string }[]> {
+  function validar(): { id: string; msg: string }[] {
     const erros: { id: string; msg: string }[] = [];
     const checar = (id: string, msg: string | null) => {
       marcar(id, msg);
@@ -677,14 +560,6 @@ const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
       checar('titulo', v('titulo') ? null : 'Informe o título do trabalho.');
       checar('autores', v('autores') ? null : 'Informe os autores.');
       checar('resumo', v('resumo') ? null : 'Escreva o resumo.');
-      const arquivo = pdf.files?.[0];
-      if (!arquivo) checar('pdf', 'Anexe o PDF do trabalho.');
-      else {
-        const bytes = new Uint8Array(await arquivo.slice(0, 5).arrayBuffer());
-        checar('pdf', validarPdf(arquivo, bytes));
-      }
-      const premio = $<HTMLInputElement>('premio').checked;
-      checar('nivel', premio && !nivelEscolhido() ? 'Escolha a categoria para concorrer.' : null);
     }
 
     checar(
@@ -698,7 +573,7 @@ const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
 
   form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
-    const erros = await validar();
+    const erros = validar();
     mostrarErros(erros);
     if (erros.length) return;
 
@@ -731,13 +606,7 @@ const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
       cpfMascarado: mascararCpf(v('cpf')),
       email: normalizarEmail(v('email')),
       minicurso: $<HTMLInputElement>('minicurso').checked,
-      trabalho: trabalho.checked
-        ? {
-            titulo: v('titulo'),
-            premio: $<HTMLInputElement>('premio').checked,
-            nivel: nivelEscolhido(),
-          }
-        : null,
+      trabalho: trabalho.checked ? { titulo: v('titulo') } : null,
     });
     setTimeout(() => location.assign('/confirmacao'), modoReal ? 0 : 600);
   });

@@ -15,8 +15,8 @@
 - Inscrição padrão = acesso a **todas as palestras** dos 3 dias.
 - **Minicurso: 1 minicurso nas 3 tardes** (decidido em 16/10: seguir o relatório), um tema por tarde — Fundamentos (Python, Pandas, análise exploratória), Classificação e Regressão, Clustering e Séries Temporais (atualizado em 03/11, WML-71). Opt-in na inscrição, 48 vagas (capacidade do Laboratório 1). O schema continua suportando N minicursos, caso mude.
 - Site no ar: **26/10**. Inscrições e submissões: **30/10 a 16/11/2026** (prorrogável até 18/11), horário de Maceió, validado no servidor.
-- Trabalho: título, autores, resumo e PDF (short paper SBC, 4 ou 6 páginas sem referências). Banca 16/11; avaliação 16–25/11 (**rejeitado / aprovado pôster / aprovado oral**); resultado 26/11.
-- Premiação: opt-in para concorrer a **melhor trabalho de graduação** e **de mestrado**.
+- Trabalho: só título, autores e resumo (até 1.500 caracteres) — sem artigo nem PDF (decisão dos stakeholders em 03/11). Banca 16/11; avaliação 16–25/11 (**rejeitado / aprovado pôster / aprovado oral**); resultado 26/11.
+- Premiação: **não haverá** (decisão dos stakeholders em 03/11; antes era opt-in para melhor trabalho de graduação e de mestrado).
 
 ### MVP (entrega 26/10)
 
@@ -26,7 +26,7 @@
 | RF02  | **E-mail único** entre inscrições ativas (case-insensitive; cancelada libera o e-mail); **CPF pode repetir**                                                              |
 | RF03  | Opt-in em cada minicurso; ao esgotar as vagas o sistema **bloqueia** novas inscrições naquele minicurso (sem overbooking sob concorrência)                                |
 | RF04  | Mesmo CPF não ocupa duas vagas no mesmo minicurso                                                                                                                         |
-| RF05  | Submissão opcional de trabalho: título, autores, resumo, área e **PDF** (≤ 5 MB), só dentro da janela de submissão                                                        |
+| RF05  | Submissão opcional de trabalho: título, autores e resumo (sem PDF desde 03/11), só dentro da janela de submissão                                                          |
 | RF06  | E-mail de confirmação com nº de inscrição, **comprovante PDF** (com QR assinado), link **Google Agenda** e anexo `.ics` (3 eventos)                                       |
 | RF07  | Comprovante também exibido/baixável na tela de confirmação                                                                                                                |
 | RF08  | Painel da organização (login por magic link, allowlist): lista, filtros, vagas, status do trabalho (pendente/aceito/rejeitado), cancelar/corrigir inscrição (libera vaga) |

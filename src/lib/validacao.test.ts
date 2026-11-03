@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  PDF_MAX_BYTES,
   VINCULOS,
   VINCULO_OUTRO_MAX,
   dentroDaJanela,
@@ -9,11 +8,8 @@ import {
   normalizarEmail,
   normalizarPerfil,
   normalizarVinculoOutro,
-  validarPdf,
   validarVinculo,
 } from './validacao';
-
-const PDF_MAGICO = new TextEncoder().encode('%PDF-1.7\n');
 
 describe('emailValido / normalizarEmail', () => {
   it('aceita e-mails comuns e normaliza caixa e espaços', () => {
@@ -39,34 +35,6 @@ describe('nomeCompletoValido', () => {
     expect(nomeCompletoValido('Maria')).toBe(false);
     expect(nomeCompletoValido('Maria 2')).toBe(false);
     expect(nomeCompletoValido('   ')).toBe(false);
-  });
-});
-
-describe('validarPdf', () => {
-  const arquivo = (o: Partial<{ name: string; size: number; type: string }> = {}) => ({
-    name: 'trabalho.pdf',
-    size: 1024,
-    type: 'application/pdf',
-    ...o,
-  });
-
-  it('aceita PDF real dentro do limite', () => {
-    expect(validarPdf(arquivo(), PDF_MAGICO)).toBeNull();
-  });
-
-  it('rejeita arquivo acima de 5 MB', () => {
-    expect(validarPdf(arquivo({ size: PDF_MAX_BYTES + 1 }), PDF_MAGICO)).toMatch(/5 MB/);
-  });
-
-  it('rejeita arquivo que não é PDF pela extensão/tipo', () => {
-    expect(validarPdf(arquivo({ name: 'a.docx', type: 'application/msword' }), PDF_MAGICO)).toMatch(
-      /PDF/,
-    );
-  });
-
-  it('rejeita arquivo renomeado para .pdf sem a assinatura %PDF', () => {
-    const falso = new TextEncoder().encode('PK\u0003\u0004');
-    expect(validarPdf(arquivo(), falso)).toMatch(/PDF/);
   });
 });
 

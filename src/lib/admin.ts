@@ -21,8 +21,6 @@ export type Inscricao = {
   apresenta_trabalho: boolean;
   titulo_trabalho: string | null;
   status_trabalho: string | null;
-  concorre_premio: boolean;
-  nivel: string | null;
   criada_em: string;
   cancelada: boolean;
   pdf_path: string | null;
@@ -40,11 +38,6 @@ export const STATUS_TRABALHO: Record<string, string> = {
   rejeitado: 'Rejeitado',
   aprovado_poster: 'Aprovado (pôster)',
   aprovado_oral: 'Aprovado (oral)',
-};
-
-export const NIVEL_PREMIO: Record<string, string> = {
-  graduacao: 'graduação',
-  mestrado: 'mestrado',
 };
 
 export const STATUS_EMAIL: Record<string, string> = {
@@ -90,7 +83,7 @@ export function acaoAcervo(i: Pick<Inscricao, 'numero' | 'acervo'>): {
         botao: 'Retirar do acervo',
         confirmacao:
           `Retirar o trabalho de ${i.numero} do acervo? Título, autores e resumo saem na hora; ` +
-          'o PDF é apagado na próxima rodada do expurgo (se já tiver passado de 31/01/2027).',
+          'o PDF, se houver (enviado até 03/11/2026), é apagado na próxima rodada do expurgo.',
       }
     : {
         novo: true,
@@ -156,7 +149,6 @@ export function gerarCsv(lista: Inscricao[]): string {
     'Apresenta trabalho',
     'Título do trabalho',
     'Status do trabalho',
-    'Concorre ao prêmio',
     'Autorizou acervo',
     'Inscrita em',
     'Situação',
@@ -176,7 +168,6 @@ export function gerarCsv(lista: Inscricao[]): string {
     simNao(i.apresenta_trabalho),
     i.titulo_trabalho ?? '',
     i.status_trabalho ? (STATUS_TRABALHO[i.status_trabalho] ?? i.status_trabalho) : '',
-    simNao(i.concorre_premio),
     i.apresenta_trabalho ? simNao(i.acervo) : '',
     formatarDataHora(i.criada_em),
     i.cancelada ? 'Cancelada' : 'Ativa',
@@ -284,8 +275,6 @@ const ERROS: Record<string, string> = {
   CAMPOS_INVALIDOS: 'Confira as posições: página, tamanho (6 a 72) e largura.',
   MODELO_INCOMPLETO: 'Salve o modelo e as posições antes de liberar os certificados.',
   SEM_TRABALHO: 'Esta inscrição não submeteu trabalho.',
-  TRABALHO_SEM_PDF:
-    'O PDF deste trabalho já foi apagado no expurgo; não dá para incluí-lo no acervo.',
   ACERVO_INVALIDO: 'Informe se o autor autorizou (sim ou não).',
   ACERVO_INEXISTENTE: 'Trabalho não encontrado no acervo.',
 };

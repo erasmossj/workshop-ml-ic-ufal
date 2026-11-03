@@ -36,7 +36,7 @@ privacidade. No celular: o mesmo site em tela pequena.
 
 1. Erros primeiro: CPF inválido; `demo-01@exemplo.com` → "Já existe outra inscrição com este e-mail".
 2. Inscrição certa com o **Gmail de testes** e um CPF fictício, marcando o minicurso (pega a última
-   vaga) e enviando um PDF de trabalho.
+   vaga) e enviando um trabalho (título, autores e resumo).
 3. Tela de confirmação: número, QR e comprovante em PDF. Em ~1 min chega o e-mail com o PDF e o
    convite de agenda (`.ics`).
 4. Outra inscrição fictícia marcando o minicurso → "As vagas do minicurso acabaram": o servidor

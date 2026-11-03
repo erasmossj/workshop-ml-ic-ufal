@@ -13,6 +13,19 @@ test('landing mostra nome, datas e leva ao formulário de inscrição', async ({
   await expect(page.locator('#form-inscricao')).toBeVisible();
 });
 
+test('chamada de trabalhos traz o prazo e não mostra cronograma nem avaliação internos', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const secao = page.locator('#trabalhos');
+  await expect(secao.getByText('Prazo', { exact: true })).toBeVisible();
+  await expect(secao).toContainText('16/11/2026');
+  await expect(secao).not.toContainText(/SBC|short paper|PDF|premia/i);
+  await expect(page.getByText('Datas importantes')).toHaveCount(0);
+  await expect(page.getByText('Avaliação dos trabalhos pela banca')).toHaveCount(0);
+  await expect(secao).not.toContainText(/avalia|banca|pôster/i);
+});
+
 test('formulário vazio mostra o resumo de erros', async ({ page }) => {
   await page.goto('/inscricao');
   await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
@@ -62,11 +75,6 @@ test('inscrição completa chega à confirmação com CPF mascarado', async ({ p
   await page.getByLabel(/^Título do trabalho/).fill('Classificação de imagens com CNNs');
   await page.getByLabel(/^Autores/).fill('Participante Exemplo, Coautora Exemplo');
   await page.getByLabel(/^Resumo/).fill('Resumo de teste.');
-  await page.getByLabel(/^Arquivo PDF/).setInputFiles({
-    name: 'trabalho.pdf',
-    mimeType: 'application/pdf',
-    buffer: Buffer.from('%PDF-1.4\n%%EOF'),
-  });
   await page.getByLabel(/Li e concordo/).check();
   await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
 
@@ -75,6 +83,7 @@ test('inscrição completa chega à confirmação com CPF mascarado', async ({ p
   await expect(page.locator('#c-cpf')).toHaveText('***.982.247-**');
   await expect(page.locator('#c-numero')).toHaveText(/^ICML26-\d{4}$/);
   await expect(page.locator('#c-minicurso')).toContainText('Inscrito');
+  await expect(page.locator('#c-trabalho')).toHaveText('Enviado · aguardando avaliação');
   // Sem backend não há token assinado: nada de QR falso que o leitor recusaria no evento.
   await expect(page.locator('#c-qr svg')).toHaveCount(0);
   await expect(page.locator('#c-qr-aviso')).toContainText('comprovante');
@@ -82,16 +91,16 @@ test('inscrição completa chega à confirmação com CPF mascarado', async ({ p
   await expect(page.locator('body')).not.toContainText('529.982.247-25');
 });
 
-test('PDF falso (renomeado) é recusado', async ({ page }) => {
+test('trabalho pede só título, autores e resumo — sem PDF nem premiação', async ({ page }) => {
   await page.goto('/inscricao');
   await page.getByLabel(/Vou submeter trabalho/).check();
-  await page.getByLabel(/^Arquivo PDF/).setInputFiles({
-    name: 'virus.pdf',
-    mimeType: 'application/pdf',
-    buffer: Buffer.from('MZ\x90\x00 não é pdf'),
-  });
+  await expect(page.getByLabel(/^Título do trabalho/)).toBeVisible();
+  await expect(page.locator('input[type=file]')).toHaveCount(0);
+  await expect(page.getByText(/premiação|prêmio/i)).toHaveCount(0);
   await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
-  await expect(page.locator('#pdf-erro')).toContainText('PDF');
+  await expect(page.locator('#titulo-erro')).toContainText('título');
+  await expect(page.locator('#autores-erro')).toContainText('autores');
+  await expect(page.locator('#resumo-erro')).toContainText('resumo');
 });
 
 test('vínculo é obrigatório e perfil só aceita LinkedIn ou Lattes', async ({ page }) => {
@@ -156,13 +165,14 @@ test('acervo de edições passadas: caixa opcional, desmarcada, só com trabalho
   await expect(acervo).toHaveAttribute('name', 'acervo');
   await expect(acervo).toHaveAttribute('value', 'sim');
   await expect(acervo).not.toHaveAttribute('required');
-  await expect(page.locator('#acervo-dica')).toContainText('31/01/2027');
-  // Vem depois de premiação e categoria, dentro do bloco do trabalho.
+  await expect(page.locator('#acervo-dica')).toContainText('não entra no acervo');
+  await expect(page.locator('#acervo-dica')).not.toContainText('PDF');
+  // Vem depois de título, autores e resumo, dentro do bloco do trabalho (sem PDF nem prêmio, WML-75).
   const ordem = await page
     .locator('#campos-trabalho')
-    .locator('#premio, #nivel, #acervo')
+    .locator('#titulo, #autores, #resumo, #acervo')
     .evaluateAll((els) => els.map((e) => e.id));
-  expect(ordem).toEqual(['premio', 'nivel', 'acervo']);
+  expect(ordem).toEqual(['titulo', 'autores', 'resumo', 'acervo']);
   // Teclado: foco e espaço marcam a caixa.
   await acervo.focus();
   await page.keyboard.press('Space');

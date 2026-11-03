@@ -30,8 +30,6 @@ const base: Inscricao = {
   apresenta_trabalho: true,
   titulo_trabalho: 'Redes neurais',
   status_trabalho: 'pendente',
-  concorre_premio: false,
-  nivel: null,
   criada_em: '2026-10-30T13:05:00Z',
   cancelada: false,
   pdf_path: 'abc.pdf',
@@ -82,7 +80,7 @@ describe('gerarCsv', () => {
     expect(linhas[0]).toBe(
       'Nº de inscrição;Nome;E-mail;CPF (mascarado);Instituição;Vínculo;Curso;' +
         'Perfil (LinkedIn/Lattes);Minicurso;Apresenta trabalho;' +
-        'Título do trabalho;Status do trabalho;Concorre ao prêmio;Autorizou acervo;Inscrita em;' +
+        'Título do trabalho;Status do trabalho;Autorizou acervo;Inscrita em;' +
         'Situação;Dias presentes;Tardes no minicurso',
     );
   });
@@ -91,7 +89,7 @@ describe('gerarCsv', () => {
     expect(linhas[1]).toBe(
       'ICML26-0001;Ana Sintética;ana@exemplo.com;***.982.247-**;UFAL;Estudante;' +
         'Ciência da Computação;https://www.linkedin.com/in/ana-sintetica;Sim;Sim;Redes neurais;' +
-        'Pendente;Não;Não;30/10/2026 10:05;Ativa;02/12, 04/12;02/12',
+        'Pendente;Não;30/10/2026 10:05;Ativa;02/12, 04/12;02/12',
     );
   });
 
@@ -131,11 +129,11 @@ describe('gerarCsv', () => {
   });
 
   it('autorização do acervo: Sim, Não, ou vazio sem trabalho', () => {
-    expect(gerarCsv([{ ...base, acervo: true }])).toContain(';Pendente;Não;Sim;30/10/2026');
+    expect(gerarCsv([{ ...base, acervo: true }])).toContain(';Pendente;Sim;30/10/2026');
     const sem = gerarCsv([
       { ...base, apresenta_trabalho: false, titulo_trabalho: null, status_trabalho: null },
     ]);
-    expect(sem).toContain(';Sim;Não;;;Não;;30/10/2026');
+    expect(sem).toContain(';Sim;Não;;;;30/10/2026');
   });
 
   it('nunca tem CPF completo', () => {
@@ -208,7 +206,7 @@ describe('acervo de edições passadas (WML-73)', () => {
     const retirar = acaoAcervo({ ...base, acervo: true });
     expect(retirar.novo).toBe(false);
     expect(retirar.botao).toBe('Retirar do acervo');
-    expect(retirar.confirmacao).toMatch(/PDF/);
+    expect(retirar.confirmacao).toMatch(/saem na hora/);
   });
 });
 
@@ -222,7 +220,6 @@ describe('mensagemDeErro', () => {
     );
     expect(mensagemDeErro('VINCULO_OUTRO_INVALIDO')).toMatch(/40 caracteres/);
     expect(mensagemDeErro('SEM_TRABALHO')).toMatch(/não submeteu trabalho/);
-    expect(mensagemDeErro('TRABALHO_SEM_PDF')).toMatch(/PDF/);
     expect(mensagemDeErro('ACERVO_INEXISTENTE')).toMatch(/acervo/);
   });
   it('tem mensagem genérica para o resto', () => {

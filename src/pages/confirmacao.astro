@@ -131,12 +131,7 @@ const agenda = eventosDeAgenda().map((e, i) => ({
     texto('c-nome', dados.nome);
     texto('c-cpf', dados.cpfMascarado);
     texto('c-minicurso', dados.minicurso ? 'Inscrito — 3 tardes' : 'Não inscrito');
-    texto(
-      'c-trabalho',
-      dados.trabalho
-        ? `Enviado · aguardando avaliação${dados.trabalho.premio ? ' · concorrendo ao prêmio' : ''}`
-        : 'Não submetido',
-    );
+    texto('c-trabalho', dados.trabalho ? 'Enviado · aguardando avaliação' : 'Não submetido');
   }
 
   // Só o token assinado (HMAC) vale no leitor do credenciamento. Sem ele (protótipo, ou segredo

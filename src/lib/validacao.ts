@@ -1,6 +1,5 @@
 /** Validações compartilhadas entre o formulário e (futuramente) a Edge Function `register`. */
 
-export const PDF_MAX_BYTES = 5 * 1024 * 1024;
 export const RESUMO_MAX = 1500;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
@@ -19,22 +18,6 @@ export function emailValido(email: string): boolean {
 export function nomeCompletoValido(nome: string): boolean {
   const partes = nome.trim().split(/\s+/).filter(Boolean);
   return nome.trim().length <= 120 && partes.length >= 2 && partes.every((p) => NOME_RE.test(p));
-}
-
-type ArquivoInfo = { name: string; size: number; type: string };
-
-/**
- * Valida o PDF do trabalho. `primeirosBytes` são os bytes iniciais do arquivo:
- * a extensão sozinha não basta, exigimos a assinatura `%PDF-`.
- * Retorna a mensagem de erro ou `null` se estiver tudo certo.
- */
-export function validarPdf(arquivo: ArquivoInfo, primeirosBytes: Uint8Array): string | null {
-  const pareceSerPdf =
-    arquivo.type === 'application/pdf' || arquivo.name.toLowerCase().endsWith('.pdf');
-  const assinatura = new TextDecoder().decode(primeirosBytes.slice(0, 5));
-  if (!pareceSerPdf || assinatura !== '%PDF-') return 'Envie o trabalho em formato PDF.';
-  if (arquivo.size > PDF_MAX_BYTES) return 'O PDF deve ter no máximo 5 MB.';
-  return null;
 }
 
 /** Vínculo com a instituição (Figma: Choice "Vínculo"; Tag do crachá). WML-72. */

@@ -103,7 +103,7 @@ export const dias: { rotulo: string; data: string; semana: string; atividades: A
         titulo: 'Palestra — Mercado de trabalho em ML · Hugo Souza',
         tipo: 'palestra',
       },
-      { inicio: '12:00', fim: '13:00', titulo: 'Encerramento e premiação', tipo: 'cerimonia' },
+      { inicio: '12:00', fim: '13:00', titulo: 'Encerramento', tipo: 'cerimonia' },
       { inicio: '13:00', fim: '13:40', titulo: 'Almoço', tipo: 'pausa' },
       {
         inicio: '13:40',
@@ -151,16 +151,15 @@ export const minicurso = {
   vagas: 48,
 } as const;
 
+/**
+ * Chamada de trabalhos (seção "Apresente sua pesquisa"). Sem artigo, PDF nem premiação (WML-75).
+ * Avaliação, resultado e cronograma são da organização interna: não vão para o site.
+ */
 export const trabalhos = {
-  formato:
-    'Short paper no modelo da SBC, com 4 ou 6 páginas (sem contar referências), em PDF de até 5 MB.',
-  campos: 'Título, autores, resumo e o PDF — tudo no próprio formulário de inscrição.',
-  avaliacao:
-    'A banca indica: aprovado para apresentação oral, aprovado para pôster ou não aprovado.',
-  premiacao:
-    'Melhor trabalho de graduação e melhor trabalho de mestrado. Marque na inscrição se quer concorrer. Prêmio: certificado e brinde.',
-  /** Modelos oficiais da SBC (LaTeX e Word). */
-  modelosSbc: 'https://www.sbc.org.br/wp-content/uploads/2024/07/modelosparapublicaodeartigos.zip',
+  formato: 'Título, autores e um resumo de até 1.500 caracteres. Não é preciso enviar artigo.',
+  campos:
+    'Na inscrição, marque “Vou submeter trabalho” e preencha os três campos. Sem anexar arquivo.',
+  prazo: 'De 30/10 a 16/11/2026, junto com as inscrições (pode ser prorrogado até 18/11).',
   /** Vagas para apresentação no evento. Não limita inscrições nem submissões. */
   vagasApresentacao: 13,
   vagasTexto: 'O evento tem 13 vagas para apresentação de trabalhos.',
@@ -174,15 +173,6 @@ export const janela = {
   /** Cabeçalho do formulário (Figma: "30.10 → 16.11"). */
   textoCurto: '30.10 → 16.11',
 } as const;
-
-export const cronograma = [
-  { data: '26/10', item: 'Site no ar' },
-  { data: '30/10', item: 'Abertura das inscrições e submissões' },
-  { data: '16/11', item: 'Fim das inscrições e submissões (pode ser prorrogado até 18/11)' },
-  { data: '16–25/11', item: 'Avaliação dos trabalhos pela banca' },
-  { data: '26/11', item: 'Resultado: apresentação oral ou pôster' },
-  { data: '02–04/12', item: 'IC-ML 2026' },
-] as const;
 
 export const faq = [
   {
@@ -209,6 +199,8 @@ export const faq = [
  * cada participante fica em participantes.consentimento_em e vale a versão em vigor naquela data.
  * 2026-11-03 (WML-73 · ADR-007): acervo de edições passadas, só para trabalho aprovado e com
  * autorização separada. Quem aceitou a versão 2026-10-19 não entra no acervo sem autorizar.
+ * WML-75 (mesmo dia): trabalho passa a ser só título, autores e resumo; PDF só de quem enviou
+ * até 03/11/2026.
  */
 export const privacidade = {
   versao: '2026-11-03',
@@ -228,11 +220,11 @@ export const privacidade = {
     },
     { dado: 'Inscrição no minicurso', motivo: 'controlar as vagas do laboratório' },
     {
-      dado: 'Título, autores, resumo e PDF do trabalho, se você submeter',
+      dado: 'Título, autores e resumo do trabalho, se você submeter',
       motivo: 'avaliação pela banca e montagem da programação',
     },
     {
-      dado: 'Título, autores, resumo e PDF do trabalho aprovado, se você autorizar',
+      dado: 'Título, autores e resumo do trabalho aprovado (e o PDF, se você enviou um até 03/11/2026), se você autorizar',
       motivo: 'acervo de edições passadas do IC-ML',
     },
     {
@@ -245,7 +237,7 @@ export const privacidade = {
   operadores: [
     {
       nome: 'Supabase',
-      papel: 'guarda o banco de dados e os PDFs (servidores nos Estados Unidos)',
+      papel: 'guarda o banco de dados e os arquivos (servidores nos Estados Unidos)',
     },
     { nome: 'Vercel', papel: 'hospeda o site' },
     { nome: 'Cloudflare Turnstile', papel: 'verifica que o formulário não é preenchido por robô' },
@@ -253,10 +245,11 @@ export const privacidade = {
     { nome: 'Brevo', papel: 'envia os e-mails se o Gmail falhar' },
   ],
   compartilhamento:
-    'Esses serviços só tratam os dados para executar a tarefa deles, e alguns ficam fora do Brasil (transferência internacional, art. 33 da LGPD). Não vendemos nem cedemos seus dados a ninguém. Nome e trabalho aprovado aparecem na programação do evento. Quando a página de edições passadas do IC-ML existir, título, autores, resumo e PDF dos trabalhos do acervo ficarão públicos nela — nunca CPF ou e-mail.',
+    'Esses serviços só tratam os dados para executar a tarefa deles, e alguns ficam fora do Brasil (transferência internacional, art. 33 da LGPD). Não vendemos nem cedemos seus dados a ninguém. Nome e trabalho aprovado aparecem na programação do evento. Quando a página de edições passadas do IC-ML existir, título, autores e resumo dos trabalhos do acervo (e o PDF, quando houver) ficarão públicos nela — nunca CPF ou e-mail.',
   retencao: [
     {
-      dados: 'PDFs dos trabalhos, se você não autorizou o acervo ou o trabalho não foi aprovado',
+      dados:
+        'PDFs de trabalhos enviados até 03/11/2026, se você não autorizou o acervo ou o trabalho não foi aprovado',
       ate: '2027-01-31',
     },
     {
@@ -275,17 +268,18 @@ export const privacidade = {
    * separado. Sem `ate` de propósito — não há data inventada; vale até a retirada.
    */
   retencaoAcervo: {
-    dados: 'Título, autores, resumo e PDF do trabalho aprovado, se você autorizou o acervo',
+    dados:
+      'Título, autores e resumo do trabalho aprovado (e o PDF, se enviado até 03/11/2026), se você autorizou o acervo',
     prazo: 'enquanto o acervo de edições passadas existir, ou até você pedir a retirada',
     detalhe:
-      'O acervo não guarda CPF, e-mail nem qualquer ligação com a sua inscrição. Se pedir a retirada, título, autores e resumo saem na hora e o PDF é apagado no prazo normal dos PDFs ou, se ele já tiver passado, em até 1 dia.',
+      'O acervo não guarda CPF, e-mail nem qualquer ligação com a sua inscrição. Se pedir a retirada, título, autores e resumo saem na hora e o PDF, se houver, é apagado no prazo normal dos PDFs ou, se ele já tiver passado, em até 1 dia.',
   },
   retencaoObs:
     'Cópias de segurança são criptografadas e apagadas automaticamente em até 14 dias. Se você cancelar a inscrição, seus dados são apagados no mesmo prazo acima, ou antes, se pedir.',
   seguranca: [
     'Só a organização acessa os dados, com login individual.',
     'O CPF aparece mascarado (ex.: ***.456.789-**) nas telas e planilhas da organização.',
-    'Os PDFs ficam em área privada, sem link público.',
+    'Os PDFs enviados até 03/11/2026 ficam em área privada, sem link público.',
     'Toda conexão com o site é criptografada (HTTPS).',
     'Nenhum dado pessoal vai para registros (logs) do sistema.',
   ],
