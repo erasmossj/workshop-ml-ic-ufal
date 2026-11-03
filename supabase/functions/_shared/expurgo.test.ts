@@ -6,7 +6,7 @@ function deps(pdfs: string[], extra: Partial<DependenciasExpurgo> = {}): Depende
     pdfsPendentes: vi.fn(async () => pdfs),
     apagarArquivos: vi.fn(async (lote: string[]) => lote),
     concluirPdfs: vi.fn(async (lote: string[]) => lote.length),
-    expurgarDados: vi.fn(async () => ({ dados_pessoais: 3, participantes: 0 })),
+    expurgarDados: vi.fn(async () => ({ dados_pessoais: 3, participantes: 0, acervo: 2 })),
     ...extra,
   };
 }
@@ -18,7 +18,7 @@ describe('expurgo (Edge Function)', () => {
     const r = await executarExpurgo(d);
     expect(d.apagarArquivos).toHaveBeenCalledTimes(3);
     expect((d.apagarArquivos as ReturnType<typeof vi.fn>).mock.calls[0][0]).toHaveLength(100);
-    expect(r).toEqual({ pdfs: 230, dados_pessoais: 3, participantes: 0 });
+    expect(r).toEqual({ pdfs: 230, dados_pessoais: 3, participantes: 0, acervo: 2 });
   });
 
   it('se o Storage não apagar um arquivo, ele continua pendente para o dia seguinte', async () => {
@@ -35,7 +35,7 @@ describe('expurgo (Edge Function)', () => {
     const d = deps(['a.pdf'], {
       apagarArquivos: vi.fn(async (l: string[]) => (ordem.push('arquivos'), l)),
       expurgarDados: vi.fn(
-        async () => (ordem.push('dados'), { dados_pessoais: 0, participantes: 0 }),
+        async () => (ordem.push('dados'), { dados_pessoais: 0, participantes: 0, acervo: 0 }),
       ),
     });
     await executarExpurgo(d);

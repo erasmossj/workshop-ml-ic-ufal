@@ -137,7 +137,9 @@ Deno.serve(async (req) => {
     const resumo = await processarFila({
       fila,
       provedores,
-      lote: Number(env('EMAIL_LOTE') || '10'),
+      // Cada e-mail monta um PDF (~0,2 s de CPU; o primeiro, ~0,7 s). Lote pequeno mantém a execução
+      // longe do limite de CPU das Edge Functions; o cron roda a cada minuto (3/min = 180/h).
+      lote: Number(env('EMAIL_LOTE') || '3'),
       montar: async (item) => {
         if (item.tipo === 'certificado') {
           const siteUrl = env('SITE_URL');

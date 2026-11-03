@@ -355,6 +355,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
 <script>
   import { createClient, type SupabaseClient } from '@supabase/supabase-js';
   import {
+    acaoAcervo,
     cartoesPresenca,
     deInputLocal,
     filtrar,
@@ -362,6 +363,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
     gerarCsv,
     mensagemDeErro,
     NIVEL_PREMIO,
+    rotuloAcervo,
     rotuloVinculo,
     paginar,
     paraInputLocal,
@@ -613,6 +615,28 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         }
       });
       td.append(rotulo, sel);
+      // Acervo de edições passadas (WML-73): autorização expressa do autor, registrada aqui quando
+      // chega por e-mail; só trabalhos aprovados entram (ADR-007).
+      const acervo = el('div', rotuloAcervo(i.acervo), 'mt-2 text-xs text-ink-200');
+      acervo.id = `acervo-${i.numero}`;
+      td.append(acervo);
+      if (!i.cancelada || i.acervo) {
+        const acao = acaoAcervo(i);
+        const b = botao(acao.botao, 'text-lime-ink block text-sm underline', async () => {
+          if (!confirm(acao.confirmacao)) return;
+          const r = await rpc('admin_definir_acervo', { p_numero: i.numero, p_acervo: acao.novo });
+          if (r.ok) {
+            avisar(
+              acao.novo
+                ? `Autorização do acervo registrada para ${i.numero}.`
+                : `Trabalho de ${i.numero} retirado do acervo.`,
+            );
+            await carregarLista();
+          }
+        });
+        b.setAttribute('aria-describedby', acervo.id);
+        td.append(b);
+      }
       if (i.pdf_path) {
         const caminho = i.pdf_path;
         td.append(
