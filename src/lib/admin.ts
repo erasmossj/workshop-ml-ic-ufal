@@ -31,6 +31,8 @@ export type Inscricao = {
   dias_presente: string[];
   /** Tardes do minicurso com presença (AAAA-MM-DD). */
   dias_minicurso: string[];
+  /** Autorizou o acervo de edições passadas (WML-73) — false sem trabalho. */
+  acervo: boolean;
 };
 
 export const STATUS_TRABALHO: Record<string, string> = {
@@ -67,6 +69,37 @@ function celula(valor: string): string {
 }
 
 const simNao = (b: boolean) => (b ? 'Sim' : 'Não');
+
+// ---------------------------------------------------------------------------------------------
+// Acervo de edições passadas (WML-73 · ADR-007): só aprovados e com autorização expressa
+// ---------------------------------------------------------------------------------------------
+
+export function rotuloAcervo(acervo: boolean): string {
+  return `Autorizou acervo: ${acervo ? 'sim' : 'não'}`;
+}
+
+/** Botão do painel: registra a autorização recebida por e-mail ou a retira (revogação). */
+export function acaoAcervo(i: Pick<Inscricao, 'numero' | 'acervo'>): {
+  novo: boolean;
+  botao: string;
+  confirmacao: string;
+} {
+  return i.acervo
+    ? {
+        novo: false,
+        botao: 'Retirar do acervo',
+        confirmacao:
+          `Retirar o trabalho de ${i.numero} do acervo? Título, autores e resumo saem na hora; ` +
+          'o PDF é apagado na próxima rodada do expurgo (se já tiver passado de 31/01/2027).',
+      }
+    : {
+        novo: true,
+        botao: 'Registrar autorização do acervo',
+        confirmacao:
+          `Confirma que o autor de ${i.numero} autorizou por escrito (e-mail) manter o trabalho no ` +
+          'acervo de edições passadas? Só trabalhos aprovados entram no acervo.',
+      };
+}
 
 /** Resposta de public.admin_resumo_presencas() (só contagens). */
 export type ResumoPresencas = {
@@ -124,6 +157,7 @@ export function gerarCsv(lista: Inscricao[]): string {
     'Título do trabalho',
     'Status do trabalho',
     'Concorre ao prêmio',
+    'Autorizou acervo',
     'Inscrita em',
     'Situação',
     'Dias presentes',
@@ -143,6 +177,7 @@ export function gerarCsv(lista: Inscricao[]): string {
     i.titulo_trabalho ?? '',
     i.status_trabalho ? (STATUS_TRABALHO[i.status_trabalho] ?? i.status_trabalho) : '',
     simNao(i.concorre_premio),
+    i.apresenta_trabalho ? simNao(i.acervo) : '',
     formatarDataHora(i.criada_em),
     i.cancelada ? 'Cancelada' : 'Ativa',
     formatarDias(i.dias_presente),
@@ -248,6 +283,11 @@ const ERROS: Record<string, string> = {
   MODELO_INVALIDO: 'O modelo não foi encontrado. Envie o PDF de novo.',
   CAMPOS_INVALIDOS: 'Confira as posições: página, tamanho (6 a 72) e largura.',
   MODELO_INCOMPLETO: 'Salve o modelo e as posições antes de liberar os certificados.',
+  SEM_TRABALHO: 'Esta inscrição não submeteu trabalho.',
+  TRABALHO_SEM_PDF:
+    'O PDF deste trabalho já foi apagado no expurgo; não dá para incluí-lo no acervo.',
+  ACERVO_INVALIDO: 'Informe se o autor autorizou (sim ou não).',
+  ACERVO_INEXISTENTE: 'Trabalho não encontrado no acervo.',
 };
 
 export function mensagemDeErro(codigo: string | undefined): string {

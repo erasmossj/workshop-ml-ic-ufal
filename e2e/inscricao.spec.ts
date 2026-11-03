@@ -144,6 +144,51 @@ test('"Outro" pede o vínculo em texto livre (até 40 caracteres)', async ({ pag
   await expect(qual).toHaveValue('');
 });
 
+test('acervo de edições passadas: caixa opcional, desmarcada, só com trabalho (WML-73)', async ({
+  page,
+}) => {
+  await page.goto('/inscricao');
+  const acervo = page.getByLabel(/Autorizo manter meu trabalho/);
+  await expect(acervo).toBeHidden();
+  await page.getByLabel(/Vou submeter trabalho/).check();
+  await expect(acervo).toBeVisible();
+  await expect(acervo).not.toBeChecked();
+  await expect(acervo).toHaveAttribute('name', 'acervo');
+  await expect(acervo).toHaveAttribute('value', 'sim');
+  await expect(acervo).not.toHaveAttribute('required');
+  await expect(page.locator('#acervo-dica')).toContainText('31/01/2027');
+  // Vem depois de premiação e categoria, dentro do bloco do trabalho.
+  const ordem = await page
+    .locator('#campos-trabalho')
+    .locator('#premio, #nivel, #acervo')
+    .evaluateAll((els) => els.map((e) => e.id));
+  expect(ordem).toEqual(['premio', 'nivel', 'acervo']);
+  // Teclado: foco e espaço marcam a caixa.
+  await acervo.focus();
+  await page.keyboard.press('Space');
+  await expect(acervo).toBeChecked();
+  // O opt-in não substitui o aceite da política: sem ele, o envio continua bloqueado.
+  await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
+  await expect(page.locator('#consentimento-erro')).not.toBeEmpty();
+  const r = await new AxeBuilder({ page })
+    .include('#campos-trabalho')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  expect(r.violations.map((v) => `${v.id}: ${v.nodes[0]?.target.join(' ')}`)).toEqual([]);
+});
+
+test('acervo cabe em 360 px sem rolagem horizontal', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto('/inscricao');
+  await page.getByLabel(/Vou submeter trabalho/).check();
+  await expect(page.getByLabel(/Autorizo manter meu trabalho/)).toBeVisible();
+  const [rolagem, largura] = await page.evaluate(() => [
+    document.documentElement.scrollWidth,
+    window.innerWidth,
+  ]);
+  expect(rolagem).toBeLessThanOrEqual(largura);
+});
+
 test('campo "Qual vínculo?" com erro continua acessível (WCAG 2.2 AA)', async ({ page }) => {
   await page.goto('/inscricao');
   await page.locator('#vinculo').getByText('Outro').click();

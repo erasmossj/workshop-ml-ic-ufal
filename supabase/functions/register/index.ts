@@ -217,7 +217,8 @@ Deno.serve(async (req) => {
     minicursos = [data.id];
   }
 
-  // 5. Trabalho + PDF (validado pelo conteúdo, não pela extensão).
+  // 5. Trabalho + PDF (validado pelo conteúdo, não pela extensão). A autorização do acervo só é
+  // lida aqui, com trabalho; sem trabalho, o campo é ignorado.
   let trabalho: Record<string, unknown> | null = null;
   let pdf: File | null = null;
   if (texto('trabalho') === 'sim') {
@@ -227,6 +228,8 @@ Deno.serve(async (req) => {
       resumo: texto('resumo'),
       premio: texto('premio') === 'sim',
       nivel: texto('nivel') || null,
+      // Acervo de edições passadas (WML-73): opt-in separado; só "sim" autoriza.
+      acervo: texto('acervo') === 'sim',
     };
     const arquivo = form.get('pdf');
     if (!(arquivo instanceof File) || arquivo.size === 0) {

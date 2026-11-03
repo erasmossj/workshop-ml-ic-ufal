@@ -66,6 +66,11 @@ const lista = 'mt-2 flex list-disc flex-col gap-2 pl-6 text-ink-200';
               {'motivo' in r && `, ${r.motivo}`}.
             </li>
           ))}
+          {/* Acervo (WML-73): sem data — vale até a retirada, e só com autorização separada. */}
+          <li id="retencao-acervo">
+            <strong class="text-ink-100">{privacidade.retencaoAcervo.dados}</strong>:{' '}
+            {privacidade.retencaoAcervo.prazo}. {privacidade.retencaoAcervo.detalhe}
+          </li>
         </ul>
         <p class="mt-3 text-ink-200">{privacidade.retencaoObs}</p>
       </section>

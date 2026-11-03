@@ -250,6 +250,40 @@ describe('Edge Function register', () => {
     expect(anonimo.status).not.toBe(200);
   });
 
+  // Acervo de edições passadas (WML-73): opt-in separado, desmarcado por padrão.
+  const acervoDe = async (email: string) =>
+    (
+      await rest(
+        `trabalhos?select=acervo,acervo_em,participantes!inner(email)&participantes.email=eq.${encodeURIComponent(email)}`,
+      ).then((r) => r.json())
+    )[0] as { acervo: boolean; acervo_em: string | null } | undefined;
+
+  it('grava a autorização do acervo quando a pessoa marca a caixa', async () => {
+    const email = novoEmail();
+    expect((await enviar(formulario({ email, ...trabalho({ acervo: 'sim' }) }))).status).toBe(201);
+    const linha = await acervoDe(email);
+    expect(linha?.acervo).toBe(true);
+    expect(linha?.acervo_em).not.toBeNull();
+  });
+
+  it('sem a caixa marcada, o trabalho fica fora do acervo', async () => {
+    const email = novoEmail();
+    expect((await enviar(formulario({ email, ...trabalho() }))).status).toBe(201);
+    expect(await acervoDe(email)).toMatchObject({ acervo: false, acervo_em: null });
+  });
+
+  it('só "sim" conta como autorização', async () => {
+    const email = novoEmail();
+    expect((await enviar(formulario({ email, ...trabalho({ acervo: 'true' }) }))).status).toBe(201);
+    expect((await acervoDe(email))?.acervo).toBe(false);
+  });
+
+  it('acervo sem trabalho é ignorado (não cria trabalho)', async () => {
+    const email = novoEmail();
+    expect((await enviar(formulario({ email, acervo: 'sim' }))).status).toBe(201);
+    expect(await acervoDe(email)).toBeUndefined();
+  });
+
   it('recusa arquivo renomeado para .pdf e não cria a inscrição', async () => {
     const email = novoEmail();
     const falso = new Blob(['MZ isto não é um pdf'], { type: 'application/pdf' });

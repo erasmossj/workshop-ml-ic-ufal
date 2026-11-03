@@ -4,7 +4,7 @@
  * Usado na coluna do hero (home) e em /inscricao. Faixa halftone de corte seco no topo,
  * cabeçalho de sistema, campos estilo terminal, Checkbox, Choice e FileDrop.
  */
-import { janela, minicurso, trabalhos } from '../data/evento';
+import { evento, janela, minicurso, privacidade, trabalhos } from '../data/evento';
 import { CURSO_MAX, RESUMO_MAX, VINCULO_OUTRO_MAX, VINCULOS } from '../lib/validacao';
 
 interface Props {
@@ -18,6 +18,9 @@ const Titulo = nivel;
 const modoReal = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
 const turnstileSiteKey: string | undefined = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 const opcional = 'text-ink-300';
+// Prazo dos PDFs de quem não autoriza o acervo (o mesmo da política e do expurgo).
+const prazoPdf = privacidade.retencao.find((r) => /PDF/.test(r.dados))!.ate;
+const prazoPdfTexto = prazoPdf.split('-').reverse().join('/');
 ---
 
 <section id="inscricao" aria-labelledby="form-t" class="flex flex-col bg-bg-000">
@@ -435,6 +438,28 @@ const opcional = 'text-ink-300';
           </div>
           <p id="nivel-erro" class="erro-campo" aria-live="polite"></p>
         </div>
+        <!-- Acervo (WML-73 · ADR-007): consentimento separado, opcional e desmarcado. -->
+        <div>
+          <label for="acervo" class="flex cursor-pointer items-start gap-3 font-medium body-s">
+            <input
+              id="acervo"
+              name="acervo"
+              type="checkbox"
+              value="sim"
+              class="caixa-selecao mt-0.5 shrink-0"
+              aria-describedby="acervo-dica"
+            />
+            <span>
+              Autorizo manter meu trabalho (título, autores, resumo e PDF) no acervo de edições
+              passadas do IC-ML, se ele for aprovado. Posso pedir a retirada a qualquer momento pelo
+              e-mail do evento.
+            </span>
+          </label>
+          <p id="acervo-dica" class="ajuda pl-7.5">
+            Opcional. Sem esta autorização, o PDF é apagado em {prazoPdfTexto}. O acervo não guarda
+            CPF nem e-mail. Retirada: {evento.contato}.
+          </p>
+        </div>
       </div>
 
       <div class="border-t border-line-100 pt-3.5">
@@ -456,7 +481,8 @@ const opcional = 'text-ink-300';
               Política de Privacidade
             </a>
             . Nome, CPF e e-mail serão usados para a inscrição e a emissão do certificado; vínculo,
-            curso, instituição e perfil, para o crachá — conforme a LGPD.
+            curso, instituição e perfil, para o crachá — conforme a LGPD. O trabalho só entra no
+            acervo de edições passadas com a autorização separada.
           </span>
         </label>
         <p id="consentimento-erro" class="erro-campo" aria-live="polite"></p>
