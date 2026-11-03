@@ -101,6 +101,69 @@ cancelada fica no histórico do painel (filtro Situação → Canceladas).
 - **Abrir PDF**: abre o arquivo por um link temporário (expira em minutos). Não compartilhe o link.
 - Status: Pendente → Aprovado (oral) / Aprovado (pôster) / Rejeitado. O resultado sai em **26/11**;
   o status no painel é controle interno — o participante não é avisado automaticamente.
+- **Autorizou acervo: sim/não**: veja [Acervo de trabalhos](#acervo-de-trabalhos-wml-73).
+
+### Acervo de trabalhos (WML-73)
+
+Decisão da organização ([ADR-007](adr/ADR-007-acervo-de-trabalhos.md)): para a futura página de
+"edições passadas", ficam guardados **só trabalhos aprovados** (oral ou pôster) **cujo autor autorizou
+por escrito**. Todo o resto continua com o PDF apagado em 31/01/2027.
+
+- **Quem se inscreveu a partir da versão 2026-11-03 da política** marca (ou não) a caixa no
+  formulário. O painel mostra **Autorizou acervo: sim/não** na coluna Trabalho e a planilha tem a
+  coluna **Autorizou acervo**.
+- **Quem se inscreveu antes** aceitou a versão 2026-10-19, que promete apagar o PDF em 31/01/2027:
+  fica **fora** do acervo, a menos que responda autorizando. Quem não responder **não entra**.
+
+**Registrar uma autorização (ou retirada) recebida por e-mail**
+
+1. Guarde o e-mail da pessoa (é a prova do consentimento) na caixa do evento; não copie para o
+   repositório nem para o Jira.
+2. No `/admin`, busque o nº de inscrição ou o e-mail.
+3. Na coluna **Trabalho**, clique em **Registrar autorização do acervo** e confirme. Para revogar,
+   clique em **Retirar do acervo** e confirme.
+4. Confira que a linha passou a mostrar **Autorizou acervo: sim** (ou **não**).
+
+O que acontece depois:
+
+- Até 31/01/2027 é só uma marcação. No primeiro expurgo depois disso (01/02/2027, 03:50), os
+  trabalhos **aprovados e autorizados** vão para o acervo (sem CPF, e-mail ou nº de inscrição) e o
+  PDF deles **não** é apagado; os demais PDFs são apagados. O botão **Abrir PDF** some nos dois casos
+  (o PDF do acervo só volta a aparecer na futura página de edições passadas).
+- Retirada depois disso: título, autores e resumo saem do acervo na hora; o PDF é apagado na rodada
+  diária seguinte do expurgo.
+- Autorização que chega **depois** de o PDF ter sido apagado não tem como ser atendida (o painel
+  avisa: "O PDF deste trabalho já foi apagado…").
+- Depois de 31/12/2031 não há mais nº de inscrição: a retirada é pelo id do acervo, com
+  `admin_retirar_do_acervo` (a página de edições passadas deve trazer esse botão).
+
+**Modelo de e-mail para quem já submeteu** — só envie depois que a organização aprovar a política
+(versão 2026-11-03). Um e-mail por pessoa (ou em cópia oculta), nunca com os endereços à vista.
+
+> **Assunto:** IC-ML 2026 — autorização para guardar seu trabalho no acervo (opcional)
+>
+> Olá, [nome],
+>
+> Você submeteu o trabalho **"[título]"** ao IC-ML 2026 (inscrição [nº]). Quando você se inscreveu,
+> nossa política de privacidade previa apagar o PDF dos trabalhos em 31/01/2027 — e é isso que vai
+> acontecer, a menos que você autorize o contrário.
+>
+> Estamos criando um **acervo de edições passadas** do IC-ML. Se o seu trabalho for **aprovado** e
+> você autorizar, vamos manter nele o **título, os autores, o resumo e o PDF**, que poderão ficar
+> públicos numa página do site. O acervo **não guarda CPF nem e-mail**. A política atualizada está
+> em [link para /privacidade].
+>
+> **A autorização é opcional.** Se não responder, nada muda: o PDF será apagado em 31/01/2027.
+> Para autorizar, responda a este e-mail com a frase:
+>
+> _"Autorizo manter meu trabalho (título, autores, resumo e PDF) no acervo de edições passadas do
+> IC-ML, se ele for aprovado."_
+>
+> Você pode pedir a retirada a qualquer momento por este mesmo e-mail. Se houver coautores, confirme
+> que eles também concordam.
+>
+> Obrigado,
+> Organização do IC-ML 2026 — [e-mail do evento]
 
 ### Fila de e-mail
 
@@ -160,11 +223,12 @@ avise nas redes do evento.
 Os prazos publicados em `/privacidade` vêm de `privacidade.retencao` em `src/data/evento.ts`. Hoje
 são **proposta**, a confirmar pela organização:
 
-| Dados                                               | Apagar até | Por quê                               |
-| --------------------------------------------------- | ---------- | ------------------------------------- |
-| PDFs dos trabalhos (bucket `trabalhos`)             | 31/01/2027 | Avaliação e programação já concluídas |
-| CPF, e-mail, instituição, curso e perfil            | 31/03/2027 | Prazo para baixar o certificado       |
-| Nome, nº de inscrição e carga horária (certificado) | 31/12/2031 | Validação pública da autenticidade    |
+| Dados                                                   | Apagar até     | Por quê                                           |
+| ------------------------------------------------------- | -------------- | ------------------------------------------------- |
+| PDFs dos trabalhos sem autorização ou não aprovados     | 31/01/2027     | Avaliação e programação já concluídas             |
+| CPF, e-mail, instituição, curso, perfil e "outro"       | 31/03/2027     | Prazo para baixar o certificado                   |
+| Nome, nº de inscrição e carga horária (certificado)     | 31/12/2031     | Validação pública da autenticidade                |
+| Acervo: trabalho aprovado e autorizado (sem CPF/e-mail) | até a retirada | Edições passadas (consentimento à parte, ADR-007) |
 
 - O aceite de cada participante fica em `participantes.consentimento_em`. Ele vale para a versão da
   política em vigor naquela data (`privacidade.versao`; o texto de cada versão está no histórico do Git).
