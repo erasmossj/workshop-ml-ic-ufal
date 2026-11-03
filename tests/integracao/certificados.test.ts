@@ -186,11 +186,13 @@ describe('certificados de ponta a ponta', () => {
   });
 
   it('e-mail do certificado chega com o PDF anexado', async () => {
-    await fetch(`${API}/functions/v1/send-emails`, {
-      method: 'POST',
-      headers: { 'x-cron-secret': SEGREDO_CRON! },
-    });
+    // A fila sai em lotes (EMAIL_LOTE) e pode ter confirmações de outros testes na frente:
+    // processa um lote por tentativa até o certificado chegar.
     const mensagem = await esperar(async () => {
+      await fetch(`${API}/functions/v1/send-emails`, {
+        method: 'POST',
+        headers: { 'x-cron-secret': SEGREDO_CRON! },
+      });
       const busca = await fetch(
         `${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:${EMAIL} subject:certificado`)}`,
       );
