@@ -113,13 +113,21 @@ Endereço: `/`. O menu no topo leva às seções; o botão **Inscreva-se** abre 
 | Abertura             | Nome do evento, datas (02 a 04 de dezembro de 2026) e local                            |
 | Sobre o evento       | Objetivo, público e quem realiza                                                       |
 | Programação          | Atividades dos 3 dias, com horários (horário de Maceió)                                |
-| Minicurso · 3 tardes | "Minicurso de Machine Learning na prática": 4 blocos, no Google Colab, vagas limitadas |
-| Chamada de trabalhos | Formato do trabalho, avaliação, premiação e cronograma                                 |
-| Palestras e Local    | Palestras previstas, endereço e link para o mapa                                       |
+| Minicurso · 3 tardes | "Minicurso de Machine Learning na prática": 3 dias no Google Colab, 48 vagas           |
+| Chamada de trabalhos | Formato, modelos da SBC, 13 vagas para apresentação, avaliação, premiação e cronograma |
+| Palestras e Local    | Palestras (Prof. George Brandão e Hugo Souza), endereço e link para o mapa             |
 | Dúvidas              | Perguntas frequentes                                                                   |
-| Rodapé               | Link para a Política de Privacidade                                                    |
+| Rodapé               | Link para a Política de Privacidade e e-mail do evento (ic-ml@ic.ufal.br)              |
 
-Itens marcados "a confirmar" (palestrantes, por exemplo) ainda dependem da organização.
+**Programação** (credenciamento só no primeiro dia, das 08h00 às 09h00):
+
+| Dia         | Manhã                                                                                                        | Tarde                                            |
+| ----------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
+| Qua · 02/12 | Credenciamento, abertura formal e palestra de abertura (Prof. George Brandão)                                | Minicurso — Dia 1: Fundamentos                   |
+| Qui · 03/12 | Apresentações de trabalhos, com coffee break das 10h00 às 10h30                                              | Minicurso — Dia 2: Classificação e Regressão     |
+| Sex · 04/12 | Apresentações, coffee break, palestra sobre mercado de trabalho em ML (Hugo Souza), encerramento e premiação | Minicurso — Dia 3: Clustering e Séries Temporais |
+
+Os horários exatos ficam em `src/data/evento.ts` (fonte única do site).
 
 ### 3.2 Fazer a inscrição
 
@@ -138,8 +146,10 @@ Endereço: `/inscricao`. Campos com `*` são obrigatórios. O formulário tem 4 
 
 - Marque **Minicurso de Machine Learning na prática** para garantir uma vaga nas 3 tardes (02, 03
   e 04/12, no Laboratório 1).
-- O número de vagas que aparece ao lado da opção é **ilustrativo** nesta versão. O limite real é
-  controlado pelo sistema: quando as vagas acabam, a inscrição com minicurso é recusada.
+- O minicurso tem **48 vagas** (capacidade do Laboratório 1), com uma aula por tarde: Fundamentos
+  (Python, Pandas e análise exploratória); Classificação e Regressão; Clustering e Séries
+  Temporais. O pré-processamento de dados entra ao longo das aulas, conforme a necessidade.
+- O limite é controlado pelo sistema: quando as vagas acabam, a inscrição com minicurso é recusada.
 
 **Bloco 3 · Trabalho (opcional)**
 
@@ -154,8 +164,10 @@ Marque **Quero submeter um trabalho** para abrir os campos:
 | Quero concorrer à premiação | Não                    | Melhor trabalho de graduação e de mestrado              |
 | Categoria                   | Se concorrer ao prêmio | Graduação ou Mestrado                                   |
 
-O trabalho segue o modelo de short paper da SBC, com 4 ou 6 páginas (sem contar referências). O
-envio só é aceito dentro do período de submissão.
+O trabalho segue o modelo de short paper da SBC, com 4 ou 6 páginas (sem contar referências). Os
+modelos (LaTeX e Word) estão no link **Baixar modelos da SBC (.zip)**, no formulário e na seção
+Chamada de trabalhos. O evento tem 13 vagas para apresentação de trabalhos; isso não limita as
+inscrições nem as submissões. O envio só é aceito dentro do período de submissão.
 
 **Bloco 4 · Confirmar**
 
@@ -213,7 +225,7 @@ Nesta versão, a página aparece como **minuta**: o texto ainda está em aprova�
 ### 3.6 Corrigir ou cancelar a inscrição
 
 O participante não edita nem cancela a inscrição sozinho. Para corrigir um dado ou cancelar, ele
-fala com a organização, que faz a mudança pelo painel (Parte 4).
+escreve para **ic-ml@ic.ufal.br**, e a organização faz a mudança pelo painel (Parte 4).
 
 Uma inscrição cancelada libera a vaga do minicurso. Com o mesmo e-mail, a pessoa pode se inscrever
 de novo e recebe um **número novo**.
@@ -579,7 +591,7 @@ de inscrições, que já abre com aquele participante na prévia).
   teste.
 - **O certificado não baixa.** Confira o e-mail e o número de inscrição do comprovante e se os
   certificados já foram liberados.
-- **Errei os dados da inscrição.** A organização corrige pelo painel.
+- **Errei os dados da inscrição.** Escreva para ic-ml@ic.ufal.br; a organização corrige pelo painel.
 
 ## 8. Glossário
 
