@@ -8,10 +8,8 @@ describe('textoDaFaixa', () => {
     );
   });
 
-  it('produção NÃO pede dados de teste', () => {
-    const texto = textoDaFaixa({ backend: true, vercelEnv: 'production' });
-    expect(texto).not.toMatch(/teste|homologação/i);
-    expect(texto).toMatch(/podem mudar/);
+  it('produção não tem faixa (programação definitiva, WML-75)', () => {
+    expect(textoDaFaixa({ backend: true, vercelEnv: 'production' })).toBeNull();
   });
 
   it('preview e ambiente local avisam que é homologação', () => {
