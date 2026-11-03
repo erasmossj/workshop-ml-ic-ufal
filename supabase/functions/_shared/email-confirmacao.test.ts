@@ -1,6 +1,7 @@
 import { PDFDocument } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
 import { montarEmailConfirmacao, type DadosConfirmacao } from './email-confirmacao';
+import { COR, FONTE_EMAIL } from './marca';
 import { verificarToken } from './qr';
 
 const SEGREDO = 'segredo-de-teste-com-pelo-menos-32-caracteres';
@@ -89,6 +90,74 @@ describe('montarEmailConfirmacao', () => {
     const m = await montar();
     expect(m.texto).toMatch(/spam/i);
     expect(m.html).toMatch(/spam/i);
+  });
+
+  describe('identidade IC-ML (modo Light)', () => {
+    const SITE = 'https://workshop-ml-ic-ufal.vercel.app';
+
+    it('usa só cores de marca.ts — nenhum hex solto', async () => {
+      const { html } = await montar({ minicurso: 'ML', trabalho: 'Redes' }, SITE);
+      const permitidas = new Set<string>(Object.values(COR));
+      const usadas = new Set(html.toLowerCase().match(/#[0-9a-f]{6}\b/g));
+      expect(usadas.size).toBeGreaterThan(5);
+      for (const cor of usadas) expect(permitidas).toContain(cor);
+    });
+
+    it('traz o logo conjunto IEEE × CS × IC (≥ 28 px), o logo IC-ML e a faixa halftone em PNG', async () => {
+      const { html } = await montar({}, SITE);
+      const img = (arquivo: string) =>
+        html.match(new RegExp(`<img src="${SITE}/marca/${arquivo}"[^>]*>`))?.[0] ?? '';
+      const conjunto = img('logo-conjunto-preto.png');
+      expect(conjunto).toMatch(
+        /alt="IEEE, IEEE Computer Society[^"]+Instituto de Computação[^"]*"/,
+      );
+      expect(Number(conjunto.match(/height="(\d+)"/)?.[1])).toBeGreaterThanOrEqual(28);
+      expect(img('logo-icml-claro.png')).toContain('alt="IC-ML 2026"');
+      // Textura é decorativa: alt vazio.
+      expect(img('textura-faixa-claro.png')).toContain('alt=""');
+      expect(html).not.toMatch(/\.svg/);
+    });
+
+    it('sem site configurado não aponta imagens para lugar nenhum', async () => {
+      const { html } = await montar();
+      expect(html).not.toContain('<img');
+      expect(html).not.toContain('src="null');
+      expect(html).toContain('IC-ML 2026 · IEEE Ramo Estudantil UFAL');
+    });
+
+    it('é compatível com clientes de e-mail: tabelas, CSS inline, 600 px, sem script', async () => {
+      const { html } = await montar({}, SITE);
+      expect(html).toMatch(/^<!doctype html>\n<html lang="pt-BR">/);
+      expect(html).toContain('max-width:600px');
+      expect(html).toContain('role="presentation"');
+      expect(html).not.toMatch(/<script|<link|@import|@font-face|var\(--/i);
+      expect(html).toContain(`font-family:${FONTE_EMAIL.display}`);
+    });
+
+    it('destaca o número em BoundingBox e mostra as Tags do que a inscrição inclui', async () => {
+      const sem = await montar();
+      expect(sem.html).toMatch(/<strong>inscrição<\/strong> confirmada[\s\S]*ICML26-0042/);
+      expect(sem.html).toContain('&nbsp;Palestras</span>');
+      expect(sem.html).not.toContain('&nbsp;Minicurso</span>');
+      const com = await montar({ minicurso: 'ML', trabalho: 'Redes' });
+      expect(com.html).toMatch(/&nbsp;Minicurso<\/span>/);
+      expect(com.html).toMatch(/&nbsp;Trabalhos<\/span>/);
+    });
+
+    it('tem texto de pré-visualização com o número, escondido do leitor de tela', async () => {
+      const { html } = await montar();
+      expect(html).toMatch(
+        /<div style="display:none[^"]*" aria-hidden="true">Inscrição ICML26-0042 confirmada/,
+      );
+    });
+
+    it('tem um único botão primário (programação) e os links da agenda como secundários', async () => {
+      const { html } = await montar({}, SITE);
+      expect(
+        html.match(new RegExp(`background:${COR.lime500};color:${COR.onLime}`, 'g')),
+      ).toHaveLength(1);
+      expect(html).toMatch(/>Ver programação →<\/a>/);
+    });
   });
 
   it('inclui o link do site quando configurado', async () => {
