@@ -13,14 +13,17 @@ test('landing mostra nome, datas e leva ao formulário de inscrição', async ({
   await expect(page.locator('#form-inscricao')).toBeVisible();
 });
 
-test('chamada de trabalhos traz o prazo e não mostra o cronograma interno', async ({ page }) => {
+test('chamada de trabalhos traz o prazo e não mostra cronograma nem avaliação internos', async ({
+  page,
+}) => {
   await page.goto('/');
   const secao = page.locator('#trabalhos');
   await expect(secao.getByText('Prazo', { exact: true })).toBeVisible();
   await expect(secao).toContainText('16/11/2026');
-  await expect(secao).not.toContainText(/artigo SBC|PDF|premia/i);
+  await expect(secao).not.toContainText(/SBC|short paper|PDF|premia/i);
   await expect(page.getByText('Datas importantes')).toHaveCount(0);
   await expect(page.getByText('Avaliação dos trabalhos pela banca')).toHaveCount(0);
+  await expect(secao).not.toContainText(/avalia|banca|pôster/i);
 });
 
 test('formulário vazio mostra o resumo de erros', async ({ page }) => {
