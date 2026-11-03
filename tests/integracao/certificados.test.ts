@@ -60,7 +60,7 @@ const baixar = (corpo: Record<string, string>) =>
     body: JSON.stringify(corpo),
   });
 
-async function esperar<T>(buscar: () => Promise<T | undefined>, ms = 30_000): Promise<T> {
+async function esperar<T>(buscar: () => Promise<T | undefined>, ms = 60_000): Promise<T> {
   const fim = Date.now() + ms;
   while (Date.now() < fim) {
     const v = await buscar();

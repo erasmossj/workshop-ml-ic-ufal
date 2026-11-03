@@ -173,6 +173,10 @@ O **Resumo** mostra quantos e-mails estão pendentes, enviados e com falha.
 - **Falhou**: o sistema já tentou várias vezes com espera crescente. Confira o endereço (**Corrigir**)
   e use **Reenviar**.
 - O participante também vê o comprovante na tela de confirmação, logo após se inscrever.
+- **Lote**: a função envia até 3 e-mails por minuto (`EMAIL_LOTE`, padrão 3 = 180/h). Não aumente:
+  cada e-mail gera um PDF e um lote maior estoura o limite de CPU da Edge Function — ela é
+  encerrada no meio e os e-mails reservados só voltam à fila 10 minutos depois. Se o segredo
+  `EMAIL_LOTE` estiver definido em produção (ex.: no `icml-gmail.env`), deixe-o em 3 ou remova-o.
 
 ## Cotas dos planos gratuitos
 
