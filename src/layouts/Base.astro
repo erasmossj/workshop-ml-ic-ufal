@@ -52,12 +52,14 @@ const fullTitle = title ? `${title} · ${evento.sigla}` : `${evento.sigla} — $
     >
       Pular para o conteúdo
     </a>
-    <p
-      class="no-print border-b border-line-100 bg-lime-900 px-4 py-2 text-center dado text-lime-ink"
-      role="note"
-    >
-      {faixa}
-    </p>
+    {faixa && (
+      <p
+        class="no-print border-b border-line-100 bg-lime-900 px-4 py-2 text-center dado text-lime-ink"
+        role="note"
+      >
+        {faixa}
+      </p>
+    )}
     {!semCabecalho && <Header />}
     <main id="conteudo">
       <slot />
