@@ -4,18 +4,47 @@
 > participante em issue, PR, chat ou commit. Como o sistema funciona por dentro:
 > [`FUNCIONAMENTO.md`](FUNCIONAMENTO.md).
 
-## ⚠️ Pendências de configuração
+## Publicar uma versão (deploy)
 
-| Pendência                   | Desde      | Situação                                                                                                                                                                                                                           |
-| --------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Gmail oficial do evento** | 16/10/2026 | A produção envia pelo **Gmail de testes** (o mesmo do staging) porque o e-mail oficial ainda não existe. Trocar **antes de 30/10** (abertura das inscrições).                                                                      |
-| **Política de privacidade** | 19/10/2026 | Controlador e prazos de retenção são proposta. A organização revisa `privacidade` em `src/data/evento.ts`, preenche `evento.contato` e marca `aprovada: true` **antes de 30/10**. Ver [Retenção](#retenção-e-expurgo-lgpd-wml-38). |
+A Vercel publica o site **sozinha** a cada merge na `main`. O Supabase (banco e Edge Functions)
+**não**: é preciso publicar à mão. Se só o site for atualizado, ele passa a falar com um servidor
+antigo e as inscrições podem falhar (aconteceu em 03/11/2026: formulário novo com `register` de 20/10).
 
-### Trocar o Gmail de envio (quando o oficial existir)
+Depois de **cada** merge na `main` que mexa em `supabase/migrations/` ou `supabase/functions/`,
+logo em seguida (minutos), nesta ordem — primeiro o banco, depois as funções:
+
+```bash
+git switch main && git pull
+npx supabase db push --project-ref sjzyipebykiaiasdafai --dry-run   # lista o que vai entrar
+npx supabase db push --project-ref sjzyipebykiaiasdafai --yes
+npx supabase functions deploy --project-ref sjzyipebykiaiasdafai     # publica as 5 funções
+```
+
+Conferir (só leitura):
+
+```bash
+npx supabase migration list --project-ref sjzyipebykiaiasdafai   # nenhuma sem "remote"
+npx supabase functions list --project-ref sjzyipebykiaiasdafai   # data de hoje nas que mudaram
+```
+
+- Função nova que lê um segredo novo: crie o segredo **antes** do deploy (`supabase secrets set`).
+- `sjzyipebykiaiasdafai` é a **produção** (`wml[prod]`); a CLI do repositório fica ligada ao
+  staging. Nunca rode `db reset`, teste de carga ou dados de demonstração com esse `--project-ref`.
+- Faça uma inscrição de teste no fim (e cancele no `/admin`), principalmente se o PR mudou o
+  formulário ou a `register`.
+- Algo falhou no meio? Não repita às cegas: guarde a saída e avise o responsável técnico. O site
+  pode voltar à versão anterior pela Vercel (ver [Se algo sair do ar](#se-algo-sair-do-ar)).
+
+## Trocar o Gmail de envio
+
+Desde 03/11/2026 a produção envia por `ic-ml@ic.ufal.br`. Use este passo a passo para trocar a
+conta ou gerar uma senha de app nova (por exemplo, se a atual vazar).
 
 1. Na conta nova: ative a verificação em duas etapas e gere uma **senha de app**
    (myaccount.google.com/apppasswords, 16 letras).
-2. Num PowerShell (fora do chat), crie o arquivo temporário `notepad $HOME\icml-gmail.env` com:
+2. Num PowerShell (fora do chat), crie o arquivo temporário `notepad $HOME\icml-gmail.env` com o
+   conteúdo abaixo. No Git Bash (ou com `!` no Claude Code) a barra invertida some: use
+   `notepad "$HOME/icml-gmail.env"` aqui e `rm "$HOME/icml-gmail.env"` no passo 3.
    ```
    GMAIL_USER=<gmail oficial>
    GMAIL_APP_PASSWORD=<senha de app>
@@ -27,11 +56,12 @@
    ```
    Não precisa publicar a função de novo nem mexer no Vault: os segredos valem na próxima execução.
    **Não** altere `QR_HMAC_SECRET` nem `SEND_EMAILS_SECRET`.
-4. Se o SMTP do login do painel (Authentication → Emails → SMTP Settings) foi configurado com o
-   Gmail de testes, troque lá também.
-5. Teste: uma inscrição real com e-mail da organização (`nome+teste@...`) e confira a chegada;
-   depois cancele no `/admin`.
-6. Remova esta linha da tabela de pendências.
+4. Troque também o SMTP do login do painel (Supabase → Authentication → Emails → SMTP Settings):
+   host `smtp.gmail.com`, porta `465`, a mesma conta e a mesma senha de app.
+5. Se a Brevo (reserva) estiver configurada, verifique o novo remetente no painel dela ou defina
+   `BREVO_SENDER`; por padrão ela usa o mesmo `GMAIL_USER`.
+6. Teste: uma inscrição real com e-mail da organização (`nome+teste@...`) e confira a chegada e o
+   remetente; depois cancele no `/admin`.
 
 ## Operação pelo painel (`/admin`)
 
