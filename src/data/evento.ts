@@ -21,8 +21,8 @@ export const evento = {
       'Campus A. C. Simões · Av. Lourival Melo Mota, s/n · Tabuleiro do Martins · Maceió/AL',
     mapa: 'https://www.google.com/maps/search/?api=1&query=Instituto+de+Computa%C3%A7%C3%A3o+UFAL+Macei%C3%B3',
   },
-  /** E-mail público do evento — a definir (não publicar a conta de testes). */
-  contato: null as string | null,
+  /** E-mail público do evento (rodapé, FAQ e política de privacidade). */
+  contato: 'ic-ml@ic.ufal.br',
   /** Crachá da organização (Figma: faixa lima "ORGANIZAÇÃO · STAFF · 02—04.12"). */
   cracha: { faixa: 'Staff · 02—04.12' },
   /** Hero (Figma "Hero — site oficial"): linha de data/local e texto de apoio. */
@@ -30,11 +30,11 @@ export const evento = {
     linha: ['02—04.DEZ.2026', 'Instituto de Computação', 'UFAL'],
     texto:
       'Três dias de palestras, apresentações de pesquisa local e um minicurso prático de ML no Google Colab.',
-    /** Números do rodapé do hero. "apresentações" a confirmar com a banca. */
+    /** Números do rodapé do hero (13 = vagas para apresentação de trabalhos). */
     numeros: [
       { valor: '03', rotulo: 'dias' },
-      { valor: '04', rotulo: 'aulas de minicurso' },
-      { valor: '12', rotulo: 'apresentações' },
+      { valor: '03', rotulo: 'tardes de minicurso' },
+      { valor: '13', rotulo: 'apresentações' },
     ],
   },
 } as const;
@@ -46,7 +46,10 @@ export type Atividade = {
   tipo: 'pausa' | 'palestra' | 'trabalhos' | 'minicurso' | 'cerimonia';
 };
 
-/** 02/12 é quarta-feira (o relatório marcava "terça" por engano). */
+/**
+ * Programação conforme o documento atualizado da organização (WML-71). 02/12 é quarta-feira.
+ * O credenciamento é só no Dia 1; o check-in de presença por dia não depende dele.
+ */
 export const dias: { rotulo: string; data: string; semana: string; atividades: Atividade[] }[] = [
   {
     rotulo: 'Dia 1',
@@ -58,11 +61,16 @@ export const dias: { rotulo: string; data: string; semana: string; atividades: A
       {
         inicio: '10:00',
         fim: '12:00',
-        titulo: 'Palestra de abertura — pesquisador convidado',
+        titulo: 'Palestra de abertura — Prof. George Brandão',
         tipo: 'palestra',
       },
       { inicio: '12:00', fim: '13:30', titulo: 'Almoço', tipo: 'pausa' },
-      { inicio: '13:30', fim: '17:10', titulo: 'Minicurso — aula 1', tipo: 'minicurso' },
+      {
+        inicio: '13:30',
+        fim: '17:10',
+        titulo: 'Minicurso — Dia 1: Fundamentos',
+        tipo: 'minicurso',
+      },
     ],
   },
   {
@@ -70,15 +78,16 @@ export const dias: { rotulo: string; data: string; semana: string; atividades: A
     data: '2026-12-03',
     semana: 'Qui · 03/12',
     atividades: [
-      { inicio: '08:00', fim: '08:30', titulo: 'Credenciamento', tipo: 'pausa' },
-      {
-        inicio: '08:30',
-        fim: '12:30',
-        titulo: 'Apresentações de trabalhos (coffee break às 10h)',
-        tipo: 'trabalhos',
-      },
+      { inicio: '08:00', fim: '10:00', titulo: 'Apresentações de trabalhos', tipo: 'trabalhos' },
+      { inicio: '10:00', fim: '10:30', titulo: 'Coffee break', tipo: 'pausa' },
+      { inicio: '10:30', fim: '12:30', titulo: 'Apresentações de trabalhos', tipo: 'trabalhos' },
       { inicio: '12:30', fim: '13:30', titulo: 'Almoço', tipo: 'pausa' },
-      { inicio: '13:30', fim: '17:10', titulo: 'Minicurso — aula 2', tipo: 'minicurso' },
+      {
+        inicio: '13:30',
+        fim: '17:10',
+        titulo: 'Minicurso — Dia 2: Classificação e Regressão',
+        tipo: 'minicurso',
+      },
     ],
   },
   {
@@ -86,40 +95,60 @@ export const dias: { rotulo: string; data: string; semana: string; atividades: A
     data: '2026-12-04',
     semana: 'Sex · 04/12',
     atividades: [
-      { inicio: '08:00', fim: '08:30', titulo: 'Credenciamento', tipo: 'pausa' },
-      { inicio: '08:30', fim: '10:30', titulo: 'Apresentações de trabalhos', tipo: 'trabalhos' },
+      { inicio: '08:00', fim: '10:30', titulo: 'Apresentações de trabalhos', tipo: 'trabalhos' },
       { inicio: '10:30', fim: '11:00', titulo: 'Coffee break', tipo: 'pausa' },
       {
         inicio: '11:00',
         fim: '12:00',
-        titulo: 'Palestra — ML e ciência de dados no mercado',
+        titulo: 'Palestra — Mercado de trabalho em ML · Hugo Souza',
         tipo: 'palestra',
       },
       { inicio: '12:00', fim: '13:00', titulo: 'Encerramento e premiação', tipo: 'cerimonia' },
       { inicio: '13:00', fim: '13:40', titulo: 'Almoço', tipo: 'pausa' },
-      { inicio: '13:40', fim: '17:20', titulo: 'Minicurso — aula 3', tipo: 'minicurso' },
+      {
+        inicio: '13:40',
+        fim: '17:20',
+        titulo: 'Minicurso — Dia 3: Clustering e Séries Temporais',
+        tipo: 'minicurso',
+      },
     ],
   },
 ];
 
+/** Seção "Quem vai falar" da home — mesmos horários das palestras em `dias` (conferido por teste). */
+export const palestras = [
+  {
+    dia: 'Qua · 02/12',
+    inicio: '10:00',
+    titulo: 'Palestra de abertura',
+    quem: 'Prof. George Brandão',
+  },
+  {
+    dia: 'Sex · 04/12',
+    inicio: '11:00',
+    titulo: 'Mercado de trabalho em ML',
+    quem: 'Hugo Souza',
+  },
+] as const;
+
 export const minicurso = {
   titulo: 'Minicurso de Machine Learning na prática',
   resumo:
-    'Três tardes de mão na massa no Google Colab — sem instalar nada. Quatro blocos, cada um com um instrutor; pré-processamento entra conforme a necessidade prática.',
-  blocos: [
+    'Três tardes de mão na massa no Google Colab — sem instalar nada. O pré-processamento de dados entra ao longo das aulas, conforme a necessidade prática.',
+  /** Uma tarde por dia; os títulos aparecem também em `dias` (conferido por teste). */
+  dias: [
+    { titulo: 'Fundamentos', detalhe: 'Python, Pandas e análise exploratória de dados' },
     {
-      n: '01',
-      titulo: 'Fundamentos',
-      detalhe: 'Python, Pandas, análise exploratória de dados e Colab',
+      titulo: 'Classificação e Regressão',
+      detalhe: 'Aprendizado supervisionado: prever categorias e valores',
     },
-    { n: '02', titulo: 'Classificação', detalhe: 'Aprendizado supervisionado' },
-    { n: '03', titulo: 'Regressão e clustering', detalhe: 'Supervisionado e não supervisionado' },
-    { n: '04', titulo: 'Séries temporais', detalhe: 'Predição de séries temporais' },
+    {
+      titulo: 'Clustering e Séries Temporais',
+      detalhe: 'Agrupamento não supervisionado e predição de séries temporais',
+    },
   ],
-  /** null = número de vagas ainda não definido pela organização. */
-  vagas: null as number | null,
-  /** Somente para a demonstração do protótipo. */
-  vagasRestantesDemo: 18,
+  /** Capacidade total do Laboratório 1. */
+  vagas: 48,
 } as const;
 
 export const trabalhos = {
@@ -130,6 +159,11 @@ export const trabalhos = {
     'A banca indica: aprovado para apresentação oral, aprovado para pôster ou não aprovado.',
   premiacao:
     'Melhor trabalho de graduação e melhor trabalho de mestrado. Marque na inscrição se quer concorrer. Prêmio: certificado e brinde.',
+  /** Modelos oficiais da SBC (LaTeX e Word). */
+  modelosSbc: 'https://www.sbc.org.br/wp-content/uploads/2024/07/modelosparapublicaodeartigos.zip',
+  /** Vagas para apresentação no evento. Não limita inscrições nem submissões. */
+  vagasApresentacao: 13,
+  vagasTexto: 'O evento tem 13 vagas para apresentação de trabalhos.',
 } as const;
 
 /** Janela de inscrição e submissão (horário de Maceió). */
@@ -165,7 +199,7 @@ export const faq = [
   },
   {
     p: 'Errei meus dados. E agora?',
-    r: 'Escreva para o e-mail do evento — a correção é feita pela organização.',
+    r: `Escreva para ${evento.contato} — a correção é feita pela organização.`,
   },
 ] as const;
 

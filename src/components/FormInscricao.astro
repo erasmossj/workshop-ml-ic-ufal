@@ -232,8 +232,7 @@ const opcional = 'text-ink-300';
           Quero o minicurso (Lab 1, vagas limitadas)
         </label>
         <p class="ajuda pl-7.5">
-          {minicurso.vagasRestantesDemo} vagas* · 3 tardes no Google Colab. Quando as vagas acabam,
-          a opção é bloqueada.
+          {minicurso.vagas} vagas · 3 tardes. Quando as vagas acabam, a opção é bloqueada.
         </p>
       </div>
 
@@ -257,9 +256,18 @@ const opcional = 'text-ink-300';
         class="flex flex-col gap-3.5 border-l-2 border-line-100 pl-4"
         hidden
       >
-        <p class="ajuda mt-0">
-          {trabalhos.formato} Submissões de 30/10 a 16/11 ({janela.textoProrrogacao}).
-        </p>
+        <div class="ajuda mt-0 flex flex-col gap-1">
+          <p>
+            {trabalhos.formato} Submissões de 30/10 a 16/11 ({janela.textoProrrogacao}).{' '}
+            {trabalhos.vagasTexto}
+          </p>
+          <a
+            href={trabalhos.modelosSbc}
+            class="flex min-h-6 w-fit items-center text-ink-200 underline underline-offset-4 hover:text-lime-ink"
+          >
+            Baixar modelos da SBC (.zip)
+          </a>
+        </div>
         <div>
           <label for="titulo" class="rotulo-campo">
             <span>Título do trabalho</span>
