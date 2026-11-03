@@ -7,16 +7,7 @@ import LogoConjunto from '../components/LogoConjunto.astro';
 import Painel from '../components/Painel.astro';
 import Seta from '../components/Seta.astro';
 import Titulo from '../components/Titulo.astro';
-import {
-  cronograma,
-  dias,
-  evento,
-  faq,
-  janela,
-  minicurso,
-  palestras,
-  trabalhos,
-} from '../data/evento';
+import { dias, evento, faq, minicurso, palestras, trabalhos } from '../data/evento';
 import Base from '../layouts/Base.astro';
 
 const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
@@ -157,44 +148,24 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
     <Titulo rotulo="Chamada de trabalhos" id="trab-t">
       Apresente sua pesquisa
     </Titulo>
-    <div class="grid gap-10 lg:grid-cols-2">
-      <div class="flex flex-col items-start gap-8">
-        <dl class="grid gap-6">
-          {[
-            ['Formato', trabalhos.formato],
-            ['Como enviar', trabalhos.campos],
-            ['Apresentações', trabalhos.vagasTexto],
-            ['Avaliação', trabalhos.avaliacao],
-          ].map(([t, d]) => (
-            <div>
-              <dt class="rotulo text-lime-ink">{t}</dt>
-              <dd class="mt-2 body-l text-ink-100">{d}</dd>
-            </div>
-          ))}
-        </dl>
-        <a href="#inscricao" class="btn-secundario">
-          Inscrever e enviar trabalho
-          <Seta />
-        </a>
-      </div>
-      <Painel
-        as="section"
-        rotulo="Datas importantes"
-        corpo="px-6 pb-2"
-        aria-label="Datas importantes"
-      >
-        <ol class="-mt-px">
-          {cronograma.map((c) => (
-            <li class="grid grid-cols-[5.5rem_1fr] gap-4 border-t border-line-100 py-4 sm:grid-cols-[7rem_1fr]">
-              <span class="dado text-lime-ink">{c.data}</span>
-              <span class="text-ink-100">{c.item}</span>
-            </li>
-          ))}
-        </ol>
-        <p class="border-t border-line-100 py-4 body-s text-ink-300">
-          Prazo das inscrições: {janela.textoProrrogacao}.
-        </p>
-      </Painel>
+    <div class="flex flex-col items-start gap-10">
+      <dl class="grid gap-x-10 gap-y-6 sm:grid-cols-2">
+        {[
+          ['Formato', trabalhos.formato],
+          ['Como enviar', trabalhos.campos],
+          ['Prazo', trabalhos.prazo],
+          ['Apresentações', trabalhos.vagasTexto],
+        ].map(([t, d]) => (
+          <div>
+            <dt class="rotulo text-lime-ink">{t}</dt>
+            <dd class="mt-2 body-l text-ink-100">{d}</dd>
+          </div>
+        ))}
+      </dl>
+      <a href="#inscricao" class="btn-secundario">
+        Inscrever e enviar trabalho
+        <Seta />
+      </a>
     </div>
   </section>
 

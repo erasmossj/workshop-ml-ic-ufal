@@ -151,11 +151,15 @@ export const minicurso = {
   vagas: 48,
 } as const;
 
+/**
+ * Chamada de trabalhos (seção "Apresente sua pesquisa"). Sem artigo, PDF nem premiação (WML-75).
+ * Avaliação, resultado e cronograma são da organização interna: não vão para o site.
+ */
 export const trabalhos = {
   formato: 'Título, autores e um resumo de até 1.500 caracteres. Não é preciso enviar artigo.',
-  campos: 'No próprio formulário de inscrição — sem anexar arquivo.',
-  avaliacao:
-    'A banca indica: aprovado para apresentação oral, aprovado para pôster ou não aprovado.',
+  campos:
+    'Na inscrição, marque “Vou submeter trabalho” e preencha os três campos. Sem anexar arquivo.',
+  prazo: 'De 30/10 a 16/11/2026, junto com as inscrições (pode ser prorrogado até 18/11).',
   /** Vagas para apresentação no evento. Não limita inscrições nem submissões. */
   vagasApresentacao: 13,
   vagasTexto: 'O evento tem 13 vagas para apresentação de trabalhos.',
@@ -169,15 +173,6 @@ export const janela = {
   /** Cabeçalho do formulário (Figma: "30.10 → 16.11"). */
   textoCurto: '30.10 → 16.11',
 } as const;
-
-export const cronograma = [
-  { data: '26/10', item: 'Site no ar' },
-  { data: '30/10', item: 'Abertura das inscrições e submissões' },
-  { data: '16/11', item: 'Fim das inscrições e submissões (pode ser prorrogado até 18/11)' },
-  { data: '16–25/11', item: 'Avaliação dos trabalhos pela banca' },
-  { data: '26/11', item: 'Resultado: apresentação oral ou pôster' },
-  { data: '02–04/12', item: 'IC-ML 2026' },
-] as const;
 
 export const faq = [
   {
