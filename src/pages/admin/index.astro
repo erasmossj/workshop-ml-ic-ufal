@@ -357,6 +357,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
   import { createClient, type SupabaseClient } from '@supabase/supabase-js';
   import {
     acaoAcervo,
+    acaoMinicurso,
     cartoesPresenca,
     deInputLocal,
     filtrar,
@@ -492,6 +493,9 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
       }),
     );
 
+    // Minicurso que a lista mostra como Sim/Não. Com mais de um, não dá para saber qual alterar.
+    let minicursoId: number | null = null;
+
     async function carregarTudo() {
       const { data, error } = await sb.rpc('admin_obter_config');
       if (error) {
@@ -501,6 +505,7 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         return;
       }
       const config = data as Config;
+      minicursoId = config.minicursos.length === 1 ? config.minicursos[0].id : null;
       mostrar('painel');
       renderConfig(config);
       await carregarLista();
@@ -689,11 +694,34 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         );
       }
 
+      const minicurso = el('td', i.minicurso ? 'Sim' : 'Não', 'p-3');
+      const acaoMc = minicursoId === null ? null : acaoMinicurso(i);
+      if (acaoMc) {
+        minicurso.append(
+          botao(acaoMc.botao, 'text-lime-ink mt-1 block text-sm underline', async () => {
+            if (!confirm(acaoMc.confirmacao)) return;
+            const r = await rpc('admin_alterar_minicurso', {
+              p_numero: i.numero,
+              p_minicurso: minicursoId,
+              p_inscrever: acaoMc.inscrever,
+            });
+            if (r.ok) {
+              avisar(
+                acaoMc.inscrever
+                  ? `${i.numero} incluída no minicurso. O e-mail atualizado está na fila.`
+                  : `${i.numero} saiu do minicurso. O e-mail atualizado está na fila.`,
+              );
+              await carregarTudo(); // vagas restantes mudam no resumo e na configuração
+            }
+          }),
+        );
+      }
+
       tr.append(
         el('td', i.numero, 'p-3 font-mono whitespace-nowrap'),
         pessoa,
         el('td', i.cpf_mascarado, 'p-3 font-mono whitespace-nowrap'),
-        el('td', i.minicurso ? 'Sim' : 'Não', 'p-3'),
+        minicurso,
         celulaTrabalho(i),
         email,
         acoes,

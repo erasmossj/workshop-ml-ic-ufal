@@ -238,7 +238,8 @@ Nesta versão, a página aparece como **minuta**: o texto ainda está em aprova�
 ### 3.6 Corrigir ou cancelar a inscrição
 
 O participante não edita nem cancela a inscrição sozinho. Para corrigir um dado ou cancelar, ele
-escreve para **ic-ml@ic.ufal.br**, e a organização faz a mudança pelo painel (Parte 4).
+escreve para **ic-ml@ic.ufal.br**, e a organização faz a mudança pelo painel (Parte 4) — inclusive
+incluir ou tirar do minicurso, se ainda houver vaga.
 
 Uma inscrição cancelada libera a vaga do minicurso. Com o mesmo e-mail, a pessoa pode se inscrever
 de novo e recebe um **número novo**.
@@ -339,7 +340,7 @@ Cada linha mostra:
 | Nº                    | Número de inscrição                                                         |
 | Participante          | Nome, e-mail e instituição. Canceladas aparecem esmaecidas, com "Cancelada" |
 | CPF                   | Sempre **mascarado** (ex.: `***.456.789-**`)                                |
-| Minicurso             | Sim ou Não                                                                  |
+| Minicurso             | Sim ou Não, com **Incluir no minicurso** ou **Tirar do minicurso**          |
 | Trabalho              | Título, status e **Abrir PDF** (só de quem enviou até 03/11/2026)           |
 | E-mail de confirmação | Na fila, Enviando, Enviado ou Falhou, com o botão **Reenviar**              |
 | Ações                 | **Corrigir** e **Cancelar**                                                 |
@@ -367,6 +368,19 @@ use **Anterior** e **Próxima**.
 4. Se o e-mail mudou, clique em **Reenviar** para mandar a confirmação ao novo endereço.
 
 O sistema recusa um e-mail que já esteja em outra inscrição ativa.
+
+#### Incluir ou tirar do minicurso
+
+Para quem se inscreveu só nas palestras e depois pediu o minicurso (ou desistiu dele):
+
+1. Na coluna **Minicurso** da inscrição, clique em **Incluir no minicurso** ou **Tirar do minicurso**.
+2. Confirme a pergunta. Incluir ocupa uma vaga; tirar libera a vaga e mantém a inscrição nas palestras.
+3. A pessoa recebe automaticamente um e-mail com o comprovante atualizado.
+
+O sistema recusa quando as vagas acabaram (aumente em **Configuração**, se houver lugar no
+laboratório), quando o minicurso ainda não tem vagas definidas, quando o mesmo CPF já ocupa uma
+vaga em outra inscrição e, para tirar, quando a pessoa já tem presença registrada no minicurso
+(nesse caso o botão nem aparece).
 
 ### 4.7 Reenviar o e-mail de confirmação
 

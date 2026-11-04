@@ -11,6 +11,7 @@ import {
   paginar,
   paraInputLocal,
   acaoAcervo,
+  acaoMinicurso,
   rotuloAcervo,
   rotuloVinculo,
   type Inscricao,
@@ -207,6 +208,34 @@ describe('acervo de edições passadas (WML-73)', () => {
     expect(retirar.novo).toBe(false);
     expect(retirar.botao).toBe('Retirar do acervo');
     expect(retirar.confirmacao).toMatch(/saem na hora/);
+  });
+});
+
+describe('alterar minicurso pela organização', () => {
+  it('sem minicurso: oferece incluir, avisando da vaga e do e-mail', () => {
+    const a = acaoMinicurso({ ...base, minicurso: false, dias_minicurso: [] })!;
+    expect(a.inscrever).toBe(true);
+    expect(a.botao).toBe('Incluir no minicurso');
+    expect(a.confirmacao).toMatch(/ICML26-0001/);
+    expect(a.confirmacao).toMatch(/vaga/);
+    expect(a.confirmacao).toMatch(/e-mail/);
+  });
+  it('com minicurso e sem presença: oferece tirar e liberar a vaga', () => {
+    const a = acaoMinicurso({ ...base, minicurso: true, dias_minicurso: [] })!;
+    expect(a.inscrever).toBe(false);
+    expect(a.botao).toBe('Tirar do minicurso');
+    expect(a.confirmacao).toMatch(/libera/);
+    expect(a.confirmacao).toMatch(/palestras/);
+  });
+  it('sem botão para inscrição cancelada ou com presença no minicurso', () => {
+    expect(acaoMinicurso({ ...base, cancelada: true, minicurso: false })).toBeNull();
+    expect(acaoMinicurso({ ...base, minicurso: true, dias_minicurso: ['2026-12-02'] })).toBeNull();
+  });
+  it('erros do banco viram mensagens claras', () => {
+    expect(mensagemDeErro('MINICURSO_ESGOTADO')).toMatch(/acabaram/);
+    expect(mensagemDeErro('MINICURSO_FECHADO')).toMatch(/Configuração/);
+    expect(mensagemDeErro('MINICURSO_COM_PRESENCA')).toMatch(/presença/);
+    expect(mensagemDeErro('MINICURSO_INEXISTENTE')).toMatch(/Recarregue/);
   });
 });
 

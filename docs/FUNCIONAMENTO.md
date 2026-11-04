@@ -84,7 +84,8 @@ usado em teste de carga e pentest) e local (`supabase start`, Docker). Cada PR g
 [ADR-003](adr/ADR-003-controle-de-vagas.md). A vaga é reservada com um `UPDATE` condicional
 (`ocupadas < vagas`) dentro da transação da inscrição, e uma restrição do banco (`ocupadas <= vagas`)
 é a última defesa. Testado com 100–120 inscrições simultâneas pela última vaga: 1 sucesso, o resto
-recebe "esgotado". Vagas só mudam pelas RPCs `register_participant()`, `cancel_registration()` e
+recebe "esgotado". Vagas só mudam pelas RPCs `register_participant()`, `cancel_registration()`,
+`admin_alterar_minicurso()` (organização inclui ou tira alguém do minicurso) e
 `admin_definir_vagas()` (que não deixa reduzir abaixo das ocupadas). O mesmo CPF não ocupa duas vagas.
 
 ## 3. E-mail de confirmação
