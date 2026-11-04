@@ -73,6 +73,7 @@ const respostas = await Promise.all(
         p_instituicao: null,
         p_minicursos: [minicursoId],
         p_trabalho: null,
+        p_perfil: 'lattes.cnpq.br/1234567890123456',
       }),
     }).then(async (r) => ({ ok: r.ok, corpo: await r.json() })),
   ),

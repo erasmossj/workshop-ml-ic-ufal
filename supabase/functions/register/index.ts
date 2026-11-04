@@ -1,5 +1,5 @@
 // Edge Function `register` (WML-26/27): única porta de escrita pública do sistema.
-// Ordem: limite por origem → Turnstile → consentimento → vínculo → minicurso → trabalho →
+// Ordem: limite por origem → Turnstile → consentimento → vínculo → perfil → minicurso → trabalho →
 // RPC register_participant (transação + vagas, ADR-003).
 // Trabalho = só título, autores e resumo: não há mais PDF nem premiação. Arquivo ou campos
 // "premio"/"nivel" enviados por fora do formulário são ignorados.
@@ -64,6 +64,11 @@ const ERROS: Record<string, Resposta> = {
     status: 422,
     erro: 'O curso deve ter no máximo 120 caracteres.',
     campo: 'curso',
+  },
+  PERFIL_OBRIGATORIO: {
+    status: 422,
+    erro: 'Informe o link do seu perfil no LinkedIn ou no Lattes. Ele vira o QR Code do seu crachá.',
+    campo: 'perfil',
   },
   PERFIL_INVALIDO: {
     status: 422,
@@ -189,8 +194,8 @@ Deno.serve(async (req) => {
     );
   }
 
-  // 3b. Vínculo (obrigatório para o crachá). "Outro" exige o texto; nos demais, o texto é
-  // descartado. Formato de curso e perfil: o banco valida (e confere o vínculo de novo).
+  // 3b. Vínculo e perfil (obrigatórios para o crachá). "Outro" exige o texto; nos demais, o texto
+  // é descartado. Formato de curso e perfil: o banco valida (e confere vínculo e perfil de novo).
   const vinculo = texto('vinculo');
   if (!VINCULOS.includes(vinculo)) {
     const { status, erro, campo } = ERROS.VINCULO_INVALIDO;
@@ -200,6 +205,12 @@ Deno.serve(async (req) => {
   if (vinculo === 'outro' && (!vinculoOutro || [...vinculoOutro].length > VINCULO_OUTRO_MAX)) {
     const { status, erro, campo } = ERROS.VINCULO_OUTRO_INVALIDO;
     return json(status, { erro, campo }, h);
+  }
+  // Perfil LinkedIn/Lattes obrigatório (WML-78): vira o QR Code do crachá.
+  const perfil = texto('perfil');
+  if (!perfil) {
+    const { status, erro, campo } = ERROS.PERFIL_OBRIGATORIO;
+    return json(status, { erro, codigo: 'PERFIL_OBRIGATORIO', campo }, h);
   }
 
   // 4. Minicurso (opt-in).
@@ -242,7 +253,7 @@ Deno.serve(async (req) => {
     p_vinculo: vinculo,
     p_vinculo_outro: vinculoOutro || null,
     p_curso: texto('curso') || null,
-    p_perfil: texto('perfil') || null,
+    p_perfil: perfil,
   });
   if (error) {
     const conhecido = ERROS[error.message];

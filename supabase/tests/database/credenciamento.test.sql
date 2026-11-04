@@ -9,11 +9,11 @@ insert into public.minicursos (id, slug, titulo, vagas) values (94, 'teste-cred'
 insert into public.organizadores (email) values ('org@exemplo.com');
 
 create temp table insc as
-  select 'ana' as quem, * from public.register_participant('Ana Cred', '529.982.247-25', 'ana.cred@exemplo.com', null, '{94}', null)
+  select 'ana' as quem, * from public.register_participant('Ana Cred', '529.982.247-25', 'ana.cred@exemplo.com', null, '{94}', null, p_perfil => 'lattes.cnpq.br/1234567890123456')
   union all
-  select 'bia', * from public.register_participant('Bia Cred', '111.444.777-35', 'bia.cred@exemplo.com', null, '{}', null)
+  select 'bia', * from public.register_participant('Bia Cred', '111.444.777-35', 'bia.cred@exemplo.com', null, '{}', null, p_perfil => 'lattes.cnpq.br/1234567890123456')
   union all
-  select 'caio', * from public.register_participant('Caio Cred', '123.456.789-09', 'caio.cred@exemplo.com', null, '{94}', null);
+  select 'caio', * from public.register_participant('Caio Cred', '123.456.789-09', 'caio.cred@exemplo.com', null, '{94}', null, p_perfil => 'lattes.cnpq.br/1234567890123456');
 set local request.jwt.claims = '{"role":"service_role"}';
 select public.cancel_registration((select id_inscricao from insc where quem = 'caio'));
 reset request.jwt.claims;

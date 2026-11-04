@@ -205,9 +205,9 @@ const opcional = 'text-ink-300';
       </div>
 
       <fieldset class="flex flex-col gap-3.5 border-t border-line-100 pt-3.5">
-        <legend class="sr-only">Para o crachá (opcional)</legend>
+        <legend class="sr-only">Para o crachá</legend>
         <p class="rotulo text-ink-100" aria-hidden="true">
-          Para o crachá · opcional
+          Para o crachá
         </p>
         <div>
           <label for="curso" class="rotulo-campo">
@@ -227,7 +227,7 @@ const opcional = 'text-ink-300';
         <div>
           <label for="perfil" class="rotulo-campo">
             <span>LinkedIn ou Lattes</span>
-            <span class={opcional}>opcional</span>
+            <span class="obrigatorio">obrigatório</span>
           </label>
           <div class="terminal">
             <input
@@ -238,12 +238,14 @@ const opcional = 'text-ink-300';
               autocomplete="url"
               maxlength="200"
               placeholder="linkedin.com/in/seu-nome"
+              required
+              aria-required="true"
               aria-describedby="perfil-dica perfil-erro"
             />
           </div>
           <p id="perfil-dica" class="ajuda">
-            Vira um QR Code no seu crachá. Aceita LinkedIn (linkedin.com/in/…) ou Lattes
-            (lattes.cnpq.br/…).
+            Vira um QR Code no seu crachá. Aceita o link do seu perfil no LinkedIn
+            (linkedin.com/in/…) ou no Lattes (lattes.cnpq.br/…).
           </p>
           <p id="perfil-erro" class="erro-campo" aria-live="polite"></p>
         </div>
@@ -429,7 +431,7 @@ const opcional = 'text-ink-300';
     emailValido,
     nomeCompletoValido,
     normalizarEmail,
-    normalizarPerfil,
+    validarPerfil,
     validarVinculo,
   } from '../lib/validacao';
 
@@ -549,12 +551,7 @@ const opcional = 'text-ink-300';
     const erroVinculo = validarVinculo(vinculoEscolhido(), vinculoOutro.value);
     checar('vinculo', erroVinculo?.campo === 'vinculo' ? erroVinculo.msg : null);
     checar('vinculo_outro', erroVinculo?.campo === 'vinculo_outro' ? erroVinculo.msg : null);
-    checar(
-      'perfil',
-      normalizarPerfil(v('perfil')) === null
-        ? 'Use o link do seu perfil no LinkedIn (linkedin.com/in/…) ou no Lattes (lattes.cnpq.br/…).'
-        : null,
-    );
+    checar('perfil', validarPerfil(v('perfil')));
 
     if (trabalho.checked) {
       checar('titulo', v('titulo') ? null : 'Informe o título do trabalho.');

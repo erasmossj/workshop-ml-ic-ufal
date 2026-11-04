@@ -82,6 +82,7 @@ describe('Edge Function send-emails', () => {
         p_instituicao: null,
         p_minicursos: [],
         p_trabalho: null,
+        p_perfil: 'lattes.cnpq.br/1234567890123456',
       }),
     });
     expect(r.status).toBe(200);

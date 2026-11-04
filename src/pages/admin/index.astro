@@ -337,9 +337,18 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         </label>
         <input id="c-curso" class="campo" maxlength="120" autocomplete="off" />
         <label for="c-perfil" class="rotulo-campo">
-          LinkedIn ou Lattes (opcional)
+          LinkedIn ou Lattes
         </label>
-        <input id="c-perfil" class="campo" inputmode="url" autocomplete="off" />
+        <input
+          id="c-perfil"
+          class="campo"
+          inputmode="url"
+          autocomplete="off"
+          aria-describedby="c-perfil-ajuda"
+        />
+        <p id="c-perfil-ajuda" class="text-xs text-ink-200">
+          Obrigatório: não dá para apagar. Inscrição antiga sem perfil pode ficar em branco.
+        </p>
         <div class="mt-2 flex flex-wrap gap-3">
           <button type="submit" value="salvar" class="btn-primario">
             Salvar correção
@@ -772,6 +781,8 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
       mostrarOutro();
       $<HTMLInputElement>('c-curso').value = i.curso ?? '';
       $<HTMLInputElement>('c-perfil').value = i.perfil_url ?? '';
+      // Perfil obrigatório (WML-78): quem já tem não pode ficar sem; antiga sem perfil continua.
+      $<HTMLInputElement>('c-perfil').required = Boolean(i.perfil_url);
       dialogo.showModal();
     }
 
@@ -785,12 +796,12 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         p_email: valor('c-email'),
         p_cpf: valor('c-cpf'),
         p_instituicao: valor('c-inst'),
-        // Vazio mantém o vínculo; '' em curso/perfil apaga (admin_corrigir_inscricao).
+        // Vazio mantém o vínculo e o perfil; '' em curso apaga (admin_corrigir_inscricao).
         p_vinculo: manterVinculo ? null : valor('c-vinculo') || null,
         p_vinculo_outro:
           !manterVinculo && valor('c-vinculo') === 'outro' ? valor('c-vinculo-outro') : null,
         p_curso: valor('c-curso'),
-        p_perfil: valor('c-perfil'),
+        p_perfil: valor('c-perfil').trim() || null,
       });
       if (!r.ok) {
         dialogo.showModal();

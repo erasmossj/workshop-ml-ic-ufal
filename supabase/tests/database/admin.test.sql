@@ -11,13 +11,13 @@ insert into public.organizadores (email) values ('org@exemplo.com');
 
 create temp table insc as
   select 'ana' as quem, * from public.register_participant('Ana Admin', '529.982.247-25', 'ana.admin@exemplo.com',
-    null, '{93}', '{"titulo": "Trabalho da Ana", "autores": "Ana", "resumo": "Resumo sintético do trabalho.", "premio": false}')
+    null, '{93}', '{"titulo": "Trabalho da Ana", "autores": "Ana", "resumo": "Resumo sintético do trabalho.", "premio": false}', p_perfil => 'lattes.cnpq.br/1234567890123456')
   union all
-  select 'bia', * from public.register_participant('Bia Admin', '111.444.777-35', 'bia.admin@exemplo.com', null, '{93}', null)
+  select 'bia', * from public.register_participant('Bia Admin', '111.444.777-35', 'bia.admin@exemplo.com', null, '{93}', null, p_perfil => 'lattes.cnpq.br/1234567890123456')
   union all
-  select 'caio', * from public.register_participant('Caio Admin', '529.982.247-25', 'caio.admin@exemplo.com', null, '{}', null)
+  select 'caio', * from public.register_participant('Caio Admin', '529.982.247-25', 'caio.admin@exemplo.com', null, '{}', null, p_perfil => 'lattes.cnpq.br/1234567890123456')
   union all
-  select 'davi', * from public.register_participant('Davi Admin', '123.456.789-09', 'davi.admin@exemplo.com', null, '{93}', null);
+  select 'davi', * from public.register_participant('Davi Admin', '123.456.789-09', 'davi.admin@exemplo.com', null, '{93}', null, p_perfil => 'lattes.cnpq.br/1234567890123456');
 update public.trabalhos set pdf_path = 'teste-admin.pdf'
  where participante_id = (select id_inscricao from insc where quem = 'ana');
 insert into storage.objects (bucket_id, name) values ('trabalhos', 'teste-admin.pdf');

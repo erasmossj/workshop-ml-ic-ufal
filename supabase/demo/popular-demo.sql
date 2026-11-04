@@ -104,7 +104,9 @@ begin
         case when v_pessoa.minicurso
              then array[(select m.id from public.minicursos m where m.slug = 'ml-na-pratica')]
              else '{}'::smallint[] end,
-        v_pessoa.trabalho
+        v_pessoa.trabalho,
+        -- Perfil obrigatório (WML-78): Lattes fictício (16 dígitos a partir do nº da pessoa).
+        p_perfil => format('lattes.cnpq.br/%s', lpad(v_pessoa.n::text, 16, '0'))
       ) r;
 
     if v_pessoa.status is not null and v_pessoa.status <> 'pendente' then

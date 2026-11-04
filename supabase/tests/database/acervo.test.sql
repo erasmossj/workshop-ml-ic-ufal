@@ -68,7 +68,7 @@ $$;
 create function pg_temp.inscrever(p_quem text, p_trabalho jsonb) returns table (id_inscricao uuid, numero_inscricao text)
 language sql as $$
   select * from public.register_participant('Pessoa ' || initcap(p_quem) || ' Acervo', '529.982.247-25',
-    p_quem || '.acervo@exemplo.com', 'UFAL', '{}', p_trabalho, 'estudante', null, null, null)
+    p_quem || '.acervo@exemplo.com', 'UFAL', '{}', p_trabalho, 'estudante', null, 'lattes.cnpq.br/1234567890123456', null)
 $$;
 
 create temp table insc as
@@ -99,21 +99,21 @@ select throws_ok($$ select * from pg_temp.inscrever('ruim', pg_temp.trab('Trabal
 select is(
   (select numero_inscricao is not null from public.register_participant('Caio Minicurso Acervo', '111.444.777-35',
      'caio.acervo@exemplo.com', null, array[(select id from public.minicursos where slug = 'ml-na-pratica')],
-     pg_temp.trab('Trabalho com minicurso', 'true'), 'outro', null, null, ' Servidor   técnico ')),
+     pg_temp.trab('Trabalho com minicurso', 'true'), 'outro', null, 'lattes.cnpq.br/1234567890123456', ' Servidor   técnico ')),
   true, 'inscrição com minicurso, trabalho no acervo e vínculo "Outro" funciona');
 select is((select ocupadas from public.minicursos where slug = 'ml-na-pratica'), 1, 'ocupou a única vaga');
 select is((select vinculo::text || '|' || vinculo_outro from public.participantes where email = 'caio.acervo@exemplo.com'),
   'outro|Servidor técnico', 'vínculo "Outro" gravado com o texto normalizado');
 select throws_ok($$ select * from public.register_participant('Duda Minicurso Acervo', '123.456.789-09',
      'duda.acervo@exemplo.com', null, array[(select id from public.minicursos where slug = 'ml-na-pratica')],
-     pg_temp.trab('Trabalho sem vaga', 'true'), 'docente', null, null, null) $$,
+     pg_temp.trab('Trabalho sem vaga', 'true'), 'docente', null, 'lattes.cnpq.br/1234567890123456', null) $$,
   'P0001', 'MINICURSO_ESGOTADO', 'minicurso esgotado continua recusado');
 select is((select count(*)::int from public.participantes where email = 'duda.acervo@exemplo.com'), 0,
   'inscrição recusada não deixa participante');
 select is((select count(*)::int from public.trabalhos where titulo = 'Trabalho sem vaga'), 0,
   'inscrição recusada não deixa trabalho (mesma transação)');
 select throws_ok($$ select * from public.register_participant('Edu Vinculo Acervo', '123.456.789-09',
-     'edu.acervo@exemplo.com', null, '{}', pg_temp.trab('Trabalho vinculo', 'true'), 'outro', null, null, null) $$,
+     'edu.acervo@exemplo.com', null, '{}', pg_temp.trab('Trabalho vinculo', 'true'), 'outro', null, 'lattes.cnpq.br/1234567890123456', null) $$,
   'P0001', 'VINCULO_OUTRO_INVALIDO', '"Outro" sem texto continua recusado');
 
 -- o que a Edge Function e a banca fazem depois

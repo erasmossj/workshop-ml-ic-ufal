@@ -117,6 +117,28 @@ test('vínculo é obrigatório e perfil só aceita LinkedIn ou Lattes', async ({
   await expect(page.locator('#vinculo-erro')).toBeEmpty();
 });
 
+test('perfil é obrigatório: sem ele, erro no campo e nada é enviado (WML-78)', async ({ page }) => {
+  await page.goto('/inscricao');
+  const perfil = page.locator('#perfil');
+  await expect(perfil).toHaveAttribute('required', '');
+  await expect(perfil).toHaveAttribute('aria-required', 'true');
+  await expect(page.locator('label[for=perfil]')).toContainText('obrigatório');
+  await expect(page.locator('label[for=perfil]')).not.toContainText('opcional');
+
+  // Tudo certo, menos o perfil.
+  await page.locator('#nome').fill('Participante Exemplo');
+  await page.locator('#cpf').fill(CPF_TESTE);
+  await page.locator('#email').fill('sem-perfil@exemplo.com');
+  await page.locator('#vinculo').getByText('Estudante').click();
+  await page.getByLabel(/Li e concordo/).check();
+  await page.getByRole('button', { name: 'Confirmar inscrição' }).click();
+
+  await expect(perfil).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#perfil-erro')).toContainText('Informe o link do seu perfil');
+  await expect(page.locator('#resumo-erros')).toContainText('perfil no LinkedIn ou no Lattes');
+  await expect(page).toHaveURL(/\/inscricao$/);
+});
+
 test('ordem: instituição, vínculo, curso e perfil', async ({ page }) => {
   await page.goto('/inscricao');
   const ordem = await page

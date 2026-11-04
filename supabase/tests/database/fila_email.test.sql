@@ -16,10 +16,10 @@ delete from public.email_outbox;
 insert into public.minicursos (id, slug, titulo, vagas) values (92, 'teste-fila', 'Minicurso da fila', 10);
 
 select * from public.register_participant('Ana Fila', '529.982.247-25', 'ana.fila@exemplo.com', null, '{92}',
-  '{"titulo": "Redes neurais na prática", "autores": "Ana Fila", "resumo": "Resumo sintético do trabalho.", "premio": false}');
-select * from public.register_participant('Bia Fila', '111.444.777-35', 'bia.fila@exemplo.com', null, '{}', null);
-select * from public.register_participant('Caio Fila', '529.982.247-25', 'caio.fila@exemplo.com', null, '{}', null);
-select * from public.register_participant('Davi Fila', '111.444.777-35', 'davi.fila@exemplo.com', null, '{}', null);
+  '{"titulo": "Redes neurais na prática", "autores": "Ana Fila", "resumo": "Resumo sintético do trabalho.", "premio": false}', p_perfil => 'lattes.cnpq.br/1234567890123456');
+select * from public.register_participant('Bia Fila', '111.444.777-35', 'bia.fila@exemplo.com', null, '{}', null, p_perfil => 'lattes.cnpq.br/1234567890123456');
+select * from public.register_participant('Caio Fila', '529.982.247-25', 'caio.fila@exemplo.com', null, '{}', null, p_perfil => 'lattes.cnpq.br/1234567890123456');
+select * from public.register_participant('Davi Fila', '111.444.777-35', 'davi.fila@exemplo.com', null, '{}', null, p_perfil => 'lattes.cnpq.br/1234567890123456');
 
 -- privilégios ---------------------------------------------------------------------
 select ok(not has_function_privilege('anon', 'public.reservar_emails(integer)', 'execute'),

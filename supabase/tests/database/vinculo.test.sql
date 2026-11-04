@@ -71,22 +71,22 @@ select ok(has_function_privilege('authenticated', 'public.admin_listar_inscricoe
 -- inscrição -----------------------------------------------------------------------------
 create temp table insc as
   select 'est' as quem, * from public.register_participant('Ana Vinculo', '529.982.247-25',
-    'ana.vinculo@exemplo.com', null, '{}', null, 'estudante', null, null, null)
+    'ana.vinculo@exemplo.com', null, '{}', null, 'estudante', null, 'lattes.cnpq.br/1234567890123456', null)
   union all
   select 'doc', * from public.register_participant('Bia Vinculo', '111.444.777-35',
-    'bia.vinculo@exemplo.com', null, '{}', null, 'docente', null, null, '   ')
+    'bia.vinculo@exemplo.com', null, '{}', null, 'docente', null, 'lattes.cnpq.br/1234567890123456', '   ')
   union all
   select 'out', * from public.register_participant('Caio Vinculo', '123.456.789-09',
-    'caio.vinculo@exemplo.com', null, '{}', null, 'outro', null, null, '  Servidor   técnico ')
+    'caio.vinculo@exemplo.com', null, '{}', null, 'outro', null, 'lattes.cnpq.br/1234567890123456', '  Servidor   técnico ')
   union all
   select 'grad', * from public.register_participant('Davi Vinculo', '390.533.447-05',
-    'davi.vinculo@exemplo.com', null, '{}', null, 'graduacao', null, null, null)
+    'davi.vinculo@exemplo.com', null, '{}', null, 'graduacao', null, 'lattes.cnpq.br/1234567890123456', null)
   union all
   select 'mest', * from public.register_participant('Eva Vinculo', '935.411.347-80',
-    'eva.vinculo@exemplo.com', null, '{}', null, 'mestrado', null, null)
+    'eva.vinculo@exemplo.com', null, '{}', null, 'mestrado', null, 'lattes.cnpq.br/1234567890123456')
   union all
   select 'max', * from public.register_participant('Gil Vinculo', '10000000019',
-    'gil.vinculo@exemplo.com', null, '{}', null, 'outro', null, null, repeat('x', 40));
+    'gil.vinculo@exemplo.com', null, '{}', null, 'outro', null, 'lattes.cnpq.br/1234567890123456', repeat('x', 40));
 
 create function pg_temp.vinc(p_email text) returns table (vinculo text, vinculo_outro text)
 language sql as $$
@@ -107,37 +107,37 @@ select is((select char_length(vinculo_outro) from public.participantes where ema
   40, 'texto do outro aceita até 40 caracteres');
 
 select throws_ok($$ select * from public.register_participant('Hugo Vinculo', '20000000027',
-  'hugo.vinculo@exemplo.com', null, '{}', null, 'outro', null, null, null) $$,
+  'hugo.vinculo@exemplo.com', null, '{}', null, 'outro', null, 'lattes.cnpq.br/1234567890123456', null) $$,
   'P0001', 'VINCULO_OUTRO_INVALIDO', 'outro sem texto é recusado');
 select throws_ok($$ select * from public.register_participant('Hugo Vinculo', '20000000027',
-  'hugo.vinculo@exemplo.com', null, '{}', null, 'outro', null, null) $$,
+  'hugo.vinculo@exemplo.com', null, '{}', null, 'outro', null, 'lattes.cnpq.br/1234567890123456') $$,
   'P0001', 'VINCULO_OUTRO_INVALIDO', 'outro vindo da Edge Function antiga (sem texto) é recusado');
 select throws_ok($$ select * from public.register_participant('Hugo Vinculo', '20000000027',
-  'hugo.vinculo@exemplo.com', null, '{}', null, 'outro', null, null, '    ') $$,
+  'hugo.vinculo@exemplo.com', null, '{}', null, 'outro', null, 'lattes.cnpq.br/1234567890123456', '    ') $$,
   'P0001', 'VINCULO_OUTRO_INVALIDO', 'outro só com espaços é recusado');
 select throws_ok($$ select * from public.register_participant('Hugo Vinculo', '20000000027',
-  'hugo.vinculo@exemplo.com', null, '{}', null, 'outro', null, null, repeat('x', 41)) $$,
+  'hugo.vinculo@exemplo.com', null, '{}', null, 'outro', null, 'lattes.cnpq.br/1234567890123456', repeat('x', 41)) $$,
   'P0001', 'VINCULO_OUTRO_INVALIDO', 'texto do outro com 41 caracteres é recusado');
 select throws_ok($$ select * from public.register_participant('Hugo Vinculo', '20000000027',
-  'hugo.vinculo@exemplo.com', null, '{}', null, 'estudante', null, null, 'Servidor') $$,
+  'hugo.vinculo@exemplo.com', null, '{}', null, 'estudante', null, 'lattes.cnpq.br/1234567890123456', 'Servidor') $$,
   'P0001', 'VINCULO_OUTRO_INVALIDO', 'texto com estudante é recusado');
 select throws_ok($$ select * from public.register_participant('Hugo Vinculo', '20000000027',
-  'hugo.vinculo@exemplo.com', null, '{}', null, 'docente', null, null, 'Servidor') $$,
+  'hugo.vinculo@exemplo.com', null, '{}', null, 'docente', null, 'lattes.cnpq.br/1234567890123456', 'Servidor') $$,
   'P0001', 'VINCULO_OUTRO_INVALIDO', 'texto com docente é recusado');
 select throws_ok($$ select * from public.register_participant('Hugo Vinculo', '20000000027',
-  'hugo.vinculo@exemplo.com', null, '{}', null, 'doutorado', null, null, null) $$,
+  'hugo.vinculo@exemplo.com', null, '{}', null, 'doutorado', null, 'lattes.cnpq.br/1234567890123456', null) $$,
   'P0001', 'VINCULO_INVALIDO', 'vínculo desconhecido é recusado');
 
 -- ADR-003 intacto: vínculo inválido não ocupa vaga; inscrição válida ocupa uma
 select throws_ok($$ select * from public.register_participant('Hugo Vinculo', '20000000027',
   'hugo.vinculo@exemplo.com', null, array[(select id from public.minicursos where slug = 'ml-na-pratica')],
-  null, 'outro', null, null, null) $$,
+  null, 'outro', null, 'lattes.cnpq.br/1234567890123456', null) $$,
   'P0001', 'VINCULO_OUTRO_INVALIDO', 'com minicurso, outro sem texto também é recusado');
 select is((select ocupadas from public.minicursos where slug = 'ml-na-pratica'), 0,
   'inscrição recusada não ocupa vaga');
 select lives_ok($$ insert into insc select 'mc', * from public.register_participant('Hugo Vinculo',
   '20000000027', 'hugo.vinculo@exemplo.com', null,
-  array[(select id from public.minicursos where slug = 'ml-na-pratica')], null, 'docente', null, null, null) $$,
+  array[(select id from public.minicursos where slug = 'ml-na-pratica')], null, 'docente', null, 'lattes.cnpq.br/1234567890123456', null) $$,
   'inscrição com minicurso continua funcionando');
 select is((select ocupadas from public.minicursos where slug = 'ml-na-pratica'), 1,
   'e ocupa exatamente uma vaga');

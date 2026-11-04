@@ -53,7 +53,7 @@ select is((select restantes from public.vagas_publicas() where slug = 'teste-sec
 -- admin -----------------------------------------------------------------------
 update public.config_evento
    set inscricoes_inicio = now() - interval '1 day', inscricoes_fim = now() + interval '1 day';
-select * from public.register_participant('Fulano Teste', '52998224725', 'fulano@exemplo.com', null, '{}', null);
+select * from public.register_participant('Fulano Teste', '52998224725', 'fulano@exemplo.com', null, '{}', null, p_perfil => 'lattes.cnpq.br/1234567890123456');
 insert into public.organizadores (email) values ('org@exemplo.com');
 
 set local request.jwt.claims = '{"role":"authenticated","email":"intruso@exemplo.com"}';

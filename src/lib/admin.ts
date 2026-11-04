@@ -292,6 +292,8 @@ const ERROS: Record<string, string> = {
     'Descreva o vínculo "Outro" em até 40 caracteres (o texto só vale para "Outro").',
   CURSO_INVALIDO: 'Curso muito longo (máximo de 120 caracteres).',
   PERFIL_INVALIDO: 'Use um link do LinkedIn (linkedin.com/in/…) ou do Lattes (lattes.cnpq.br/…).',
+  PERFIL_OBRIGATORIO:
+    'O perfil no LinkedIn ou no Lattes é obrigatório: informe o link (não dá para apagar).',
   EMAIL_JA_INSCRITO: 'Já existe outra inscrição com este e-mail.',
   CPF_JA_NO_MINICURSO: 'Este CPF já ocupa uma vaga no minicurso em outra inscrição.',
   MINICURSO_ESGOTADO:
