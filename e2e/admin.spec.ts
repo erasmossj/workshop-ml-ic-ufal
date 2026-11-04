@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 // Sem backend (CI/protótipo) o painel só mostra o aviso; o fluxo com login real é coberto em
@@ -43,3 +44,52 @@ for (const [largura, altura] of [
     }).toPass({ timeout: 2000 });
   });
 }
+
+// Trabalho pela organização (WML-79). Sem backend o diálogo é aberto à mão: confere rótulos,
+// limites iguais aos do banco, teclado e acessibilidade. O fluxo com RPC de verdade (incluir,
+// corrigir e retirar com login de organizador) está em tests/integracao/admin.test.ts.
+test('diálogo do trabalho: campos rotulados, limites do banco, teclado e WCAG', async ({
+  page,
+}) => {
+  await page.goto('/admin');
+  await page.evaluate(() =>
+    (document.getElementById('dialogo-trabalho') as HTMLDialogElement).showModal(),
+  );
+  const dialogo = page.getByRole('dialog', { name: 'Trabalho' });
+  await expect(dialogo).toBeVisible();
+
+  const titulo = dialogo.getByLabel('Título');
+  const autores = dialogo.getByLabel('Autores');
+  const resumo = dialogo.getByLabel('Resumo');
+  for (const [campo, min, max] of [
+    [titulo, '3', '250'],
+    [autores, '3', '600'],
+    [resumo, '10', '1500'],
+  ] as const) {
+    await expect(campo).toHaveAttribute('minlength', min);
+    await expect(campo).toHaveAttribute('maxlength', max);
+    await expect(campo).toHaveAttribute('required', '');
+  }
+  await expect(titulo).toHaveAccessibleDescription('De 3 a 250 caracteres.');
+  await expect(resumo).toHaveAccessibleDescription('De 10 a 1.500 caracteres.');
+
+  // Teclado: o foco começa no primeiro campo e anda pela ordem do formulário.
+  await expect(titulo).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(autores).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(resumo).toBeFocused();
+  // O navegador não deixa salvar com campo vazio (o banco valida de novo).
+  await dialogo.getByRole('button', { name: 'Salvar trabalho' }).click();
+  await expect(dialogo).toBeVisible();
+
+  const r = await new AxeBuilder({ page })
+    .include('#dialogo-trabalho')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  expect(r.violations.map((v) => `${v.id}: ${v.nodes[0]?.target.join(' ')}`)).toEqual([]);
+
+  // Esc fecha sem salvar.
+  await page.keyboard.press('Escape');
+  await expect(dialogo).toBeHidden();
+});

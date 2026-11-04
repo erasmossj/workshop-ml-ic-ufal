@@ -20,6 +20,9 @@ export type Inscricao = {
   minicurso: boolean;
   apresenta_trabalho: boolean;
   titulo_trabalho: string | null;
+  /** Autores e resumo do trabalho (WML-79: a organização corrige pelo painel). */
+  autores_trabalho: string | null;
+  resumo_trabalho: string | null;
   status_trabalho: string | null;
   criada_em: string;
   cancelada: boolean;
@@ -121,6 +124,60 @@ export function acaoMinicurso(
   };
 }
 
+// ---------------------------------------------------------------------------------------------
+// Trabalho pela organização (WML-79): incluir, corrigir ou retirar (admin_salvar_trabalho /
+// admin_retirar_trabalho). As regras valem no banco; aqui só adiantam o aviso no formulário.
+// ---------------------------------------------------------------------------------------------
+
+export type DadosTrabalho = { titulo: string; autores: string; resumo: string };
+
+/** Mesmos limites de public.trabalhos (e da inscrição), em caracteres. */
+export const LIMITES_TRABALHO = {
+  titulo: [3, 250],
+  autores: [3, 600],
+  resumo: [10, 1500],
+} as const;
+
+const umEspaco = (t: string) => t.trim().replace(/\s+/g, ' ');
+
+/** Como o banco: título e autores numa linha só; o resumo só perde os espaços das pontas. */
+export function normalizarTrabalho(d: DadosTrabalho): DadosTrabalho {
+  return { titulo: umEspaco(d.titulo), autores: umEspaco(d.autores), resumo: d.resumo.trim() };
+}
+
+/** Código de erro do banco (mesmo texto de mensagemDeErro) ou null quando está tudo certo. */
+export function validarTrabalho(d: DadosTrabalho): string | null {
+  const n = normalizarTrabalho(d);
+  // [...t]: conta pontos de código, como char_length no Postgres (emoji = 1).
+  const fora = (t: string, [min, max]: readonly [number, number]) =>
+    [...t].length < min || [...t].length > max;
+  if (fora(n.titulo, LIMITES_TRABALHO.titulo)) return 'TITULO_INVALIDO';
+  if (fora(n.autores, LIMITES_TRABALHO.autores)) return 'AUTORES_INVALIDOS';
+  if (fora(n.resumo, LIMITES_TRABALHO.resumo)) return 'RESUMO_INVALIDO';
+  return null;
+}
+
+/**
+ * Botões do trabalho no painel. null = sem botões (inscrição cancelada: o banco recusaria).
+ * Retirar apaga só o trabalho; a inscrição (e o minicurso) continua. Sem e-mail automático.
+ */
+export function acaoTrabalho(
+  i: Pick<Inscricao, 'numero' | 'apresenta_trabalho' | 'cancelada'>,
+): { editar: string; retirar: { botao: string; confirmacao: string } | null } | null {
+  if (i.cancelada) return null;
+  if (!i.apresenta_trabalho) return { editar: 'Incluir trabalho', retirar: null };
+  return {
+    editar: 'Corrigir trabalho',
+    retirar: {
+      botao: 'Retirar trabalho',
+      confirmacao:
+        `Retirar o trabalho de ${i.numero}? Título, autores e resumo são apagados (e saem do ` +
+        'acervo, se estiverem lá). A inscrição continua, com o minicurso se houver. ' +
+        'Nenhum e-mail é enviado: use "Reenviar" se quiser mandar o comprovante atualizado.',
+    },
+  };
+}
+
 /** Resposta de public.admin_resumo_presencas() (só contagens). */
 export type ResumoPresencas = {
   dias: { dia: string; presentes: number }[];
@@ -175,6 +232,7 @@ export function gerarCsv(lista: Inscricao[]): string {
     'Minicurso',
     'Apresenta trabalho',
     'Título do trabalho',
+    'Autores do trabalho',
     'Status do trabalho',
     'Autorizou acervo',
     'Inscrita em',
@@ -194,6 +252,7 @@ export function gerarCsv(lista: Inscricao[]): string {
     simNao(i.minicurso),
     simNao(i.apresenta_trabalho),
     i.titulo_trabalho ?? '',
+    i.autores_trabalho ?? '',
     i.status_trabalho ? (STATUS_TRABALHO[i.status_trabalho] ?? i.status_trabalho) : '',
     i.apresenta_trabalho ? simNao(i.acervo) : '',
     formatarDataHora(i.criada_em),
@@ -309,6 +368,9 @@ const ERROS: Record<string, string> = {
   CAMPOS_INVALIDOS: 'Confira as posições: página, tamanho (6 a 72) e largura.',
   MODELO_INCOMPLETO: 'Salve o modelo e as posições antes de liberar os certificados.',
   SEM_TRABALHO: 'Esta inscrição não submeteu trabalho.',
+  TITULO_INVALIDO: 'O título do trabalho precisa ter de 3 a 250 caracteres.',
+  AUTORES_INVALIDOS: 'Os autores do trabalho precisam ter de 3 a 600 caracteres.',
+  RESUMO_INVALIDO: 'O resumo do trabalho precisa ter de 10 a 1.500 caracteres.',
   ACERVO_INVALIDO: 'Informe se o autor autorizou (sim ou não).',
   ACERVO_INEXISTENTE: 'Trabalho não encontrado no acervo.',
 };

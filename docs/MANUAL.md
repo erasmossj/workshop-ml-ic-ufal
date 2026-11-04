@@ -337,15 +337,15 @@ credenciamento registra. O link **abrir o leitor de QR** leva ao credenciamento.
 
 Cada linha mostra:
 
-| Coluna                | Conteúdo                                                                    |
-| --------------------- | --------------------------------------------------------------------------- |
-| Nº                    | Número de inscrição                                                         |
-| Participante          | Nome, e-mail e instituição. Canceladas aparecem esmaecidas, com "Cancelada" |
-| CPF                   | Sempre **mascarado** (ex.: `***.456.789-**`)                                |
-| Minicurso             | Sim ou Não, com **Incluir no minicurso** ou **Tirar do minicurso**          |
-| Trabalho              | Título, status e **Abrir PDF** (só de quem enviou até 03/11/2026)           |
-| E-mail de confirmação | Na fila, Enviando, Enviado ou Falhou, com o botão **Reenviar**              |
-| Ações                 | **Corrigir** e **Cancelar**                                                 |
+| Coluna                | Conteúdo                                                                                     |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| Nº                    | Número de inscrição                                                                          |
+| Participante          | Nome, e-mail e instituição. Canceladas aparecem esmaecidas, com "Cancelada"                  |
+| CPF                   | Sempre **mascarado** (ex.: `***.456.789-**`)                                                 |
+| Minicurso             | Sim ou Não, com **Incluir no minicurso** ou **Tirar do minicurso**                           |
+| Trabalho              | Título, autores, status, **Incluir**/**Corrigir**/**Retirar trabalho** (4.6) e **Abrir PDF** |
+| E-mail de confirmação | Na fila, Enviando, Enviado ou Falhou, com o botão **Reenviar**                               |
+| Ações                 | **Corrigir** e **Cancelar**                                                                  |
 
 Para encontrar inscrições:
 
@@ -385,6 +385,25 @@ laboratório), quando o minicurso ainda não tem vagas definidas, quando o mesmo
 vaga em outra inscrição e, para tirar, quando a pessoa já tem presença registrada no minicurso
 (nesse caso o botão nem aparece).
 
+#### Incluir, corrigir ou retirar o trabalho
+
+Para quem digitou errado, decidiu apresentar de última hora ou desistiu de apresentar:
+
+- **Corrigir trabalho** (coluna **Trabalho**): abre o diálogo com título, autores e resumo. Ajuste e
+  clique em **Salvar trabalho**. Status e autorização do acervo continuam como estavam.
+- **Incluir trabalho** (aparece em quem se inscreveu só para assistir): preencha título, autores e
+  resumo e clique em **Salvar trabalho**. Vale **mesmo fora do prazo de submissão** (decisão da
+  organização). O trabalho entra como **Pendente** e **sem** autorização do acervo: essa autorização
+  é do autor; se ele mandar por e-mail, use **Registrar autorização do acervo** (seção 4.9).
+- **Retirar trabalho**: confirme a pergunta. Título, autores e resumo são apagados (e saem do
+  acervo, se já estiverem lá); o PDF enviado até 03/11/2026, se houver, é apagado na próxima rodada
+  do expurgo. **A inscrição continua**, com o minicurso se houver. Para cancelar tudo, use
+  **Cancelar** (seção 4.8).
+
+Os limites são os mesmos da inscrição: título de 3 a 250 caracteres, autores de 3 a 600 e resumo de
+10 a 1.500. Nenhuma dessas ações manda e-mail sozinha: se quiser que a pessoa receba o comprovante
+atualizado, clique em **Reenviar** (seção 4.7). Inscrições canceladas não têm esses botões.
+
 ### 4.7 Reenviar o e-mail de confirmação
 
 Clique em **Reenviar** na coluna "E-mail de confirmação". O e-mail volta para a fila ("E-mail de
@@ -415,8 +434,8 @@ o passo a passo e o modelo de e-mail estão no Runbook (seção "Acervo de traba
 
 Clique em **Exportar CSV (lista filtrada)**. O arquivo traz só as inscrições do filtro atual e abre
 no Excel ou no Google Planilhas, com estas colunas: Nº de inscrição, Nome, E-mail, CPF (mascarado),
-Instituição, Vínculo, Curso, Perfil, Minicurso, Apresenta trabalho, Título do trabalho, Status do
-trabalho, Autorizou acervo, Inscrita em, Situação, Dias presentes e Tardes no
+Instituição, Vínculo, Curso, Perfil, Minicurso, Apresenta trabalho, Título do trabalho, Autores do
+trabalho, Status do trabalho, Autorizou acervo, Inscrita em, Situação, Dias presentes e Tardes no
 minicurso.
 
 > **Atenção:** a planilha tem dados pessoais. Não compartilhe o arquivo fora da organização e

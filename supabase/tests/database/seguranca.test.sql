@@ -36,7 +36,8 @@ select is(
         'admin_definir_janelas', 'admin_definir_status_trabalho', 'admin_definir_vagas', 'admin_liberar_certificados',
         'admin_listar_atividades', 'admin_listar_inscricoes', 'admin_obter_config', 'admin_obter_modelo_certificado',
         'admin_reenviar_confirmacao', 'admin_resumo_certificados', 'admin_resumo_emails', 'admin_resumo_presencas',
-        'admin_retirar_do_acervo', 'admin_salvar_modelo_certificado', 'cancel_registration', 'pode_administrar', 'vagas_publicas',
+        'admin_retirar_do_acervo', 'admin_retirar_trabalho', 'admin_salvar_modelo_certificado', 'admin_salvar_trabalho',
+        'cancel_registration', 'pode_administrar', 'vagas_publicas',
         'validar_certificado'],
   'authenticated só executa as RPCs do painel (todas checam organizadores)');
 select is(
