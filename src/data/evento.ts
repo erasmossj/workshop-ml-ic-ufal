@@ -194,8 +194,8 @@ export const faq = [
 ] as const;
 
 /**
- * Política de privacidade (WML-38, LGPD). Aprovada pela organização em 03/11/2026 (versão
- * 2026-11-03); a versão 2026-11-04 (WML-78) aguarda aprovação. Mudou o texto? Atualize `versao`
+ * Política de privacidade (WML-38, LGPD). Versão em vigor: 2026-11-04, aprovada pela organização
+ * em 04/11/2026 (a anterior, 2026-11-03, foi aprovada em 03/11/2026). Mudou o texto? Atualize `versao`
  * e volte `aprovada` para false até a nova aprovação: o aceite de cada participante fica em
  * participantes.consentimento_em e vale a versão em vigor naquela data.
  * 2026-11-03 (WML-73 · ADR-007): acervo de edições passadas, só para trabalho aprovado e com
@@ -203,12 +203,12 @@ export const faq = [
  * WML-75 (mesmo dia): trabalho passa a ser só título, autores e resumo; PDF só de quem enviou
  * até 03/11/2026.
  * 2026-11-04 (WML-78): perfil no LinkedIn ou Lattes passa a ser obrigatório (era opcional).
- * Aguardando a aprovação da organização.
+ * Aprovada pela organização em 04/11/2026.
  */
 export const privacidade = {
   versao: '2026-11-04',
   /** false = a página mostra o aviso de minuta. */
-  aprovada: false,
+  aprovada: true,
   controlador:
     'O IEEE Ramo Estudantil UFAL, que organiza o IC-ML 2026 junto com o IEEE Computer Society UFAL e o Instituto de Computação da UFAL, decide como seus dados são usados.',
   dados: [
