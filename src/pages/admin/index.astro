@@ -350,6 +350,78 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
         </div>
       </form>
     </dialog>
+
+    <!-- Trabalho de quem apresenta (WML-79): incluir de última hora ou corrigir título, autores e
+         resumo. Sem CPF: só a inscrição muda de trabalho. Retirar fica na coluna Trabalho. -->
+    <dialog
+      id="dialogo-trabalho"
+      aria-labelledby="t-trabalho"
+      class="painel m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto p-6 text-ink-100 backdrop:bg-bg-100/80"
+    >
+      <form id="form-trabalho" method="dialog" class="grid gap-3">
+        <h2 id="t-trabalho" class="h3">
+          Trabalho
+        </h2>
+        <p class="text-sm text-ink-200">
+          Inscrição <strong id="tr-numero"></strong>. Mesmas regras da inscrição; vale mesmo fora do
+          prazo de submissão. Trabalho incluído entra como Pendente e sem autorização do acervo.
+        </p>
+        <label for="tr-titulo" class="rotulo-campo">
+          Título
+        </label>
+        <input
+          id="tr-titulo"
+          required
+          minlength="3"
+          maxlength="250"
+          class="campo"
+          autocomplete="off"
+          aria-describedby="tr-titulo-ajuda"
+        />
+        <p id="tr-titulo-ajuda" class="text-xs text-ink-200">
+          De 3 a 250 caracteres.
+        </p>
+        <label for="tr-autores" class="rotulo-campo">
+          Autores
+        </label>
+        <input
+          id="tr-autores"
+          required
+          minlength="3"
+          maxlength="600"
+          class="campo"
+          autocomplete="off"
+          placeholder="Nome 1, Nome 2…"
+          aria-describedby="tr-autores-ajuda"
+        />
+        <p id="tr-autores-ajuda" class="text-xs text-ink-200">
+          De 3 a 600 caracteres.
+        </p>
+        <label for="tr-resumo" class="rotulo-campo">
+          Resumo
+        </label>
+        <textarea
+          id="tr-resumo"
+          required
+          minlength="10"
+          maxlength="1500"
+          class="campo min-h-36"
+          aria-describedby="tr-resumo-ajuda"
+        ></textarea>
+        <p id="tr-resumo-ajuda" class="text-xs text-ink-200">
+          De 10 a 1.500 caracteres.
+        </p>
+        <p id="tr-erro" class="text-sm font-semibold text-danger" role="alert"></p>
+        <div class="mt-2 flex flex-wrap gap-3">
+          <button type="submit" value="salvar" class="btn-primario">
+            Salvar trabalho
+          </button>
+          <button type="submit" value="cancelar" formnovalidate class="btn-secundario">
+            Voltar
+          </button>
+        </div>
+      </form>
+    </dialog>
   </section>
 </Base>
 
@@ -358,12 +430,15 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
   import {
     acaoAcervo,
     acaoMinicurso,
+    acaoTrabalho,
     cartoesPresenca,
     deInputLocal,
     filtrar,
     formatarDataHora,
     gerarCsv,
     mensagemDeErro,
+    normalizarTrabalho,
+    validarTrabalho,
     rotuloAcervo,
     rotuloVinculo,
     paginar,
@@ -582,11 +657,41 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
 
     function celulaTrabalho(i: Inscricao): HTMLTableCellElement {
       const td = el('td', undefined, 'p-3');
+      // Incluir, corrigir ou retirar o trabalho (WML-79). Nome da inscrição no rótulo acessível:
+      // o leitor de tela não depende da linha da tabela para saber de quem é o botão.
+      const acaoTr = acaoTrabalho(i);
       if (!i.apresenta_trabalho) {
-        td.textContent = '—';
+        td.append(el('div', '—'));
+        if (acaoTr) {
+          const b = botao(acaoTr.editar, 'text-lime-ink mt-1 block text-sm underline', () =>
+            abrirTrabalho(i),
+          );
+          b.setAttribute('aria-label', `${acaoTr.editar} de ${i.numero}`);
+          td.append(b);
+        }
         return td;
       }
       td.append(el('div', i.titulo_trabalho ?? '', 'font-medium'));
+      if (i.autores_trabalho) td.append(el('div', i.autores_trabalho, 'text-xs text-ink-200'));
+      if (acaoTr) {
+        const corrigir = botao(acaoTr.editar, 'text-lime-ink mt-1 block text-sm underline', () =>
+          abrirTrabalho(i),
+        );
+        corrigir.setAttribute('aria-label', `${acaoTr.editar} de ${i.numero}`);
+        td.append(corrigir);
+        const retirar = acaoTr.retirar;
+        if (retirar) {
+          const b = botao(retirar.botao, 'text-lime-ink block text-sm underline', async () => {
+            if (!confirm(retirar.confirmacao)) return;
+            if ((await rpc('admin_retirar_trabalho', { p_numero: i.numero })).ok) {
+              avisar(`Trabalho de ${i.numero} retirado. A inscrição continua ativa.`);
+              await carregarLista();
+            }
+          });
+          b.setAttribute('aria-label', `${retirar.botao} de ${i.numero}`);
+          td.append(b);
+        }
+      }
       const sel = el('select', undefined, 'campo mt-2 py-1');
       sel.id = `status-${i.numero}`;
       const rotulo = el('label', `Status do trabalho de ${i.numero}`, 'sr-only');
@@ -798,6 +903,62 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
       }
       avisar(`Inscrição ${numero} corrigida. Use "Reenviar" se o e-mail mudou.`);
       emCorrecao = null;
+      await carregarLista();
+    });
+
+    // ---------------------------------------------------------------- trabalho (WML-79)
+    let emTrabalho: Inscricao | null = null;
+    const dialogoTrabalho = $<HTMLDialogElement>('dialogo-trabalho');
+    const erroTrabalho = $('tr-erro');
+
+    function abrirTrabalho(i: Inscricao) {
+      emTrabalho = i;
+      $('t-trabalho').textContent = i.apresenta_trabalho ? 'Corrigir trabalho' : 'Incluir trabalho';
+      $('tr-numero').textContent = i.numero;
+      $<HTMLInputElement>('tr-titulo').value = i.titulo_trabalho ?? '';
+      $<HTMLInputElement>('tr-autores').value = i.autores_trabalho ?? '';
+      $<HTMLTextAreaElement>('tr-resumo').value = i.resumo_trabalho ?? '';
+      erroTrabalho.textContent = '';
+      dialogoTrabalho.showModal();
+    }
+
+    /** Mostra o erro dentro do diálogo (o aviso da página fica atrás do modal). */
+    function falhaTrabalho(codigo: string | undefined) {
+      const msg = mensagemDeErro(codigo);
+      erroTrabalho.textContent = msg;
+      avisar(msg);
+      dialogoTrabalho.showModal();
+    }
+
+    dialogoTrabalho.addEventListener('close', async () => {
+      if (dialogoTrabalho.returnValue !== 'salvar' || !emTrabalho) return;
+      const i = emTrabalho;
+      const dados = normalizarTrabalho({
+        titulo: valor('tr-titulo'),
+        autores: valor('tr-autores'),
+        resumo: $<HTMLTextAreaElement>('tr-resumo').value,
+      });
+      const invalido = validarTrabalho(dados); // o banco valida de novo
+      if (invalido) {
+        falhaTrabalho(invalido);
+        return;
+      }
+      const { error } = await sb.rpc('admin_salvar_trabalho', {
+        p_numero: i.numero,
+        p_titulo: dados.titulo,
+        p_autores: dados.autores,
+        p_resumo: dados.resumo,
+      });
+      if (error) {
+        falhaTrabalho(error.message);
+        return;
+      }
+      avisar(
+        i.apresenta_trabalho
+          ? `Trabalho de ${i.numero} corrigido. Use "Reenviar" para mandar o comprovante atualizado.`
+          : `Trabalho incluído em ${i.numero}, como Pendente. Use "Reenviar" para mandar o comprovante atualizado.`,
+      );
+      emTrabalho = null;
       await carregarLista();
     });
 

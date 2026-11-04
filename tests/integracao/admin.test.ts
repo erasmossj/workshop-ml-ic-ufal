@@ -95,6 +95,63 @@ describe('painel da organização com login real', () => {
     expect(negado.error).not.toBeNull();
   });
 
+  // WML-79: desistiu, digitou errado ou decidiu apresentar de última hora.
+  it('organizador inclui, corrige e retira o trabalho; a inscrição continua', async () => {
+    const { data: p, error } = await servico
+      .from('participantes')
+      .insert({
+        nome: 'Pessoa Trabalho Integracao',
+        cpf: '52998224725',
+        email: `trab-${sufixo}@exemplo.com`,
+      })
+      .select('id, numero')
+      .single();
+    expect(error).toBeNull();
+    try {
+      const doTrabalho = async () =>
+        (await org.rpc('admin_listar_inscricoes')).data.find(
+          (l: { numero: string }) => l.numero === p!.numero,
+        );
+      const salvar = (titulo: string) =>
+        org.rpc('admin_salvar_trabalho', {
+          p_numero: p!.numero,
+          p_titulo: titulo,
+          p_autores: 'Pessoa Trabalho, Coautora Sintética',
+          p_resumo: 'Resumo sintético do trabalho de integração.',
+        });
+
+      const negado = await intruso.rpc('admin_salvar_trabalho', {
+        p_numero: p!.numero,
+        p_titulo: 'Intruso',
+        p_autores: 'Intruso',
+        p_resumo: 'Tentativa de quem não organiza.',
+      });
+      expect(negado.error?.message).toBe('NAO_AUTORIZADO');
+
+      expect((await salvar('  Trabalho   de última hora ')).error).toBeNull();
+      let linha = await doTrabalho();
+      expect(linha.apresenta_trabalho).toBe(true);
+      expect(linha.titulo_trabalho).toBe('Trabalho de última hora');
+      expect(linha.autores_trabalho).toBe('Pessoa Trabalho, Coautora Sintética');
+      expect(linha.status_trabalho).toBe('pendente');
+
+      expect((await salvar('Título corrigido')).error).toBeNull();
+      expect((await doTrabalho()).titulo_trabalho).toBe('Título corrigido');
+      expect((await salvar('ab')).error?.message).toBe('TITULO_INVALIDO');
+
+      expect(
+        (await intruso.rpc('admin_retirar_trabalho', { p_numero: p!.numero })).error?.message,
+      ).toBe('NAO_AUTORIZADO');
+      expect((await org.rpc('admin_retirar_trabalho', { p_numero: p!.numero })).error).toBeNull();
+      linha = await doTrabalho();
+      expect(linha.apresenta_trabalho).toBe(false);
+      expect(linha.cancelada).toBe(false);
+      expect(linha.titulo_trabalho).toBeNull();
+    } finally {
+      await servico.from('participantes').delete().eq('id', p!.id);
+    }
+  });
+
   it('pedir link com e-mail desconhecido não cria conta', async () => {
     const anonimo = createClient(API, env.ANON_KEY, opcoes);
     const desconhecido = `desconhecido-${sufixo}@exemplo.com`;

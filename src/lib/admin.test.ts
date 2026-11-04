@@ -12,6 +12,9 @@ import {
   paraInputLocal,
   acaoAcervo,
   acaoMinicurso,
+  acaoTrabalho,
+  normalizarTrabalho,
+  validarTrabalho,
   rotuloAcervo,
   rotuloVinculo,
   type Inscricao,
@@ -30,6 +33,8 @@ const base: Inscricao = {
   minicurso: true,
   apresenta_trabalho: true,
   titulo_trabalho: 'Redes neurais',
+  autores_trabalho: 'Ana Sintética, Beto Coautor',
+  resumo_trabalho: 'Resumo sintético do trabalho.',
   status_trabalho: 'pendente',
   criada_em: '2026-10-30T13:05:00Z',
   cancelada: false,
@@ -49,6 +54,8 @@ const lista: Inscricao[] = [
     minicurso: false,
     apresenta_trabalho: false,
     titulo_trabalho: null,
+    autores_trabalho: null,
+    resumo_trabalho: null,
     status_trabalho: null,
     pdf_path: null,
   },
@@ -81,7 +88,7 @@ describe('gerarCsv', () => {
     expect(linhas[0]).toBe(
       'Nº de inscrição;Nome;E-mail;CPF (mascarado);Instituição;Vínculo;Curso;' +
         'Perfil (LinkedIn/Lattes);Minicurso;Apresenta trabalho;' +
-        'Título do trabalho;Status do trabalho;Autorizou acervo;Inscrita em;' +
+        'Título do trabalho;Autores do trabalho;Status do trabalho;Autorizou acervo;Inscrita em;' +
         'Situação;Dias presentes;Tardes no minicurso',
     );
   });
@@ -90,7 +97,7 @@ describe('gerarCsv', () => {
     expect(linhas[1]).toBe(
       'ICML26-0001;Ana Sintética;ana@exemplo.com;***.982.247-**;UFAL;Estudante;' +
         'Ciência da Computação;https://www.linkedin.com/in/ana-sintetica;Sim;Sim;Redes neurais;' +
-        'Pendente;Não;30/10/2026 10:05;Ativa;02/12, 04/12;02/12',
+        'Ana Sintética, Beto Coautor;Pendente;Não;30/10/2026 10:05;Ativa;02/12, 04/12;02/12',
     );
   });
 
@@ -108,6 +115,10 @@ describe('gerarCsv', () => {
     expect(gerarCsv([{ ...base, titulo_trabalho: '=HIPERLINK("x")' }])).toContain(
       `;"'=HIPERLINK(""x"")";`,
     );
+  });
+
+  it('escapa fórmula também nos autores do trabalho (texto livre)', () => {
+    expect(gerarCsv([{ ...base, autores_trabalho: '-Ana' }])).toContain(";'-Ana;");
   });
 
   it('escapa fórmula também no curso (campo livre do participante)', () => {
@@ -132,9 +143,15 @@ describe('gerarCsv', () => {
   it('autorização do acervo: Sim, Não, ou vazio sem trabalho', () => {
     expect(gerarCsv([{ ...base, acervo: true }])).toContain(';Pendente;Sim;30/10/2026');
     const sem = gerarCsv([
-      { ...base, apresenta_trabalho: false, titulo_trabalho: null, status_trabalho: null },
+      {
+        ...base,
+        apresenta_trabalho: false,
+        titulo_trabalho: null,
+        autores_trabalho: null,
+        status_trabalho: null,
+      },
     ]);
-    expect(sem).toContain(';Sim;Não;;;;30/10/2026');
+    expect(sem).toContain(';Sim;Não;;;;;30/10/2026');
   });
 
   it('nunca tem CPF completo', () => {
@@ -236,6 +253,68 @@ describe('alterar minicurso pela organização', () => {
     expect(mensagemDeErro('MINICURSO_FECHADO')).toMatch(/Configuração/);
     expect(mensagemDeErro('MINICURSO_COM_PRESENCA')).toMatch(/presença/);
     expect(mensagemDeErro('MINICURSO_INEXISTENTE')).toMatch(/Recarregue/);
+  });
+});
+
+describe('trabalho pela organização (WML-79)', () => {
+  it('sem trabalho: oferece incluir, sem retirar', () => {
+    const a = acaoTrabalho({ ...base, apresenta_trabalho: false })!;
+    expect(a.editar).toBe('Incluir trabalho');
+    expect(a.retirar).toBeNull();
+  });
+  it('com trabalho: oferece corrigir e retirar, avisando que a inscrição continua', () => {
+    const a = acaoTrabalho(base)!;
+    expect(a.editar).toBe('Corrigir trabalho');
+    expect(a.retirar!.botao).toBe('Retirar trabalho');
+    expect(a.retirar!.confirmacao).toMatch(/ICML26-0001/);
+    expect(a.retirar!.confirmacao).toMatch(/inscrição continua/);
+    expect(a.retirar!.confirmacao).toMatch(/minicurso/);
+    expect(a.retirar!.confirmacao).toMatch(/acervo/);
+  });
+  it('sem botões para inscrição cancelada', () => {
+    expect(acaoTrabalho({ ...base, cancelada: true })).toBeNull();
+    expect(acaoTrabalho({ ...base, cancelada: true, apresenta_trabalho: false })).toBeNull();
+  });
+  it('normaliza espaços como o banco (resumo mantém as quebras de linha)', () => {
+    expect(
+      normalizarTrabalho({
+        titulo: '  Redes   neurais\t na UFAL ',
+        autores: ' Ana,\n  Beto ',
+        resumo: '  Linha um.\nLinha dois.  ',
+      }),
+    ).toEqual({
+      titulo: 'Redes neurais na UFAL',
+      autores: 'Ana, Beto',
+      resumo: 'Linha um.\nLinha dois.',
+    });
+  });
+  it('valida os mesmos limites do banco (3–250, 3–600, 10–1500)', () => {
+    const ok = { titulo: 'abc', autores: 'abc', resumo: 'r'.repeat(10) };
+    expect(validarTrabalho(ok)).toBeNull();
+    expect(
+      validarTrabalho({
+        titulo: 't'.repeat(250),
+        autores: 'a'.repeat(600),
+        resumo: 'r'.repeat(1500),
+      }),
+    ).toBeNull();
+    expect(validarTrabalho({ ...ok, titulo: '  ab  ' })).toBe('TITULO_INVALIDO');
+    expect(validarTrabalho({ ...ok, titulo: 't'.repeat(251) })).toBe('TITULO_INVALIDO');
+    expect(validarTrabalho({ ...ok, autores: 'ab' })).toBe('AUTORES_INVALIDOS');
+    expect(validarTrabalho({ ...ok, autores: 'a'.repeat(601) })).toBe('AUTORES_INVALIDOS');
+    expect(validarTrabalho({ ...ok, resumo: ' curto ' })).toBe('RESUMO_INVALIDO');
+    expect(validarTrabalho({ ...ok, resumo: 'r'.repeat(1501) })).toBe('RESUMO_INVALIDO');
+  });
+  it('conta caracteres como o banco (acento e emoji valem 1)', () => {
+    expect(validarTrabalho({ titulo: 'ção', autores: 'açã', resumo: '🙂'.repeat(10) })).toBeNull();
+    expect(
+      validarTrabalho({ titulo: 'é'.repeat(250), autores: 'abc', resumo: 'r'.repeat(10) }),
+    ).toBeNull();
+  });
+  it('erros do banco viram mensagens claras com o limite', () => {
+    expect(mensagemDeErro('TITULO_INVALIDO')).toMatch(/3 a 250/);
+    expect(mensagemDeErro('AUTORES_INVALIDOS')).toMatch(/3 a 600/);
+    expect(mensagemDeErro('RESUMO_INVALIDO')).toMatch(/10 a 1\.500/);
   });
 });
 
