@@ -1,19 +1,21 @@
 # Backlog — projeto Jira `WML`
 
 > Issues criadas no Jira (`erasmojunior.atlassian.net`, projeto `WML`) em 16/10/2026. Datas = previsão de conclusão (2026). Itens feitos por IA ficam em "Fazendo" até revisão humana.
+>
+> WML-71..77 foram recriadas no Jira em 04/11/2026 com as mesmas chaves dos commits (não tinham sido criadas lá).
 
-| Épico                     | Chave  | Tasks                      |
-| ------------------------- | ------ | -------------------------- |
-| E1 Setup e governança     | WML-1  | WML-10..13                 |
-| E2 Design e protótipos    | WML-2  | WML-14..23                 |
-| E3 Front-end do site      | WML-53 | WML-61..66, WML-68, WML-71 |
-| E4 Inscrição (MVP)        | WML-3  | WML-24..28                 |
-| E5 E-mail e comprovante   | WML-4  | WML-29..31                 |
-| E6 Admin e exportação     | WML-5  | WML-32..35                 |
-| E7 Carga, LGPD e operação | WML-6  | WML-36..40, WML-73         |
-| E8 Segurança (S1–S6)      | WML-7  | WML-41..52                 |
-| E9 Credenciamento QR      | WML-8  | WML-54..56                 |
-| E10 Certificados          | WML-9  | WML-57..60                 |
+| Épico                     | Chave  | Tasks                                              |
+| ------------------------- | ------ | -------------------------------------------------- |
+| E1 Setup e governança     | WML-1  | WML-10..13                                         |
+| E2 Design e protótipos    | WML-2  | WML-14..23                                         |
+| E3 Front-end do site      | WML-53 | WML-61..66, WML-68, WML-71                         |
+| E4 Inscrição (MVP)        | WML-3  | WML-24..28, WML-69, WML-72, WML-78                 |
+| E5 E-mail e comprovante   | WML-4  | WML-29..31, WML-74                                 |
+| E6 Admin e exportação     | WML-5  | WML-32..35, WML-67, WML-70, WML-76, WML-77, WML-79 |
+| E7 Carga, LGPD e operação | WML-6  | WML-36..40, WML-73, WML-75                         |
+| E8 Segurança (S1–S6)      | WML-7  | WML-41..52                                         |
+| E9 Credenciamento QR      | WML-8  | WML-54..56                                         |
+| E10 Certificados          | WML-9  | WML-57..60                                         |
 
 ## E1 — Setup e governança
 
@@ -64,6 +66,7 @@
 | 4.5 | Teste de concorrência: N requisições para a última vaga → 1 sucesso                | 20/10 | F3   |
 | 4.6 | Vínculo, curso e perfil LinkedIn/Lattes na inscrição (para o crachá) — WML-69      | —     | —    |
 | 4.7 | Vínculo Estudante/Docente/Outro com campo livre "Qual vínculo?" — WML-72           | 03/11 | —    |
+| 4.8 | Perfil LinkedIn/Lattes obrigatório na inscrição (pedido dos stakeholders) — WML-78 | —     | —    |
 
 ## E5 — E-mail e comprovante
 
@@ -83,17 +86,22 @@
 | 6.3 | Export CSV/XLSX com CPF mascarado e escape de fórmulas                    | 22/10 | F3   |
 | 6.4 | Configuração do evento: vagas dos minicursos, janela de submissão         | 22/10 | F3   |
 | 6.5 | Crachás 100×140 mm (participante e organização) conforme o Figma — WML-70 | —     | —    |
+| 6.6 | Inscrição cancelada libera o e-mail para nova inscrição — WML-67          | —     | —    |
+| 6.7 | Formulário de correção centralizado e rolável no painel — WML-76          | 03/11 | —    |
+| 6.8 | Organização inclui ou tira participante do minicurso pelo painel — WML-77 | 03/11 | —    |
+| 6.9 | Organização edita, inclui ou retira o trabalho de quem apresenta — WML-79 | —     | —    |
 
 ## E7 — Carga, LGPD e operação
 
-| #   | Tarefa                                                                                          | Data  | Fase |
-| --- | ----------------------------------------------------------------------------------------------- | ----- | ---- |
-| 7.1 | Teste de carga k6 (300 VUs, staging): p95 < 2 s, 0×5xx, sem overbooking                         | 23/10 | F4   |
-| 7.2 | Keep-alive do Supabase + backup agendado (GitHub Actions)                                       | 23/10 | F4   |
-| 7.3 | Política de retenção e expurgo de dados                                                         | 23/10 | F4   |
-| 7.4 | Go-live: freeze, deploy em produção, abertura das inscrições                                    | 25/10 | —    |
-| 7.5 | Runbook de operação + handover aos stakeholders                                                 | 26/10 | —    |
-| 7.6 | Acervo de trabalhos aprovados com autorização do autor + política 2026-11-03 — WML-73 (ADR-007) | 03/11 | —    |
+| #   | Tarefa                                                                                                   | Data  | Fase |
+| --- | -------------------------------------------------------------------------------------------------------- | ----- | ---- |
+| 7.1 | Teste de carga k6 (300 VUs, staging): p95 < 2 s, 0×5xx, sem overbooking                                  | 23/10 | F4   |
+| 7.2 | Keep-alive do Supabase + backup agendado (GitHub Actions)                                                | 23/10 | F4   |
+| 7.3 | Política de retenção e expurgo de dados                                                                  | 23/10 | F4   |
+| 7.4 | Go-live: freeze, deploy em produção, abertura das inscrições                                             | 25/10 | —    |
+| 7.5 | Runbook de operação + handover aos stakeholders                                                          | 26/10 | —    |
+| 7.6 | Acervo de trabalhos aprovados com autorização do autor + política 2026-11-03 — WML-73 (ADR-007)          | 03/11 | —    |
+| 7.7 | Pendências da organização: trabalho sem PDF/premiação, política aprovada, runbook, site oficial — WML-75 | 03/11 | —    |
 
 ## E8 — Segurança (S1–S6)
 
