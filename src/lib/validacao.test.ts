@@ -8,6 +8,7 @@ import {
   normalizarEmail,
   normalizarPerfil,
   normalizarVinculoOutro,
+  validarPerfil,
   validarVinculo,
 } from './validacao';
 
@@ -63,7 +64,7 @@ describe('normalizarPerfil (LinkedIn ou Lattes para o QR do crachá)', () => {
     for (const [entrada, saida] of casos) expect(normalizarPerfil(entrada), entrada).toBe(saida);
   });
 
-  it('vazio é permitido (campo opcional)', () => {
+  it('vazio vira string vazia (quem recusa é validarPerfil)', () => {
     expect(normalizarPerfil('')).toBe('');
     expect(normalizarPerfil('   ')).toBe('');
   });
@@ -82,6 +83,29 @@ describe('normalizarPerfil (LinkedIn ou Lattes para o QR do crachá)', () => {
     ]) {
       expect(normalizarPerfil(url), url).toBeNull();
     }
+  });
+});
+
+describe('validarPerfil (obrigatório na inscrição — WML-78)', () => {
+  it('vazio é recusado com mensagem própria', () => {
+    for (const vazio of ['', '   ']) {
+      expect(validarPerfil(vazio), JSON.stringify(vazio)).toBe(
+        'Informe o link do seu perfil no LinkedIn ou no Lattes. Ele vira o QR Code do seu crachá.',
+      );
+    }
+  });
+
+  it('link fora de LinkedIn/Lattes é recusado com a mensagem de formato', () => {
+    for (const url of ['ana-souza', 'https://evil.com/in/ana', 'https://lattes.cnpq.br/123']) {
+      expect(validarPerfil(url), url).toBe(
+        'Use o link do seu perfil no LinkedIn (linkedin.com/in/…) ou no Lattes (lattes.cnpq.br/…).',
+      );
+    }
+  });
+
+  it('LinkedIn ou Lattes válido passa', () => {
+    expect(validarPerfil('linkedin.com/in/ana-souza')).toBeNull();
+    expect(validarPerfil(' https://lattes.cnpq.br/1234567890123456 ')).toBeNull();
   });
 });
 

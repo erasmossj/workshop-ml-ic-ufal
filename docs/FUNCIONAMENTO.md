@@ -53,7 +53,8 @@ usado em teste de carga e pentest) e local (`supabase start`, Docker). Cada PR g
 
 1. **Formulário** (`/inscricao` e coluna do hero): nome, CPF, e-mail, instituição (opcional),
    vínculo (estudante/docente/outro; com "outro", o campo "Qual vínculo?" de até 40 caracteres é
-   obrigatório — WML-72), dados do crachá (opcionais: curso e perfil LinkedIn ou Lattes), minicurso (opcional),
+   obrigatório — WML-72), dados do crachá (perfil LinkedIn ou Lattes obrigatório — WML-78; curso
+   opcional), minicurso (opcional),
    trabalho (opcional: título, autores, resumo e, à parte, a autorização para o acervo
    de edições passadas — caixa desmarcada, WML-73) e aceite da política de privacidade. O
    navegador já valida (CPF com dígito verificador, e-mail, tamanhos), mas o servidor valida de novo.

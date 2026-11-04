@@ -44,7 +44,7 @@ create temp table insc as
     'linkedin.com/in/ana-perfil')
   union all
   select 'bia', * from public.register_participant('Bia Perfil', '111.444.777-35',
-    'bia.perfil@exemplo.com', null, '{}', null, 'docente', null, null);
+    'bia.perfil@exemplo.com', null, '{}', null, 'docente', null, 'linkedin.com/in/bia-perfil');
 
 select results_eq(
   $$ select vinculo::text, curso, perfil_url from public.participantes where email = 'ana.perfil@exemplo.com' $$,
@@ -52,8 +52,8 @@ select results_eq(
   'grava vínculo, curso (sem espaços extras) e perfil canônico');
 select results_eq(
   $$ select vinculo::text, curso, perfil_url from public.participantes where email = 'bia.perfil@exemplo.com' $$,
-  $$ values ('docente', null::text, null::text) $$,
-  'curso e perfil são opcionais');
+  $$ values ('docente', null::text, 'https://www.linkedin.com/in/bia-perfil') $$,
+  'curso é opcional (o perfil é obrigatório desde a WML-78: perfil_obrigatorio.test.sql)');
 select throws_ok($$ select * from public.register_participant('Caio Perfil', '123.456.789-09',
   'caio.perfil@exemplo.com', null, '{}', null, 'doutorado', null, null) $$,
   'P0001', 'VINCULO_INVALIDO', 'vínculo fora da lista é recusado');
@@ -91,7 +91,7 @@ select results_eq(
   'parâmetro ausente mantém o valor atual');
 select lives_ok($$ select public.admin_corrigir_inscricao(
   (select numero_inscricao from insc where quem = 'bia'), 'Bia Perfil', 'bia.perfil@exemplo.com',
-  '111.444.777-35', null, null, '', '') $$, 'texto vazio apaga curso e perfil');
+  '111.444.777-35', null, null, '', null) $$, 'texto vazio apaga o curso (perfil null mantém)');
 reset request.jwt.claims;
 
 -- expurgo LGPD ------------------------------------------------------------------------

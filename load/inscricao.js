@@ -82,6 +82,8 @@ export default function () {
     email: `carga-${id}-${EXECUCAO}@exemplo.com`,
     consentimento: 'sim',
     vinculo: 'estudante',
+    // Perfil obrigatório (WML-78); link sintético.
+    perfil: 'lattes.cnpq.br/0000000000000000',
     // Chave de TESTE do Turnstile no staging aceita qualquer token.
     'cf-turnstile-response': 'XXXX.DUMMY.TOKEN.XXXX',
   };

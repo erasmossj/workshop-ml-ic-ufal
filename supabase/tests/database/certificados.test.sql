@@ -10,13 +10,13 @@ insert into public.organizadores (email) values ('org@exemplo.com');
 
 create temp table insc as
   select 'ana' as quem, * from public.register_participant('Ana Certificado', '529.982.247-25', 'ana.cert@exemplo.com', null,
-    array[(select id from public.minicursos where slug = 'ml-na-pratica')], null)
+    array[(select id from public.minicursos where slug = 'ml-na-pratica')], null, p_perfil => 'lattes.cnpq.br/1234567890123456')
   union all
-  select 'bia', * from public.register_participant('Bia Certificado', '111.444.777-35', 'bia.cert@exemplo.com', null, '{}', null)
+  select 'bia', * from public.register_participant('Bia Certificado', '111.444.777-35', 'bia.cert@exemplo.com', null, '{}', null, p_perfil => 'lattes.cnpq.br/1234567890123456')
   union all
-  select 'caio', * from public.register_participant('Caio Certificado', '123.456.789-09', 'caio.cert@exemplo.com', null, '{}', null)
+  select 'caio', * from public.register_participant('Caio Certificado', '123.456.789-09', 'caio.cert@exemplo.com', null, '{}', null, p_perfil => 'lattes.cnpq.br/1234567890123456')
   union all
-  select 'davi', * from public.register_participant('Davi Certificado', '935.411.347-80', 'davi.cert@exemplo.com', null, '{}', null);
+  select 'davi', * from public.register_participant('Davi Certificado', '935.411.347-80', 'davi.cert@exemplo.com', null, '{}', null, p_perfil => 'lattes.cnpq.br/1234567890123456');
 
 create function pg_temp.num(p_quem text) returns text language sql as $$
   select numero_inscricao from insc where quem = p_quem $$;

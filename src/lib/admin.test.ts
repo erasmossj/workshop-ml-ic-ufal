@@ -248,6 +248,8 @@ describe('mensagemDeErro', () => {
       'Escolha o vínculo: estudante, docente ou outro.',
     );
     expect(mensagemDeErro('VINCULO_OUTRO_INVALIDO')).toMatch(/40 caracteres/);
+    expect(mensagemDeErro('PERFIL_OBRIGATORIO')).toMatch(/obrigatório/);
+    expect(mensagemDeErro('PERFIL_OBRIGATORIO')).toMatch(/LinkedIn.*Lattes/);
     expect(mensagemDeErro('SEM_TRABALHO')).toMatch(/não submeteu trabalho/);
     expect(mensagemDeErro('ACERVO_INEXISTENTE')).toMatch(/acervo/);
   });

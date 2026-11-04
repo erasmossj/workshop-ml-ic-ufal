@@ -90,6 +90,7 @@ beforeAll(async () => {
     p_instituicao: null,
     p_minicursos: [],
     p_trabalho: null,
+    p_perfil: 'lattes.cnpq.br/1234567890123456',
   });
   if (insc.error) throw insc.error;
   numero = insc.data[0].numero_inscricao;

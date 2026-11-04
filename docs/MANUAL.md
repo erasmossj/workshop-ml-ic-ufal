@@ -143,10 +143,12 @@ Endereço: `/inscricao`. Campos com `*` são obrigatórios. O formulário tem 4 
 | Vínculo         | Sim         | Estudante, Docente ou Outro. Aparece no crachá.                                   |
 | Qual vínculo?   | Se "Outro"  | Só aparece com "Outro". Texto livre, até 40 caracteres. Ex.: "Servidor técnico".  |
 | Curso           | Não         | Até 120 caracteres. Aparece no crachá.                                            |
-| LinkedIn/Lattes | Não         | Só perfil do LinkedIn (linkedin.com/in/…) ou do Lattes. Vira QR no crachá.        |
+| LinkedIn/Lattes | Sim         | Só perfil do LinkedIn (linkedin.com/in/…) ou do Lattes. Vira QR no crachá.        |
 
 Os campos aparecem nesta ordem: Instituição → Vínculo → Qual vínculo? (só com "Outro") → Curso →
 LinkedIn ou Lattes. Trocar o vínculo de "Outro" para outra opção esconde e apaga o texto.
+O perfil é obrigatório para todos os vínculos desde 04/11/2026 (WML-78); quem se inscreveu antes
+sem perfil continua com a inscrição válida.
 
 **Bloco 2 · Minicurso (opcional)**
 
@@ -233,7 +235,7 @@ Endereço: `/privacidade` (link no rodapé e no formulário). Explica, em lingua
   conexão criptografada);
 - os direitos do participante pela LGPD.
 
-Nesta versão, a página aparece como **minuta**: o texto ainda está em aprovação pela organização.
+Versão em vigor: **2026-11-04** (perfil LinkedIn/Lattes obrigatório), aprovada pela organização em 04/11/2026.
 
 ### 3.6 Corrigir ou cancelar a inscrição
 
@@ -363,7 +365,8 @@ use **Anterior** e **Próxima**.
    digitado completo de novo**, mesmo que não mude. Ao escolher o vínculo **Outro**, aparece o campo
    **Qual vínculo?** (até 40 caracteres), obrigatório; ao trocar para Estudante ou Docente, o texto
    é apagado. Inscrições antigas com "Outro" e sem texto podem ser corrigidas sem preencher o campo,
-   desde que o vínculo não mude.
+   desde que o vínculo não mude. O perfil (LinkedIn ou Lattes) **não pode ser apagado**: dá para
+   trocar por outro link válido. Inscrições antigas sem perfil podem deixar o campo em branco.
 3. Clique em **Salvar correção** (ou **Voltar** para desistir).
 4. Se o e-mail mudou, clique em **Reenviar** para mandar a confirmação ao novo endereço.
 

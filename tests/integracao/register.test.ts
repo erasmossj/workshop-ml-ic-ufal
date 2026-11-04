@@ -46,6 +46,7 @@ function formulario(campos: Record<string, string | Blob> = {}): FormData {
     email: novoEmail(),
     consentimento: 'sim',
     vinculo: 'estudante',
+    perfil: 'linkedin.com/in/participante-integracao',
     'cf-turnstile-response': 'XXXX.DUMMY.TOKEN.XXXX',
     ...campos,
   };
@@ -219,6 +220,32 @@ describe('Edge Function register', () => {
     const { status, corpo } = await enviar(formulario({ perfil: 'https://evil.com/in/ana' }));
     expect(status).toBe(422);
     expect(corpo).toMatchObject({ codigo: 'PERFIL_INVALIDO', campo: 'perfil' });
+  });
+
+  it('exige o perfil LinkedIn/Lattes (WML-78) e não grava nada sem ele', async () => {
+    for (const perfil of [undefined, '', '   ']) {
+      const email = novoEmail();
+      const fd = formulario({ email });
+      fd.delete('perfil');
+      if (perfil !== undefined) fd.append('perfil', perfil);
+      const { status, corpo } = await enviar(fd);
+      expect(status, JSON.stringify(perfil)).toBe(422);
+      expect(corpo).toMatchObject({ codigo: 'PERFIL_OBRIGATORIO', campo: 'perfil' });
+      expect(corpo.erro).toMatch(/LinkedIn ou no Lattes/);
+      const linhas = await rest(
+        `participantes?select=id&email=eq.${encodeURIComponent(email)}`,
+      ).then((r) => r.json());
+      expect(linhas).toHaveLength(0);
+    }
+  });
+
+  it('grava o perfil LinkedIn normalizado', async () => {
+    const email = novoEmail();
+    expect((await enviar(formulario({ email }))).status).toBe(201);
+    const [gravado] = await (
+      await rest(`participantes?select=perfil_url&email=eq.${encodeURIComponent(email)}`)
+    ).json();
+    expect(gravado.perfil_url).toBe('https://www.linkedin.com/in/participante-integracao');
   });
 
   it('exige o token do Turnstile', async () => {

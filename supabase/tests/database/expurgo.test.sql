@@ -16,9 +16,9 @@ insert into public.organizadores (email) values ('org@exemplo.com');
 create temp table insc as
   select 'ana' as quem, * from public.register_participant('Ana Expurgo', '529.982.247-25', 'ana.expurgo@exemplo.com',
     'UFAL', array[(select id from public.minicursos where slug = 'ml-na-pratica')],
-    '{"titulo": "Trabalho da Ana", "autores": "Ana", "resumo": "Resumo sintético do trabalho.", "premio": false}')
+    '{"titulo": "Trabalho da Ana", "autores": "Ana", "resumo": "Resumo sintético do trabalho.", "premio": false}', p_perfil => 'lattes.cnpq.br/1234567890123456')
   union all
-  select 'bia', * from public.register_participant('Bia Expurgo', '111.444.777-35', 'bia.expurgo@exemplo.com', null, '{}', null);
+  select 'bia', * from public.register_participant('Bia Expurgo', '111.444.777-35', 'bia.expurgo@exemplo.com', null, '{}', null, p_perfil => 'lattes.cnpq.br/1234567890123456');
 create function pg_temp.pid(p_quem text) returns uuid language sql as $$
   select id_inscricao from insc where quem = p_quem $$;
 

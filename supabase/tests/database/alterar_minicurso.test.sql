@@ -16,7 +16,7 @@ create function pg_temp.mc() returns smallint language sql as $$
 create function pg_temp.inscrever(p_quem text, p_cpf text) returns table (id_inscricao uuid, numero_inscricao text)
 language sql as $$
   select * from public.register_participant('Pessoa ' || initcap(p_quem) || ' Minicurso', p_cpf,
-    p_quem || '.mc@exemplo.com', 'UFAL', '{}', null, 'estudante', null, null, null)
+    p_quem || '.mc@exemplo.com', 'UFAL', '{}', null, 'estudante', null, 'lattes.cnpq.br/1234567890123456', null)
 $$;
 create temp table insc as
             select 'ana' as quem, * from pg_temp.inscrever('ana', '529.982.247-25')

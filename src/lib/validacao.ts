@@ -66,7 +66,8 @@ const LATTES_RE = /^(?:www\.)?lattes\.cnpq\.br\/(\d{16})$/i;
 /**
  * Perfil LinkedIn ou Lattes que vira QR no crachá (WML-69). Devolve o link canônico em https,
  * '' para campo vazio ou null se não for um perfil desses dois sites — o QR impresso nunca aponta
- * para outro domínio. Mesmas regras de public.normalizar_perfil() no banco.
+ * para outro domínio. Mesmas regras de public.normalizar_perfil() no banco. Obrigatório na
+ * inscrição desde a WML-78: use validarPerfil() para a mensagem.
  */
 export function normalizarPerfil(url: string): string | null {
   let v = url.trim();
@@ -80,6 +81,21 @@ export function normalizarPerfil(url: string): string | null {
   const lattes = LATTES_RE.exec(v);
   if (lattes) return `https://lattes.cnpq.br/${lattes[1]}`;
   return null;
+}
+
+export const PERFIL_OBRIGATORIO_MSG =
+  'Informe o link do seu perfil no LinkedIn ou no Lattes. Ele vira o QR Code do seu crachá.';
+export const PERFIL_INVALIDO_MSG =
+  'Use o link do seu perfil no LinkedIn (linkedin.com/in/…) ou no Lattes (lattes.cnpq.br/…).';
+
+/**
+ * Perfil da inscrição (obrigatório desde a WML-78) → mensagem de erro ou null.
+ * Mesmas mensagens da Edge Function `register` (PERFIL_OBRIGATORIO / PERFIL_INVALIDO).
+ */
+export function validarPerfil(url: string): string | null {
+  const perfil = normalizarPerfil(url);
+  if (perfil === '') return PERFIL_OBRIGATORIO_MSG;
+  return perfil === null ? PERFIL_INVALIDO_MSG : null;
 }
 
 /** `inicio`/`fim` em ISO com fuso (ex.: 2026-10-30T00:00:00-03:00). Limites inclusivos. */
