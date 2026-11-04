@@ -94,6 +94,33 @@ export function acaoAcervo(i: Pick<Inscricao, 'numero' | 'acervo'>): {
       };
 }
 
+/**
+ * Botão do painel: inclui ou tira do minicurso depois da inscrição (admin_alterar_minicurso).
+ * null = sem botão: inscrição cancelada, ou já com presença no minicurso (o banco recusaria).
+ */
+export function acaoMinicurso(
+  i: Pick<Inscricao, 'numero' | 'minicurso' | 'dias_minicurso' | 'cancelada'>,
+): { inscrever: boolean; botao: string; confirmacao: string } | null {
+  if (i.cancelada) return null;
+  if (!i.minicurso) {
+    return {
+      inscrever: true,
+      botao: 'Incluir no minicurso',
+      confirmacao:
+        `Incluir ${i.numero} no minicurso? Ocupa uma vaga (se ainda houver) e a pessoa recebe ` +
+        'um e-mail com o comprovante atualizado.',
+    };
+  }
+  if (i.dias_minicurso?.length) return null;
+  return {
+    inscrever: false,
+    botao: 'Tirar do minicurso',
+    confirmacao:
+      `Tirar ${i.numero} do minicurso? A vaga é liberada, a inscrição nas palestras continua e a ` +
+      'pessoa recebe um e-mail com o comprovante atualizado.',
+  };
+}
+
 /** Resposta de public.admin_resumo_presencas() (só contagens). */
 export type ResumoPresencas = {
   dias: { dia: string; presentes: number }[];
@@ -267,6 +294,11 @@ const ERROS: Record<string, string> = {
   PERFIL_INVALIDO: 'Use um link do LinkedIn (linkedin.com/in/…) ou do Lattes (lattes.cnpq.br/…).',
   EMAIL_JA_INSCRITO: 'Já existe outra inscrição com este e-mail.',
   CPF_JA_NO_MINICURSO: 'Este CPF já ocupa uma vaga no minicurso em outra inscrição.',
+  MINICURSO_ESGOTADO:
+    'As vagas do minicurso acabaram. Aumente as vagas em Configuração, se houver lugar.',
+  MINICURSO_FECHADO: 'O minicurso ainda está fechado: defina as vagas em Configuração.',
+  MINICURSO_COM_PRESENCA: 'Esta pessoa já tem presença no minicurso e não pode ser tirada dele.',
+  MINICURSO_INEXISTENTE: 'Minicurso não encontrado. Recarregue a página.',
   VAGAS_ABAIXO_DAS_OCUPADAS: 'Não é possível deixar menos vagas do que as já ocupadas.',
   JANELAS_INVALIDAS: 'Confira as datas: o início precisa ser antes do fim.',
   CARGA_INVALIDA: 'Confira a carga horária (até 24 horas) e o título da atividade.',
