@@ -286,11 +286,12 @@ const configurado = Boolean(import.meta.env.PUBLIC_SUPABASE_URL);
       </section>
     </div>
 
-    <!-- Correção de dados -->
+    <!-- Correção de dados. m-auto: o reset do Tailwind zera a margem que centraliza o <dialog>;
+         overflow-y-auto: .painel corta o conteúdo (overflow-hidden) e o formulário não rolava. -->
     <dialog
       id="dialogo-corrigir"
       aria-labelledby="t-corrigir"
-      class="painel max-w-lg p-6 text-ink-100"
+      class="painel m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto p-6 text-ink-100 backdrop:bg-bg-100/80"
     >
       <form id="form-corrigir" method="dialog" class="grid gap-3">
         <h2 id="t-corrigir" class="h3">
