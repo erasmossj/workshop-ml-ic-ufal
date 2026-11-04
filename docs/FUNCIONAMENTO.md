@@ -109,7 +109,10 @@ recebe "esgotado". Vagas só mudam pelas RPCs `register_participant()`, `cancel_
   situação) e paginação. **CPF sempre mascarado**.
 - **Ações**: cancelar (libera a vaga), corrigir dados, reenviar confirmação, definir o status do
   trabalho (pendente, aprovado oral, aprovado pôster, rejeitado), abrir o PDF por **URL assinada curta**,
-  registrar ou retirar a autorização do **acervo** recebida por e-mail (`admin_definir_acervo`).
+  registrar ou retirar a autorização do **acervo** recebida por e-mail (`admin_definir_acervo`),
+  incluir, corrigir ou retirar o **trabalho** de quem apresenta sem mexer na inscrição
+  (`admin_salvar_trabalho`, `admin_retirar_trabalho` — WML-79; mesmos limites da inscrição, sem
+  e-mail automático).
 - **Configuração**: vagas do minicurso, janelas de inscrição e submissão, teto diário de e-mail;
   resumo da fila de e-mail.
 - **Exportar CSV** da lista filtrada: CPF mascarado, datas de Maceió e escape de fórmulas

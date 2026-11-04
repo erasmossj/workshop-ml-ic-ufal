@@ -37,3 +37,9 @@ Os stakeholders decidiram que o trabalho passa a ser só **título, autores e re
 - `disparar_expurgo()` também acorda quando há aprovado + autorizado sem PDF a transferir.
 - Formulário e política: a caixa do acervo cita "título, autores e resumo"; o PDF aparece na política só para quem enviou até 03/11/2026.
 - Bucket `trabalhos`, `pdf_path` e o expurgo de 31/01/2027 continuam para os PDFs já recebidos.
+
+## Atualização — 04/11/2026 (WML-79): organização inclui, corrige ou retira o trabalho
+
+- `admin_salvar_trabalho(numero, titulo, autores, resumo)` inclui (de última hora, mesmo fora da janela de submissão) ou corrige o trabalho. Trabalho **incluído** pela organização entra **sem** autorização do acervo (`acervo = false`): o opt-in continua sendo do autor, registrado depois com `admin_definir_acervo` se ele autorizar por escrito. **Corrigir** mantém status e autorização; se o trabalho já foi transferido para o acervo, a cópia do acervo recebe a mesma correção de título, autores e resumo (é o mesmo trabalho, com erro de digitação corrigido).
+- `admin_retirar_trabalho(numero)` apaga só o trabalho (inscrição e minicurso ficam). Se já houver entrada no acervo, ela sai na hora (`retirar_do_acervo`), como na revogação; o PDF enviado até 03/11/2026, na inscrição ou no acervo, vai para `pdfs_a_apagar` e a Edge Function `expurgo` apaga o arquivo na rodada seguinte.
+- Testes: `supabase/tests/database/trabalho_admin.test.sql`.
