@@ -195,18 +195,20 @@ export const faq = [
 
 /**
  * Política de privacidade (WML-38, LGPD). Aprovada pela organização em 03/11/2026 (versão
- * 2026-11-03). Mudou o texto? Atualize `versao` e volte `aprovada` para false até a nova
- * aprovação: o aceite de
- * cada participante fica em participantes.consentimento_em e vale a versão em vigor naquela data.
+ * 2026-11-03); a versão 2026-11-04 (WML-78) aguarda aprovação. Mudou o texto? Atualize `versao`
+ * e volte `aprovada` para false até a nova aprovação: o aceite de cada participante fica em
+ * participantes.consentimento_em e vale a versão em vigor naquela data.
  * 2026-11-03 (WML-73 · ADR-007): acervo de edições passadas, só para trabalho aprovado e com
  * autorização separada. Quem aceitou a versão 2026-10-19 não entra no acervo sem autorizar.
  * WML-75 (mesmo dia): trabalho passa a ser só título, autores e resumo; PDF só de quem enviou
  * até 03/11/2026.
+ * 2026-11-04 (WML-78): perfil no LinkedIn ou Lattes passa a ser obrigatório (era opcional).
+ * Aguardando a aprovação da organização.
  */
 export const privacidade = {
-  versao: '2026-11-03',
+  versao: '2026-11-04',
   /** false = a página mostra o aviso de minuta. */
-  aprovada: true,
+  aprovada: false,
   controlador:
     'O IEEE Ramo Estudantil UFAL, que organiza o IC-ML 2026 junto com o IEEE Computer Society UFAL e o Instituto de Computação da UFAL, decide como seus dados são usados.',
   dados: [
@@ -216,7 +218,7 @@ export const privacidade = {
     },
     { dado: 'Instituição (opcional)', motivo: 'conhecer o público do evento' },
     {
-      dado: "Vínculo (estudante, docente ou outro) e, se você escolher 'outro', uma descrição curta escrita por você (até 40 caracteres), além de curso e perfil no LinkedIn ou Lattes (opcionais)",
+      dado: "Vínculo (estudante, docente ou outro), perfil no LinkedIn ou Lattes (obrigatório), curso (opcional) e, se você escolher 'outro', uma descrição curta escrita por você (até 40 caracteres)",
       motivo: 'montar o seu crachá; o perfil vira um QR Code impresso nele',
     },
     { dado: 'Inscrição no minicurso', motivo: 'controlar as vagas do laboratório' },
