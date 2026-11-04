@@ -61,7 +61,7 @@ export const dias: { rotulo: string; data: string; semana: string; atividades: A
       {
         inicio: '10:00',
         fim: '12:00',
-        titulo: 'Palestra de abertura — Prof. George Brandão',
+        titulo: 'Palestra de abertura — Prof. George Darmiton',
         tipo: 'palestra',
       },
       { inicio: '12:00', fim: '13:30', titulo: 'Almoço', tipo: 'pausa' },
@@ -121,7 +121,7 @@ export const palestras = [
     dia: 'Qua · 02/12',
     inicio: '10:00',
     titulo: 'Palestra de abertura',
-    quem: 'Prof. George Brandão',
+    quem: 'Prof. George Darmiton',
   },
   {
     dia: 'Sex · 04/12',

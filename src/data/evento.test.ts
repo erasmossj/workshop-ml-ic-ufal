@@ -35,7 +35,7 @@ describe('programação', () => {
   it('nomeia os palestrantes confirmados', () => {
     const titulos = dias.flatMap((d) => d.atividades.filter((a) => a.tipo === 'palestra'));
     expect(titulos.map((a) => a.titulo)).toEqual([
-      'Palestra de abertura — Prof. George Brandão',
+      'Palestra de abertura — Prof. George Darmiton',
       'Palestra — Mercado de trabalho em ML · Hugo Souza',
     ]);
   });

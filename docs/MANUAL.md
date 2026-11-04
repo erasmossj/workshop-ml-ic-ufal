@@ -114,7 +114,7 @@ Endereço: `/`. O menu no topo leva às seções; o botão **Inscreva-se** abre 
 | Programação          | Atividades dos 3 dias, com horários (horário de Maceió)                      |
 | Minicurso · 3 tardes | "Minicurso de Machine Learning na prática": 3 dias no Google Colab, 48 vagas |
 | Chamada de trabalhos | Formato, como enviar, prazo e 13 vagas para apresentação                     |
-| Palestras e Local    | Palestras (Prof. George Brandão e Hugo Souza), endereço e link para o mapa   |
+| Palestras e Local    | Palestras (Prof. George Darmiton e Hugo Souza), endereço e link para o mapa  |
 | Dúvidas              | Perguntas frequentes                                                         |
 | Rodapé               | Link para a Política de Privacidade e e-mail do evento (ic-ml@ic.ufal.br)    |
 
@@ -122,7 +122,7 @@ Endereço: `/`. O menu no topo leva às seções; o botão **Inscreva-se** abre 
 
 | Dia         | Manhã                                                                                             | Tarde                                            |
 | ----------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| Qua · 02/12 | Credenciamento, abertura formal e palestra de abertura (Prof. George Brandão)                     | Minicurso — Dia 1: Fundamentos                   |
+| Qua · 02/12 | Credenciamento, abertura formal e palestra de abertura (Prof. George Darmiton)                    | Minicurso — Dia 1: Fundamentos                   |
 | Qui · 03/12 | Apresentações de trabalhos, com coffee break das 10h00 às 10h30                                   | Minicurso — Dia 2: Classificação e Regressão     |
 | Sex · 04/12 | Apresentações, coffee break, palestra sobre mercado de trabalho em ML (Hugo Souza) e encerramento | Minicurso — Dia 3: Clustering e Séries Temporais |
 

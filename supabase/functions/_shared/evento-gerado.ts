@@ -20,7 +20,7 @@ export const EVENTO = {
       fim: '2026-12-02T20:10:00.000Z',
       local: 'Instituto de Computação — UFAL, Maceió',
       descricao:
-        '08:00 Credenciamento\n09:00 Abertura formal\n10:00 Palestra de abertura — Prof. George Brandão\n12:00 Almoço\n13:30 Minicurso — Dia 1: Fundamentos',
+        '08:00 Credenciamento\n09:00 Abertura formal\n10:00 Palestra de abertura — Prof. George Darmiton\n12:00 Almoço\n13:30 Minicurso — Dia 1: Fundamentos',
     },
     {
       uid: 'icml2026-2026-12-03@workshop-ml-ic-ufal',
