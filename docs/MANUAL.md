@@ -120,11 +120,11 @@ Endereço: `/`. O menu no topo leva às seções; o botão **Inscreva-se** abre 
 
 **Programação** (credenciamento só no primeiro dia, das 08h00 às 09h00):
 
-| Dia         | Manhã                                                                                             | Tarde                                            |
-| ----------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| Qua · 02/12 | Credenciamento, abertura formal e palestra de abertura (Prof. George Darmiton)                    | Minicurso — Dia 1: Fundamentos                   |
-| Qui · 03/12 | Apresentações de trabalhos, com coffee break das 10h00 às 10h30                                   | Minicurso — Dia 2: Classificação e Regressão     |
-| Sex · 04/12 | Apresentações, coffee break, palestra sobre mercado de trabalho em ML (Hugo Souza) e encerramento | Minicurso — Dia 3: Clustering e Séries Temporais |
+| Dia         | Manhã                                                                                 | Tarde                                            |
+| ----------- | ------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Qua · 02/12 | Credenciamento, abertura formal e palestra de abertura (Prof. George Darmiton)        | Minicurso — Dia 1: Fundamentos                   |
+| Qui · 03/12 | Apresentações de trabalhos, com coffee break das 10h00 às 10h30                       | Minicurso — Dia 2: Classificação e Regressão     |
+| Sex · 04/12 | Apresentações, coffee break, palestra "Além do Algoritmo" (Hugo Souza) e encerramento | Minicurso — Dia 3: Clustering e Séries Temporais |
 
 Os horários exatos ficam em `src/data/evento.ts` (fonte única do site).
 

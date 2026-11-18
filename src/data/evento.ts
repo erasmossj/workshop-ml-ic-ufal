@@ -100,7 +100,8 @@ export const dias: { rotulo: string; data: string; semana: string; atividades: A
       {
         inicio: '11:00',
         fim: '12:00',
-        titulo: 'Palestra — Mercado de trabalho em ML · Hugo Souza',
+        titulo:
+          'Palestra — Além do Algoritmo: o papel da Engenharia de Dados no pré-processamento de modelos de Machine Learning · Hugo Souza',
         tipo: 'palestra',
       },
       { inicio: '12:00', fim: '13:00', titulo: 'Encerramento', tipo: 'cerimonia' },
@@ -126,7 +127,8 @@ export const palestras = [
   {
     dia: 'Sex · 04/12',
     inicio: '11:00',
-    titulo: 'Mercado de trabalho em ML',
+    titulo:
+      'Além do Algoritmo: o papel da Engenharia de Dados no pré-processamento de modelos de Machine Learning',
     quem: 'Hugo Souza',
   },
 ] as const;
@@ -159,19 +161,24 @@ export const trabalhos = {
   formato: 'Título, autores e um resumo de até 1.500 caracteres. Não é preciso enviar artigo.',
   campos:
     'Na inscrição, marque “Vou submeter trabalho” e preencha os três campos. Sem anexar arquivo.',
-  prazo: 'De 30/10 a 16/11/2026, junto com as inscrições (pode ser prorrogado até 18/11).',
+  prazo: 'De 30/10 a 20/11/2026 (prorrogado), junto com as inscrições.',
   /** Vagas para apresentação no evento. Não limita inscrições nem submissões. */
   vagasApresentacao: 13,
   vagasTexto: 'O evento tem 13 vagas para apresentação de trabalhos.',
 } as const;
 
-/** Janela de inscrição e submissão (horário de Maceió). */
+/**
+ * Janela de inscrição e submissão (horário de Maceió), prorrogada em 18/11 até 20/11.
+ * Só texto: quem aceita ou recusa é o servidor, pela janela salva no painel (/admin).
+ */
 export const janela = {
   inicio: '2026-10-30T00:00:00-03:00',
-  fim: '2026-11-16T23:59:59-03:00',
-  textoProrrogacao: 'pode ser prorrogada até 18/11',
-  /** Cabeçalho do formulário (Figma: "30.10 → 16.11"). */
-  textoCurto: '30.10 → 16.11',
+  fim: '2026-11-20T23:59:59-03:00',
+  textoPeriodo: '30/10 a 20/11 (prorrogadas)',
+  /** Cabeçalho do formulário (Figma: "30.10 → 16.11", antes da prorrogação). */
+  textoCurto: '30.10 → 20.11',
+  /** Versão para leitor de tela do `textoCurto`. */
+  textoLeitor: 'Inscrições de 30 de outubro a 20 de novembro, prorrogadas',
 } as const;
 
 export const faq = [

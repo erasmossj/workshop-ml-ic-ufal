@@ -99,7 +99,7 @@ acesso na próxima ação do painel.
 ### Prorrogar as inscrições ou as submissões
 
 **Configuração do evento** → **Janelas (horário de Maceió) e e-mail** → ajuste **Inscrições fecham** /
-**Submissões fecham** → **Salvar janelas**. A prorrogação prevista é até **18/11 às 23:59**. O servidor
+**Submissões fecham** → **Salvar janelas**. Prorrogado em 18/11 até **20/11 às 23:59** (inscrições e submissões). O servidor
 passa a aceitar o novo prazo na hora; o texto das datas na página inicial vem de
 `src/data/evento.ts` e precisa de um PR para mudar.
 

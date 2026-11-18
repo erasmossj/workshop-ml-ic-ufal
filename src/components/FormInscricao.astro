@@ -40,7 +40,7 @@ const opcional = 'text-ink-300';
       </p>
       <p class="rotulo text-ink-300">
         <span aria-hidden="true">{janela.textoCurto}</span>
-        <span class="sr-only">Inscrições de 30 de outubro a 16 de novembro</span>
+        <span class="sr-only">{janela.textoLeitor}</span>
       </p>
     </div>
 
@@ -288,8 +288,7 @@ const opcional = 'text-ink-300';
         hidden
       >
         <p class="ajuda mt-0">
-          {trabalhos.formato} Submissões de 30/10 a 16/11 ({janela.textoProrrogacao}).{' '}
-          {trabalhos.vagasTexto}
+          {trabalhos.formato} Submissões de {janela.textoPeriodo}. {trabalhos.vagasTexto}
         </p>
         <div>
           <label for="titulo" class="rotulo-campo">

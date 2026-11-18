@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { dias, evento, eventosDeAgenda, faq, minicurso, palestras, trabalhos } from './evento';
+import {
+  dias,
+  evento,
+  eventosDeAgenda,
+  faq,
+  janela,
+  minicurso,
+  palestras,
+  trabalhos,
+} from './evento';
 
 // Conteúdo do evento (WML-71): regras do documento atualizado da organização.
 const minutos = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
@@ -36,7 +45,7 @@ describe('programação', () => {
     const titulos = dias.flatMap((d) => d.atividades.filter((a) => a.tipo === 'palestra'));
     expect(titulos.map((a) => a.titulo)).toEqual([
       'Palestra de abertura — Prof. George Darmiton',
-      'Palestra — Mercado de trabalho em ML · Hugo Souza',
+      'Palestra — Além do Algoritmo: o papel da Engenharia de Dados no pré-processamento de modelos de Machine Learning · Hugo Souza',
     ]);
   });
 
@@ -93,6 +102,17 @@ describe('submissão de trabalhos', () => {
     expect(trabalhos.vagasApresentacao).toBe(13);
     expect(trabalhos.vagasTexto).toContain('13 vagas para apresentação');
     expect(trabalhos.vagasTexto).not.toMatch(/banca/i);
+  });
+});
+
+describe('janela de inscrição', () => {
+  it('textos do site acompanham o fim da janela (prorrogada até 20/11)', () => {
+    expect(janela.fim).toBe('2026-11-20T23:59:59-03:00');
+    expect(janela.textoCurto).toBe('30.10 → 20.11');
+    expect(janela.textoPeriodo).toContain('20/11');
+    expect(janela.textoLeitor).toContain('20 de novembro');
+    expect(trabalhos.prazo).toContain('20/11/2026');
+    expect(JSON.stringify({ janela, trabalhos })).not.toMatch(/16\/11|16\.11|18\/11/);
   });
 });
 
