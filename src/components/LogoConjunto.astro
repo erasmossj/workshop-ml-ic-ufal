@@ -1,7 +1,7 @@
 ---
 /**
- * Logo conjunto oficial IEEE · IEEE Computer Society (UFAL IEEE Student Branch) · Instituto de
- * Computação (Figma: Marca › Logo conjunto). Obrigatório em toda aplicação.
+ * Logo conjunto oficial Instituto de Computação · IEEE Computer Society Northeast Brazil Chapter ·
+ * UFAL IEEE Student Branch · IEEE (Figma: Marca › Logo conjunto). Obrigatório em toda aplicação.
  * Branco sobre fundos escuros/navy, preto sobre claros. Altura mínima 28 px / 8 mm.
  * Nunca recolorir, desmontar ou aplicar sobre textura.
  */
@@ -16,15 +16,15 @@ interface Props {
 
 const { tom = 'branco', altura = 44, class: classe, carregamento = 'lazy' } = Astro.props;
 const h = Math.max(altura, 28);
-const w = Math.round((632 / 115) * h * 1000) / 1000;
+const w = Math.round((882 / 115) * h * 1000) / 1000;
 ---
 
 <img
   src={`/marca/logo-conjunto-${tom}.svg`}
   width={w}
   height={h}
-  alt="IEEE, IEEE Computer Society — Ramo Estudantil IEEE da UFAL — e Instituto de Computação da UFAL"
-  class={classe}
+  alt="Instituto de Computação da UFAL, IEEE Computer Society — Capítulo Nordeste do Brasil, Ramo Estudantil IEEE da UFAL e IEEE"
+  class:list={['h-auto max-w-full', classe]}
   decoding="async"
   loading={carregamento}
 />

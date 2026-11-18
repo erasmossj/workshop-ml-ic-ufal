@@ -80,13 +80,13 @@ describe('comprovante de inscrição (PDF)', () => {
     }
   });
 
-  it('traz o logo conjunto IEEE × CS × IC com pelo menos 8 mm de altura', async () => {
+  it('traz o logo conjunto (IC × CS Nordeste × Ramo × IEEE) com pelo menos 8 mm de altura', async () => {
     const imagens = await imagensDesenhadas(await gerarComprovante(dados));
-    const conjunto = imagens.find((i) => i.px[0] === 1264 && i.px[1] === 230);
+    const conjunto = imagens.find((i) => i.px[0] === 1764 && i.px[1] === 230);
     expect(conjunto).toBeDefined();
     expect(conjunto!.pt[1]).toBeGreaterThanOrEqual(8 * MM);
     // Proporção preservada (sem distorcer o logo).
-    expect(conjunto!.pt[0] / conjunto!.pt[1]).toBeCloseTo(1264 / 230, 2);
+    expect(conjunto!.pt[0] / conjunto!.pt[1]).toBeCloseTo(1764 / 230, 2);
   });
 
   it('traz o logo IC-ML (lockup ≥ 24 px) e a faixa halftone na largura da página', async () => {

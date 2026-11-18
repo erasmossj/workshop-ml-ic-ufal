@@ -102,7 +102,7 @@ export function moldeEmail(o: {
     ? img('logo-icml-claro.png', 124, 24, escaparHtml(EVENTO.sigla))
     : `<p style="margin:0;font-family:${F.display};font-size:22px;line-height:24px;font-weight:600;color:${COR.ink100}">${escaparHtml(EVENTO.sigla)}</p>`;
   const conjunto = site
-    ? `<tr><td style="padding:24px 0 0">${img('logo-conjunto-preto.png', 187, 34, 'IEEE, IEEE Computer Society — Ramo Estudantil IEEE da UFAL — e Instituto de Computação da UFAL')}</td></tr>`
+    ? `<tr><td style="padding:24px 0 0">${img('logo-conjunto-preto.png', 261, 34, 'Instituto de Computação da UFAL, IEEE Computer Society — Capítulo Nordeste do Brasil, Ramo Estudantil IEEE da UFAL e IEEE')}</td></tr>`
     : '';
   const preheader = o.preheader
     ? `<div style="display:none;max-height:0;max-width:0;overflow:hidden;opacity:0;mso-hide:all" aria-hidden="true">${escaparHtml(o.preheader)}</div>`

@@ -65,9 +65,15 @@ O Figma **não tem frame de e-mail nem de comprovante**. Os dois são compostos 
 - Button Primary uma vez por tela; rótulo com verbo, até 3 palavras. BoundingBox uma por composição.
 - Tag: Palestra = Lima; Minicurso e Docente = Azul; Trabalhos = Contorno; Estudante e Outro (texto livre) = Neutra; Organização = Sólida (WML-72: vínculo Estudante/Docente/Outro substitui Graduação/Mestrado no crachá; a categoria do prêmio continua Graduação/Mestrado).
 
-### Pendências
+### Logo conjunto com o capítulo Nordeste da CS (18/11/2026)
 
-- No componente "Logo conjunto", o "R" de "COMPUTER" encosta na borda direita do quadro — corrigir no Figma e reexportar `public/marca/logo-conjunto-*.svg` (e os PNGs de `public/marca/` e `supabase/functions/_shared/marca/`).
+O componente "Logo conjunto" (Marca › `8:207`) passou a ter quatro marcas: Instituto de Computação ·
+IEEE Computer Society – Northeast Brazil Chapter · UFAL IEEE Student Branch · IEEE (882 × 115 no export,
+antes 632 × 115). Reexportado para `public/marca/logo-conjunto-{branco,preto}.svg`, sem o fundo cinza
+do conjunto de variantes que o export inclui. O PNG preto (1764 × 230, 2×, fundo transparente) é renderizado
+a partir do SVG e copiado para `public/marca/` e `supabase/functions/_shared/marca/`. A proporção está em
+`LogoConjunto.astro` e no `<img>` do e-mail. Com o novo logo da CS, a pendência do "R" de "COMPUTER"
+encostando na borda deixou de existir.
 
 ## Histórico — protótipos (16/10/2026)
 
