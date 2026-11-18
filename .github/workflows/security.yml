@@ -57,4 +57,5 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 24
-      - run: npm audit --audit-level=high
+      # Mesmo corte do npm audit --audit-level=high, com riscos aceitos e prazo (.github/sca-excecoes.json).
+      - run: node scripts/auditoria-sca.mjs
