@@ -1,0 +1,8 @@
+[
+  {
+    "ghsa": "GHSA-fc5q-39xc-vjpf",
+    "pacote": "picomatch",
+    "ate": "2026-12-31",
+    "motivo": "ReDoS em picomatch <= 4.0.7 sem versão corrigida; só roda no build/dev com globs do próprio projeto (site estático). Ver docs/seguranca/SCA-EXCECOES.md"
+  }
+]

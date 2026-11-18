@@ -145,7 +145,8 @@ recebe "esgotado". Vagas só mudam pelas RPCs `register_participant()`, `cancel_
 
 - Todo PR roda: `astro check`, ESLint, Prettier, Vitest, build, Lighthouse, Playwright (com axe
   WCAG 2.2 AA e CSP), pgTAP, teste de concorrência, integração HTTP das Edge Functions, gitleaks,
-  CodeQL, Semgrep e `npm audit`. Sem CI verde, sem merge.
+  CodeQL, Semgrep e `npm audit` (riscos aceitos com prazo em
+  [`seguranca/SCA-EXCECOES.md`](seguranca/SCA-EXCECOES.md)). Sem CI verde, sem merge.
 - Teste de carga (k6, só staging): 300 inscrições em ~1 min com p95 < 2 s, 0 erros 5xx e sem overbooking.
 
 ## 8. Depois do MVP
