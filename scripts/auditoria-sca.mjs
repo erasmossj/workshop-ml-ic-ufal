@@ -9,9 +9,14 @@ import { fileURLToPath } from 'node:url';
 
 const BLOQUEIA = new Set(['high', 'critical']);
 
+/** @typedef {{ ghsa: string, pacote: string, ate: string, motivo?: string }} Excecao */
+
 /**
  * Separa os avisos altos/críticos do relatório em bloqueantes e aceitos por exceção vigente.
  * Avisos herdados (`via` em texto) já aparecem no pacote de origem, então cada aviso conta uma vez.
+ * @param {{ vulnerabilities?: Record<string, { via?: (string | Record<string, any>)[] }> }} relatorio
+ * @param {Excecao[]} excecoes
+ * @param {Date} [agora]
  */
 export function avaliarAuditoria(relatorio, excecoes, agora = new Date()) {
   const avisos = new Map();
