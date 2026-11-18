@@ -109,7 +109,7 @@ describe('montarEmailConfirmacao', () => {
         html.match(new RegExp(`<img src="${SITE}/marca/${arquivo}"[^>]*>`))?.[0] ?? '';
       const conjunto = img('logo-conjunto-preto.png');
       expect(conjunto).toMatch(
-        /alt="IEEE, IEEE Computer Society[^"]+Instituto de Computação[^"]*"/,
+        /alt="Instituto de Computação[^"]+IEEE Computer Society — Capítulo Nordeste[^"]+Ramo Estudantil IEEE da UFAL[^"]*"/,
       );
       expect(Number(conjunto.match(/height="(\d+)"/)?.[1])).toBeGreaterThanOrEqual(28);
       expect(img('logo-icml-claro.png')).toContain('alt="IC-ML 2026"');
