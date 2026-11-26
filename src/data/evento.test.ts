@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  apresentacoes,
   dias,
   evento,
   eventosDeAgenda,
@@ -44,7 +45,7 @@ describe('programação', () => {
   it('nomeia os palestrantes confirmados', () => {
     const titulos = dias.flatMap((d) => d.atividades.filter((a) => a.tipo === 'palestra'));
     expect(titulos.map((a) => a.titulo)).toEqual([
-      'Palestra de abertura — Prof. George Darmiton',
+      'Palestra de abertura — Inteligência Artificial além do alarde! Entre o apocalipse e a salvação! · Prof. George Darmiton',
       'Palestra — Além do Algoritmo: o papel da Engenharia de Dados no pré-processamento de modelos de Machine Learning · Hugo Souza',
     ]);
   });
@@ -74,16 +75,78 @@ describe('minicurso', () => {
     expect(minicurso.resumo).not.toMatch(/blocos|instrutor/i);
   });
 
-  it('o hero conta 3 tardes de minicurso e 13 apresentações', () => {
+  it('o hero conta 3 tardes de minicurso e as 11 apresentações da programação (WML-81)', () => {
     expect(evento.hero.numeros).toEqual([
       { valor: '03', rotulo: 'dias' },
       { valor: '03', rotulo: 'tardes de minicurso' },
-      { valor: '13', rotulo: 'apresentações' },
+      { valor: String(apresentacoes.length), rotulo: 'apresentações' },
     ]);
+    expect(apresentacoes).toHaveLength(11);
+  });
+});
+
+describe('apresentações de trabalhos (WML-81)', () => {
+  it('7 no Dia 2 e 4 no Dia 3, de 30 min, sem sobreposição', () => {
+    expect(apresentacoes.filter((a) => a.data === '2026-12-03')).toHaveLength(7);
+    expect(apresentacoes.filter((a) => a.data === '2026-12-04')).toHaveLength(4);
+    apresentacoes.forEach((a, i) => {
+      expect(minutos(a.fim) - minutos(a.inicio)).toBe(30);
+      const anterior = apresentacoes[i - 1];
+      if (anterior?.data === a.data) {
+        expect(minutos(a.inicio)).toBeGreaterThanOrEqual(minutos(anterior.fim));
+      }
+    });
+  });
+
+  it('cada uma cai dentro de um bloco "Apresentações de trabalhos" do seu dia', () => {
+    for (const a of apresentacoes) {
+      const dia = dias.find((d) => d.data === a.data);
+      const bloco = dia?.atividades.find(
+        (b) =>
+          b.tipo === 'trabalhos' &&
+          minutos(b.inicio) <= minutos(a.inicio) &&
+          minutos(a.fim) <= minutos(b.fim),
+      );
+      expect(bloco, `${a.data} ${a.inicio}`).toBeDefined();
+    }
+  });
+
+  it('todo bloco de trabalhos tem ao menos uma apresentação', () => {
+    for (const d of dias) {
+      for (const b of d.atividades.filter((x) => x.tipo === 'trabalhos')) {
+        const dentro = apresentacoes.filter(
+          (a) => a.data === d.data && a.inicio >= b.inicio && a.fim <= b.fim,
+        );
+        expect(dentro.length, `${d.data} ${b.inicio}`).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('título e quem apresenta preenchidos, sem espaço sobrando', () => {
+    for (const a of apresentacoes) {
+      expect(a.titulo).toBe(a.titulo.trim().replace(/\s+/g, ' '));
+      expect(a.quem).toBe(a.quem.trim().replace(/\s+/g, ' '));
+      expect(a.titulo.length).toBeGreaterThan(10);
+      expect(a.quem.split(' ').length).toBeGreaterThan(1);
+    }
+  });
+});
+
+describe('inscrições', () => {
+  it('estão encerradas desde 20/11 (WML-81)', () => {
+    expect(janela.abertas).toBe(false);
   });
 });
 
 describe('palestras', () => {
+  it('palestra de abertura traz o tema, como a do Hugo (WML-81)', () => {
+    expect(palestras[0]).toMatchObject({
+      rotulo: 'Palestra de abertura',
+      titulo: 'Inteligência Artificial além do alarde! Entre o apocalipse e a salvação!',
+      quem: 'Prof. George Darmiton',
+    });
+  });
+
   it('casam com as palestras da programação', () => {
     const daProgramacao = dias.flatMap((d) =>
       d.atividades.filter((a) => a.tipo === 'palestra').map((a) => `${d.semana} ${a.inicio}`),

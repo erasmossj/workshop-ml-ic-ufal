@@ -30,11 +30,11 @@ export const evento = {
     linha: ['02—04.DEZ.2026', 'Instituto de Computação', 'UFAL'],
     texto:
       'Três dias de palestras, apresentações de pesquisa local e um minicurso prático de ML no Google Colab.',
-    /** Números do rodapé do hero (13 = vagas para apresentação de trabalhos). */
+    /** Números do rodapé do hero (11 = `apresentacoes.length`, conferido por teste). */
     numeros: [
       { valor: '03', rotulo: 'dias' },
       { valor: '03', rotulo: 'tardes de minicurso' },
-      { valor: '13', rotulo: 'apresentações' },
+      { valor: '11', rotulo: 'apresentações' },
     ],
   },
 } as const;
@@ -61,7 +61,8 @@ export const dias: { rotulo: string; data: string; semana: string; atividades: A
       {
         inicio: '10:00',
         fim: '12:00',
-        titulo: 'Palestra de abertura — Prof. George Darmiton',
+        titulo:
+          'Palestra de abertura — Inteligência Artificial além do alarde! Entre o apocalipse e a salvação! · Prof. George Darmiton',
         tipo: 'palestra',
       },
       { inicio: '12:00', fim: '13:30', titulo: 'Almoço', tipo: 'pausa' },
@@ -119,12 +120,14 @@ export const dias: { rotulo: string; data: string; semana: string; atividades: A
 /** Seção "Quem vai falar" da home — mesmos horários das palestras em `dias` (conferido por teste). */
 export const palestras = [
   {
+    rotulo: 'Palestra de abertura',
     dia: 'Qua · 02/12',
     inicio: '10:00',
-    titulo: 'Palestra de abertura',
+    titulo: 'Inteligência Artificial além do alarde! Entre o apocalipse e a salvação!',
     quem: 'Prof. George Darmiton',
   },
   {
+    rotulo: 'Palestra',
     dia: 'Sex · 04/12',
     inicio: '11:00',
     titulo:
@@ -132,6 +135,106 @@ export const palestras = [
     quem: 'Hugo Souza',
   },
 ] as const;
+
+/**
+ * Apresentações de trabalhos (WML-81), na ordem da organização: 30 min cada, numeradas de 1 a 11.
+ * Cada uma cai dentro de um bloco "Apresentações de trabalhos" do seu dia em `dias` (conferido
+ * por teste). Nome e título do trabalho aprovado são públicos pela política de privacidade.
+ */
+export const apresentacoes: {
+  data: string;
+  inicio: string;
+  fim: string;
+  titulo: string;
+  quem: string;
+}[] = [
+  {
+    data: '2026-12-03',
+    inicio: '08:00',
+    fim: '08:30',
+    titulo:
+      'The Effect of Meta-Target Scaling on the Performance of Meta-Learning Systems for Algorithm Selection',
+    quem: 'Lael de Lima Santa Rosa',
+  },
+  {
+    data: '2026-12-03',
+    inicio: '08:30',
+    fim: '09:00',
+    titulo:
+      'Análise da Performance de Classificadores Binários em Datasets Desbalanceados Usando Diferentes Técnicas de Normalização',
+    quem: 'Nicolas Yan Bittencourt Santana Pereira',
+  },
+  {
+    data: '2026-12-03',
+    inicio: '09:00',
+    fim: '09:30',
+    titulo:
+      'Predição de Desempenho de Classificadores via Classifier Performance Space em Meta-Aprendizagem',
+    quem: 'Juliana Karla de Carvalho Melo Baracho',
+  },
+  {
+    data: '2026-12-03',
+    inicio: '09:30',
+    fim: '10:00',
+    titulo:
+      'Meta-aprendizado para seleção de técnicas de redução de dimensionalidade em problemas de Big Data',
+    quem: 'Daniel José da Silva',
+  },
+  {
+    data: '2026-12-03',
+    inicio: '10:30',
+    fim: '11:00',
+    titulo: 'Avaliação dos Impactos de Prompt Injection em Português',
+    quem: 'Lucas Albuquerque Lisboa',
+  },
+  {
+    data: '2026-12-03',
+    inicio: '11:00',
+    fim: '11:30',
+    titulo:
+      'Influência da diversidade de modelos e da filtragem de previsões extremas no desempenho de ensembles para previsão de número de alunos escolares',
+    quem: 'José Lucas Bispo dos Santos',
+  },
+  {
+    data: '2026-12-03',
+    inicio: '11:30',
+    fim: '12:00',
+    titulo: 'Uma proposta de sistema de múltiplos classificadores orientada por agrupamento difuso',
+    quem: 'Gustavo Domingos de Oliveira',
+  },
+  {
+    data: '2026-12-04',
+    inicio: '08:00',
+    fim: '08:30',
+    titulo:
+      'Predição precoce de desempenho acadêmico para disciplinas de Cálculo diferencial e integral no IC/UFAL',
+    quem: 'Gilson Peixoto de Queiroz Pedroso',
+  },
+  {
+    data: '2026-12-04',
+    inicio: '08:30',
+    fim: '09:00',
+    titulo:
+      'Uma Abordagem Multi-Step Heurística com Combinação Ponderada de Modelos para Previsão do Número de Alunos',
+    quem: 'Elmo Araujo Filho',
+  },
+  {
+    data: '2026-12-04',
+    inicio: '09:00',
+    fim: '09:30',
+    titulo:
+      'DCAMP: Discrete Conditioning of Adversarial Motion Priors for Physics-Based Character Control',
+    quem: 'Hugo Tallys Martins Oliveira',
+  },
+  {
+    data: '2026-12-04',
+    inicio: '09:30',
+    fim: '10:00',
+    titulo:
+      'De Planejamento por Amostragem a Aprendizado por Reforço e Physical AI: Desvio de Colisão de Corpo Inteiro em Manipuladores Robóticos',
+    quem: 'Davi Celestino dos Santos Barbosa',
+  },
+];
 
 export const minicurso = {
   titulo: 'Minicurso de Machine Learning na prática',
@@ -179,6 +282,12 @@ export const janela = {
   textoCurto: '30.10 → 20.11',
   /** Versão para leitor de tela do `textoCurto`. */
   textoLeitor: 'Inscrições de 30 de outubro a 20 de novembro, prorrogadas',
+  /**
+   * false = inscrições encerradas (WML-81): a home troca o formulário pelas apresentações e some
+   * com os botões de inscrição. /inscricao continua no ar, sem link, para a organização reabrir
+   * a janela pelo painel se precisar (ex.: inscrição no local).
+   */
+  abertas: false,
 } as const;
 
 export const faq = [
