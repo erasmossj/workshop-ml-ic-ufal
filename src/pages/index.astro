@@ -1,4 +1,5 @@
 ---
+import Apresentacoes from '../components/Apresentacoes.astro';
 import Deteccao from '../components/Deteccao.astro';
 import FormInscricao from '../components/FormInscricao.astro';
 import Header from '../components/Header.astro';
@@ -7,10 +8,31 @@ import LogoConjunto from '../components/LogoConjunto.astro';
 import Painel from '../components/Painel.astro';
 import Seta from '../components/Seta.astro';
 import Titulo from '../components/Titulo.astro';
-import { dias, evento, faq, minicurso, palestras, trabalhos } from '../data/evento';
+import {
+  apresentacoes,
+  dias,
+  evento,
+  faq,
+  janela,
+  minicurso,
+  palestras,
+  trabalhos,
+} from '../data/evento';
 import Base from '../layouts/Base.astro';
 
 const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
+// Inscrições encerradas (WML-81): sem formulário nem botões de inscrição; entram as apresentações.
+const abertas = janela.abertas;
+
+/** "Apresentações #01 a #04" para o bloco de trabalhos da programação. */
+function numerosDoBloco(data: string, inicio: string, fim: string) {
+  const n = apresentacoes
+    .map((a, i) => ({ ...a, numero: String(i + 1).padStart(2, '0') }))
+    .filter((a) => a.data === data && a.inicio >= inicio && a.fim <= fim)
+    .map((a) => a.numero);
+  if (n.length === 0) return undefined;
+  return n.length === 1 ? `Apresentação #${n[0]}` : `Apresentações #${n[0]} a #${n.at(-1)}`;
+}
 ---
 
 <Base semCabecalho>
@@ -34,10 +56,17 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
           </h1>
           <p class="mt-6 max-w-[29.375rem] body-l text-ink-200">{evento.hero.texto}</p>
           <div class="mt-8 flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
-            <a href="#inscricao" class="btn-primario btn-lg">
-              Garantir inscrição
-              <Seta />
-            </a>
+            {abertas ? (
+              <a href="#inscricao" class="btn-primario btn-lg">
+                Garantir inscrição
+                <Seta />
+              </a>
+            ) : (
+              <a href="#apresentacoes" class="btn-primario btn-lg">
+                Ver apresentações
+                <Seta />
+              </a>
+            )}
             <a href="#programacao" class="btn-secundario btn-lg">
               Ver programação
             </a>
@@ -59,7 +88,7 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
     </div>
 
     <div class="border-t border-line-100 lg:border-t-0">
-      <FormInscricao />
+      {abertas ? <FormInscricao /> : <Apresentacoes />}
     </div>
   </div>
 
@@ -103,7 +132,12 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
           </h3>
           <ol class="-mt-px">
             {d.atividades.map((a) => (
-              <ItemProgramacao atividade={a} />
+              <ItemProgramacao
+                atividade={a}
+                detalhe={
+                  a.tipo === 'trabalhos' ? numerosDoBloco(d.data, a.inicio, a.fim) : undefined
+                }
+              />
             ))}
           </ol>
         </Painel>
@@ -123,14 +157,17 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
         <Painel rotulo="Vagas" meta="Laboratório 1" class="w-full" cantos>
           <p class="h3 text-ink-100">{minicurso.vagas} vagas</p>
           <p class="body-s text-ink-200">
-            Opcional: marque no formulário de inscrição. Quando as vagas acabam, a opção é bloqueada
-            automaticamente.
+            {abertas
+              ? 'Opcional: marque no formulário de inscrição. Quando as vagas acabam, a opção é bloqueada automaticamente.'
+              : 'Inscrições encerradas. As vagas são de quem marcou o minicurso na inscrição.'}
           </p>
         </Painel>
-        <a href="#inscricao" class="btn-secundario">
-          Quero participar
-          <Seta />
-        </a>
+        {abertas && (
+          <a href="#inscricao" class="btn-secundario">
+            Quero participar
+            <Seta />
+          </a>
+        )}
       </div>
       <ol class="grid gap-4">
         {minicurso.dias.map((m, i) => (
@@ -143,31 +180,33 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
     </div>
   </section>
 
-  <!-- TRABALHOS -->
-  <section id="trabalhos" aria-labelledby="trab-t" class={secao}>
-    <Titulo rotulo="Chamada de trabalhos" id="trab-t">
-      Apresente sua pesquisa
-    </Titulo>
-    <div class="flex flex-col items-start gap-10">
-      <dl class="grid gap-x-10 gap-y-6 sm:grid-cols-2">
-        {[
-          ['Formato', trabalhos.formato],
-          ['Como enviar', trabalhos.campos],
-          ['Prazo', trabalhos.prazo],
-          ['Apresentações', trabalhos.vagasTexto],
-        ].map(([t, d]) => (
-          <div>
-            <dt class="rotulo text-lime-ink">{t}</dt>
-            <dd class="mt-2 body-l text-ink-100">{d}</dd>
-          </div>
-        ))}
-      </dl>
-      <a href="#inscricao" class="btn-secundario">
-        Inscrever e enviar trabalho
-        <Seta />
-      </a>
-    </div>
-  </section>
+  <!-- TRABALHOS (só com inscrições abertas; depois, a lista fica na coluna do hero) -->
+  {abertas && (
+    <section id="trabalhos" aria-labelledby="trab-t" class={secao}>
+      <Titulo rotulo="Chamada de trabalhos" id="trab-t">
+        Apresente sua pesquisa
+      </Titulo>
+      <div class="flex flex-col items-start gap-10">
+        <dl class="grid gap-x-10 gap-y-6 sm:grid-cols-2">
+          {[
+            ['Formato', trabalhos.formato],
+            ['Como enviar', trabalhos.campos],
+            ['Prazo', trabalhos.prazo],
+            ['Apresentações', trabalhos.vagasTexto],
+          ].map(([t, d]) => (
+            <div>
+              <dt class="rotulo text-lime-ink">{t}</dt>
+              <dd class="mt-2 body-l text-ink-100">{d}</dd>
+            </div>
+          ))}
+        </dl>
+        <a href="#inscricao" class="btn-secundario">
+          Inscrever e enviar trabalho
+          <Seta />
+        </a>
+      </div>
+    </section>
+  )}
 
   <!-- PALESTRAS -->
   <section aria-labelledby="pal-t" class={secao}>
@@ -178,7 +217,7 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
       {palestras.map((p) => (
         <Painel
           as="article"
-          rotulo="Palestra"
+          rotulo={p.rotulo}
           meta={`${p.dia.replace('/', '.')} · ${p.inicio.replace(':', 'h')}`}
         >
           <h3 class="h3 text-ink-100">{p.titulo}</h3>
@@ -252,15 +291,31 @@ const secao = 'mx-auto max-w-7xl px-4 py-20 md:px-16 md:py-24';
         loading="lazy"
         decoding="async"
       />
-      <h2 id="cta-t" class="relative display-l text-ink-100">
-        Garanta sua vaga
-        <br />
-        no minicurso.
-      </h2>
-      <a href="#inscricao" class="btn-primario btn-lg relative">
-        Fazer inscrição
-        <Seta />
-      </a>
+      {abertas ? (
+        <>
+          <h2 id="cta-t" class="relative display-l text-ink-100">
+            Garanta sua vaga
+            <br />
+            no minicurso.
+          </h2>
+          <a href="#inscricao" class="btn-primario btn-lg relative">
+            Fazer inscrição
+            <Seta />
+          </a>
+        </>
+      ) : (
+        <>
+          <h2 id="cta-t" class="relative display-l text-ink-100">
+            Nos vemos
+            <br />
+            em 02.12.
+          </h2>
+          <a href="#local" class="btn-primario btn-lg relative">
+            Como chegar
+            <Seta />
+          </a>
+        </>
+      )}
     </div>
   </section>
 </Base>

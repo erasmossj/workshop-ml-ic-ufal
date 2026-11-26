@@ -3,6 +3,7 @@
  * Nav do Figma (Hero — site oficial › Nav): logo IC-ML à esquerda, links mono em caixa alta.
  * `embutido`: dentro do bloco esquerdo do hero (home). Padrão: barra no topo das demais páginas.
  */
+import { janela } from '../data/evento';
 import Logo from './Logo.astro';
 
 interface Props {
@@ -13,7 +14,10 @@ const { embutido = false } = Astro.props;
 const links = [
   { href: '/#programacao', label: 'Programação' },
   { href: '/#minicurso', label: 'Minicurso' },
-  { href: '/#trabalhos', label: 'Submissões' },
+  // Inscrições encerradas (WML-81): a chamada de trabalhos sai e entra a lista de apresentações.
+  janela.abertas
+    ? { href: '/#trabalhos', label: 'Submissões' }
+    : { href: '/#apresentacoes', label: 'Apresentações' },
   { href: '/#local', label: 'Local' },
 ];
 const link = 'rotulo inline-flex min-h-6 items-center text-ink-200 transition hover:text-lime-ink';
@@ -57,9 +61,11 @@ const link = 'rotulo inline-flex min-h-6 items-center text-ink-200 transition ho
             {l.label}
           </a>
         ))}
-        <a href="/inscricao" class="btn-primario mt-2">
-          Garantir inscrição
-        </a>
+        {janela.abertas && (
+          <a href="/inscricao" class="btn-primario mt-2">
+            Garantir inscrição
+          </a>
+        )}
       </nav>
     </details>
   </div>
