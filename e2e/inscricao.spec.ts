@@ -4,26 +4,33 @@ import { expect, test } from '@playwright/test';
 // Dados sintéticos — nunca use CPF real em testes.
 const CPF_TESTE = '52998224725';
 
-test('landing mostra nome, datas e leva ao formulário de inscrição', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Machine');
-  await expect(page.getByText('02—04')).toBeVisible();
-  await page.getByRole('link', { name: 'Garantir inscrição' }).first().click();
-  await expect(page).toHaveURL(/#inscricao$/);
-  await expect(page.locator('#form-inscricao')).toBeVisible();
-});
-
-test('chamada de trabalhos traz o prazo e não mostra cronograma nem avaliação internos', async ({
+test('landing mostra nome, datas e leva às apresentações de trabalhos (WML-81)', async ({
   page,
 }) => {
   await page.goto('/');
-  const secao = page.locator('#trabalhos');
-  await expect(secao.getByText('Prazo', { exact: true })).toBeVisible();
-  await expect(secao).toContainText('20/11/2026');
-  await expect(secao).not.toContainText(/SBC|short paper|PDF|premia/i);
-  await expect(page.getByText('Datas importantes')).toHaveCount(0);
-  await expect(page.getByText('Avaliação dos trabalhos pela banca')).toHaveCount(0);
-  await expect(secao).not.toContainText(/avalia|banca|pôster/i);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Machine');
+  await expect(page.getByText('02—04')).toBeVisible();
+  await page.getByRole('link', { name: 'Ver apresentações' }).click();
+  await expect(page).toHaveURL(/#apresentacoes$/);
+  const lista = page.locator('#apresentacoes');
+  await expect(lista.getByRole('heading', { name: 'Apresentações' })).toBeVisible();
+  await expect(lista.getByRole('listitem').filter({ hasText: /#\d{2}/ })).toHaveCount(11);
+  await expect(lista).toContainText('Coffee break');
+});
+
+test('inscrições encerradas: home sem formulário, sem chamada de trabalhos e sem botão de inscrição', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await expect(page.locator('#form-inscricao')).toHaveCount(0);
+  await expect(page.locator('#trabalhos')).toHaveCount(0);
+  await expect(page.locator('a[href="#inscricao"], a[href="/inscricao"]')).toHaveCount(0);
+  await expect(page.getByText('Palestra de abertura', { exact: true })).toBeVisible();
+  await expect(
+    page.getByText('Inteligência Artificial além do alarde! Entre o apocalipse e a salvação!', {
+      exact: true,
+    }),
+  ).toBeVisible();
 });
 
 test('formulário vazio mostra o resumo de erros', async ({ page }) => {

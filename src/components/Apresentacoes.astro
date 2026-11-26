@@ -1,0 +1,109 @@
+---
+/**
+ * Apresentações de trabalhos (WML-81). Ocupa a coluna do hero no lugar do formulário quando as
+ * inscrições encerram. Figma IC-ML › "Apresentações · WML-81" › B · Revisada: mesma moldura da
+ * coluna de inscrição; cada dia abre com uma faixa no padrão do cabeçalho do Panel; cada item tem
+ * a coluna de horário do ScheduleItem (só o início, pois todas duram o mesmo) e o nº logo abaixo.
+ * Entre as sessões, a pausa do dia vem de `dias`, com borda tracejada.
+ */
+import { apresentacoes, dias } from '../data/evento';
+
+const hhmm = (h: string) => h.replace(':', 'h');
+const minutos = (h: string) => Number(h.slice(0, 2)) * 60 + Number(h.slice(3, 5));
+const doisDigitos = (n: number) => String(n).padStart(2, '0');
+// Todas têm a mesma duração (conferido por teste): vai uma vez no subtítulo.
+const duracao = minutos(apresentacoes[0].fim) - minutos(apresentacoes[0].inicio);
+
+const porDia = dias
+  .map((d, i) => ({
+    ...d,
+    numeroDia: doisDigitos(i + 1),
+    itens: apresentacoes
+      .map((a, j) => ({ ...a, numero: j + 1 }))
+      .filter((a) => a.data === d.data)
+      .map((a, j, lista) => {
+        const anterior = lista[j - 1];
+        const pausa =
+          anterior && anterior.fim !== a.inicio
+            ? d.atividades.find((x) => x.tipo === 'pausa' && x.inicio === anterior.fim)
+            : undefined;
+        return { ...a, pausa };
+      }),
+  }))
+  .filter((d) => d.itens.length > 0);
+---
+
+<section id="apresentacoes" aria-labelledby="apres-t" class="flex flex-col bg-bg-000">
+  <div class="relative h-32 shrink-0 overflow-hidden border-b border-line-100" aria-hidden="true">
+    <img
+      src="/marca/textura-ribbon-420x132.svg"
+      width="420"
+      height="132"
+      alt=""
+      class="absolute top-0 left-0 h-33 w-105 max-w-none select-none"
+      decoding="async"
+    />
+  </div>
+
+  <div class="flex flex-col gap-3.5 px-4 pt-6 pb-8 sm:px-8">
+    <div class="flex items-center justify-between gap-4 border-b border-line-100 pb-3.5">
+      <p class="rotulo flex items-center gap-2 text-ink-100">
+        <span class="led" aria-hidden="true"></span>
+        Trabalhos
+      </p>
+      <p class="rotulo text-ink-300">
+        <span aria-hidden="true">03—04.12</span>
+        <span class="sr-only">3 e 4 de dezembro</span>
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-0.5">
+      <h2 id="apres-t" class="h2 text-ink-100">
+        Apresentações
+      </h2>
+      <p class="body-s text-ink-300">
+        {apresentacoes.length} pesquisas de {duracao} min em duas manhãs, no mini-auditório do IC.
+      </p>
+    </div>
+
+    {porDia.map((d) => (
+      <div class="mt-2">
+        <div class="mb-1 flex items-center justify-between gap-4 rounded-1 bg-bg-100 px-3 py-2">
+          <h3 class="rotulo flex items-center gap-2 text-ink-100">
+            <span class="led" aria-hidden="true" />
+            Dia {d.numeroDia} · {d.semana.replace('/', '.')}
+          </h3>
+          <p class="rotulo text-ink-300">{d.itens.length} apresentações</p>
+        </div>
+        <ol>
+          {d.itens.map((a) => (
+            <>
+              {a.pausa && (
+                <li class="grid grid-cols-[3.5rem_1fr] items-center gap-4 border-t border-dashed border-line-200 py-3 body-s text-ink-300">
+                  <span class="dado">
+                    <time>{hhmm(a.pausa.inicio)}</time>
+                  </span>
+                  {a.pausa.titulo} · {minutos(a.pausa.fim) - minutos(a.pausa.inicio)} min
+                </li>
+              )}
+              <li class="grid grid-cols-[3.5rem_1fr] gap-4 border-t border-line-100 py-4">
+                <p class="flex flex-col gap-1">
+                  <span class="dado text-lime-ink">
+                    <time>{hhmm(a.inicio)}</time>
+                  </span>
+                  <span class="rotulo text-ink-300">
+                    <span class="sr-only">Apresentação </span>#{doisDigitos(a.numero)}
+                  </span>
+                </p>
+                <div class="flex min-w-0 flex-col gap-1">
+                  <p class="leading-6 font-semibold text-ink-100">{a.titulo}</p>
+                  <p class="body-s text-ink-300">{a.quem}</p>
+                </div>
+              </li>
+            </>
+          ))}
+        </ol>
+      </div>
+    ))}
+  </div>
+</section>
